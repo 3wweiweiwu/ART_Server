@@ -97,10 +97,12 @@ exports.get=function(req,res,next){
 function UpdateDorm(req,res,next,query)
 {
     //if query is found, then update the query    
-    CPU_count=(req.body.system_resource.CPU||query._doc.system_resource.CPU);
+
+
+    
+    CPU_count=(req.body.system_resource.CPU||query._doc.system_resource.CPU);    
     total_memory=(req.body.system_resource.total_memory_mb||query._doc.system_resource.total_memory_mb);
     free_memory=(req.body.system_resource.free_memory_mb||query._doc.system_resource.free_memory_mb);
-
     //handle system resource and last updated
     let updatedObj={
         $set:{'system_resource.CPU':CPU_count,
@@ -108,19 +110,37 @@ function UpdateDorm(req,res,next,query)
                 'system_resource.free_memory_mb':free_memory,                      
                 'last_updated':Date.now()
         }
-    };
-    
+    };    
+
     //handle disk_total update
     let index=0;
+    // query.system_resource.CPU=CPU_count;
+    // query.system_resource.total_memory_mb=total_memory;
+    // query.system_resource.free_memory_mb=free_memory;
+
     query.system_resource.disk_total.forEach(function(element) {
         let result=null;
+        let total=null;
+        let free=null;
         result=req.body.system_resource.disk_total.filter((item)=>{return item.drive_letter===element.drive_letter})[0];
-        let new_disk=result.total_disk_space_mb||element.total_disk_space_mb
-        let new_free=result.free_disk_space_mb||element.free_disk_space_mb
-        let key_total="system_resource.disk_total."+index.toString()+"."+"total_disk_space_mb";
-        let key_free="system_resource.disk_total."+index.toString()+"."+"free_disk_space_mb";
-        updatedObj.$set[key_total]=new_disk;
-        updatedObj.$set[key_free]=new_free;
+        if(result==undefined)
+        {
+            return;
+        }
+
+        if(result.total_disk_space_mb!=undefined)
+        {
+            total=result.total_disk_space_mb;
+        }
+
+        if(result.free_disk_space_mb!=undefined)
+        {
+            free=result.free_disk_space_mb
+        }
+        let new_disk=total||element.total_disk_space_mb;
+        let new_free=free||element.free_disk_space_mb;
+        query.system_resource.disk_total[index].total_disk_space_mb=new_disk;
+        query.system_resource.disk_total[index].free_disk_space_mb=new_free;
         index++;
     });
     
@@ -129,16 +149,6 @@ function UpdateDorm(req,res,next,query)
         result=query.system_resource.disk_total.filter((item)=>{return item.drive_letter===element.drive_letter})[0];
         if(result==null)
         {
-            index++;
-            let new_disk=element.total_disk_space_mb
-            let new_free=element.free_disk_space_mb
-            let key_total="system_resource.disk_total."+index.toString()+"."+"total_disk_space_mb";
-            let key_free="system_resource.disk_total."+index.toString()+"."+"free_disk_space_mb";
-            let key_drive="system_resource.disk_total."+index.toString()+"."+"drive_letter";
-            updatedObj.$set[key_drive]=element.drive_letter;
-            updatedObj.$set[key_total]=new_disk;
-            updatedObj.$set[key_free]=new_free;
-            index++;
             query.system_resource.disk_total.push(element);
         }
 
@@ -155,7 +165,8 @@ function UpdateDorm(req,res,next,query)
             
             res.writeHead(200, {'Content-Type': 'application/json'});
             res.end(JSON.stringify(result));
-        });
+        });       
+
     });
     
     
