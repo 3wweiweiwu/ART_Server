@@ -90,10 +90,21 @@ describe('dorm',()=>{
         }
     };
 
-    const add3Dorm=()=>{
-        chai.request(app).post('/api/dorm').send(dorm1).end((err,res)=>{})
-        chai.request(app).post('/api/dorm').send(dorm2).end((err,res)=>{})
-        chai.request(app).post('/api/dorm').send(dorm3).end((err,res)=>{})
+    const add3Dorm=(callback)=>{
+        chai.request(app).post('/api/dorm').send(dorm1).end((err,res)=>{myEmitter.emit('put 3 dorm');})
+        chai.request(app).post('/api/dorm').send(dorm2).end((err,res)=>{myEmitter.emit('put 3 dorm');})
+        chai.request(app).post('/api/dorm').send(dorm3).end((err,res)=>{myEmitter.emit('put 3 dorm');})
+
+        let iPut3Dorm=0
+        myEmitter.on('put 3 dorm',()=>{
+            iPut3Dorm++;
+            if(iPut3Dorm==3)
+            {
+                myEmitter.emit('put 3 dorm finish');
+            }
+        });
+    
+    
     }
 
 
@@ -166,52 +177,37 @@ describe('dorm',()=>{
             it('shall return 3 dorm info',(done)=>{
                 add3Dorm();
 
-                
-                // let iPut3Dorm=0
-                // myEmitter.on('put 3 dorm',()=>{
-                //     iPut3Dorm++;
-                //     if(iPut3Dorm==3)
-                //     {
-                //         myEmitter.emit('put 3 dorm finish');
-                //     }
-                // });
-                
-                // myEmitter.on('put 3 dorm finish',()=>{});
-                
-                    
-                
 
-
-                chai.request(app)
-                .get('/api/dorm')
-                .end((err,res)=>{
-                    res.should.have.status(200);
-                    res.body.should.be.a('Array');
-                    res.body.length.should.eql(3);
-                    
-                    let b1=false;
-                    let b2=false;
-                    let b3=false;
-                    res.body.forEach(function(element) {
-                        if(element.name===('test_dorm1')){b1=true;}
-                        if(element.name===('test_dorm2')){b2=true;}
-                        if(element.name===('test_dorm3')){b3=true;}
+                
+                myEmitter.on('put 3 dorm finish',()=>{
+                    chai.request(app)
+                    .get('/api/dorm')
+                    .end((err,res)=>{
+                        res.should.have.status(200);
+                        res.body.should.be.a('Array');
+                        res.body.length.should.eql(3);
+                        
+                        let b1=false;
+                        let b2=false;
+                        let b3=false;
+                        res.body.forEach(function(element) {
+                            if(element.name===('test_dorm1')){b1=true;}
+                            if(element.name===('test_dorm2')){b2=true;}
+                            if(element.name===('test_dorm3')){b3=true;}
+                        });
+                        
+                        assert(b1&&b2&&b3===true);
+                        done();                    
                     });
-                    
-                    assert(b1&&b2&&b3===true);
-                    
                 });
-                done();    
+                
             });
 
-                
+            
 
         });
         
-        describe('/get /dorm?cpu=2&free_memory_mb=1024&free_disk_mb=4096',()=>{
-            it('shall return all machines with more than 2 core, 1024mb free memory and 4096 mb of CPU ')
 
-        });
 
 
     });
@@ -230,21 +226,22 @@ describe('dorm',()=>{
             .end((err,res)=>{
                 res.should.have.status(500);
                 res.body.should.have.property("ERR");
-                
+                done();    
             });
-            done();
+            
         });
         it('shall only updated selected field',(done)=>{
             //add 1 dorm model into database
-            add3Dorm();
-            chai
-            .request(app)
-            .put("/api/dorm")
-            .send(dorm1_update)
-            .end((err,res)=>{
-                console.log("hello");
-            });
-            done();
+            add3Dorm(done);
+
+            // chai
+            // .request(app)
+            // .put("/api/dorm")
+            // .send(dorm1_update)
+            // .end((err,res)=>{
+            //     console.log("hello");
+            // });
+            
         });
     });
 
