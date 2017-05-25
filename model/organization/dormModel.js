@@ -8,6 +8,12 @@ var diskSchema=new Schema({
     free_disk_space_mb:{type:Number}
 });
 
+var registrySchema=new Schema({
+    key:{type:String},
+    value:{type:String},
+    background:{type:mType.ObjectId,ref:'Background'}
+});
+
 var dormModel=new Schema({
     name:{type:String},
     system_resource:{
@@ -18,7 +24,8 @@ var dormModel=new Schema({
     },
     last_updated:{type:Date,default:Date.now()},
     residents:[{worker:{type:mType.ObjectId,ref:'Worker'}}],
-    backgrounds:[{type:mType.ObjectId,ref:'Background'}]
+    backgrounds:[{type:mType.ObjectId,ref:'Background'}],
+    registry:[{key:{type:String},value:{type:String}}]
 });
 
 dormModel.pre('save',(next)=>{

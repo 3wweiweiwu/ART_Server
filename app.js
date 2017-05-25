@@ -8,8 +8,11 @@ var config=require('./config.js');
 var index = require('./routes/index');
 var users = require('./routes/users');
 var projects=require('./routes/project');
+var backgrounds=require('./routes/background.routes.ARTServer')
+
 var dorms=require('./routes/dorms.js');
 var app = express();
+
 
 //mongoose ODM
 var mongoose=require('mongoose');
@@ -31,6 +34,7 @@ app.use('/', index);
 app.use('/users', users);
 app.use('/projects',projects);
 app.use('/api',dorms);
+app.use('/api',backgrounds);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

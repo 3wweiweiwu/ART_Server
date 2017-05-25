@@ -175,9 +175,6 @@ describe('dorm',()=>{
 
         describe('after pump in 3 files',()=>{
             it('shall return 3 dorm info',(done)=>{
-                add3Dorm();
-
-
                 
                 myEmitter.on('put 3 dorm finish',()=>{
                     chai.request(app)
@@ -201,6 +198,9 @@ describe('dorm',()=>{
                     });
                 });
                 
+                add3Dorm();
+
+
             });
 
             
@@ -232,16 +232,36 @@ describe('dorm',()=>{
         });
         it('shall only updated selected field',(done)=>{
             //add 1 dorm model into database
-            add3Dorm(done);
+            //add3Dorm(done);
 
-            // chai
-            // .request(app)
-            // .put("/api/dorm")
-            // .send(dorm1_update)
-            // .end((err,res)=>{
-            //     console.log("hello");
-            // });
-            
+            chai
+            .request(app)
+            .post("/api/dorm")
+            .send(dorm1)
+            .end((err,res)=>{
+                chai
+                .request(app)
+                .put("/api/dorm")
+                .send(dorm1_update)
+                .end((err,res1)=>{
+                    dormModel.where('name')
+                    .equals(dorm1_update.name)
+                    .exec((err,query)=>{
+                        
+                        result=query[0];
+                        assert(result.system_resource.CPU===2,"CPU does not match");
+                        assert(result.system_resource.total_memory_mb===9999,"total memory does not match");
+                        assert(result.system_resource.disk_total[0].free_disk_space_mb===9999,'free_disk_space does not match');
+                        
+
+                        done();
+                    });
+                });
+                
+            });
+
+
+
         });
     });
 

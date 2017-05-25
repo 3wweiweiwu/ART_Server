@@ -11,17 +11,26 @@ const sPutDormNotFound="put dorm not found";
 function CreateNewDorm(req,res,next)
 {
     var dorm=new dormModel();
-    dorm.name=req.body.name;
-    dorm.system_resource.CPU=req.body.system_resource.CPU;
-    dorm.system_resource.total_memory_mb=req.body.system_resource.total_memory_mb;
-    dorm.system_resource.free_memory_mb=req.body.system_resource.free_memory_mb;
-    dorm.system_resource.disk_total=req.body.system_resource.disk_total;
+    try{
+        dorm.name=req.body.name;
+        dorm.system_resource.CPU=req.body.system_resource.CPU;
+        dorm.system_resource.total_memory_mb=req.body.system_resource.total_memory_mb;
+        dorm.system_resource.free_memory_mb=req.body.system_resource.free_memory_mb;
+        dorm.system_resource.disk_total=req.body.system_resource.disk_total;
+    }
+    catch(ex){
+        res.writeHead(400, {'Content-Type': 'application/json'});
+        res.end();
+        return;
+    }
+
+
     dorm.residents=[];
     dorm.backgrounds=[];
     dorm.save(function (err){
         if(err) {
             console.log(err);
-            res.writeHead(401, {'Content-Type': 'application/json'});
+            res.writeHead(500, {'Content-Type': 'application/json'});
             res.end('ERR');
         }
         else
@@ -83,12 +92,6 @@ exports.get=function(req,res,next){
         });
     }
     
-    if(req.body!=null)   
-    {
-        CPU=req.body.CPU;
-        memory_mb=req.body.free_memory_mb;
-        free_disk_mb=req.body.free_disk_mb;
-    }
 
 
     
@@ -99,10 +102,18 @@ function UpdateDorm(req,res,next,query)
     //if query is found, then update the query    
 
 
-    
-    CPU_count=(req.body.system_resource.CPU||query._doc.system_resource.CPU);    
-    total_memory=(req.body.system_resource.total_memory_mb||query._doc.system_resource.total_memory_mb);
-    free_memory=(req.body.system_resource.free_memory_mb||query._doc.system_resource.free_memory_mb);
+    try{
+        name=req.body.name;
+        CPU_count=(req.body.system_resource.CPU||query._doc.system_resource.CPU);    
+        total_memory=(req.body.system_resource.total_memory_mb||query._doc.system_resource.total_memory_mb);
+        free_memory=(req.body.system_resource.free_memory_mb||query._doc.system_resource.free_memory_mb);
+        disk_total=req.body.system_resource.disk_total;
+    }
+    catch(ex)
+    {
+        res.writeHead(400, {'Content-Type': 'application/json'});
+    }
+
     //handle system resource and last updated
     let updatedObj={
         $set:{'system_resource.CPU':CPU_count,
