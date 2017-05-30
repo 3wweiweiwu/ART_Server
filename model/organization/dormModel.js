@@ -11,7 +11,7 @@ var diskSchema=new Schema({
 var registrySchema=new Schema({
     key:{type:String},
     value:{type:String},
-    background:{type:mType.ObjectId,ref:'Background'}
+    vision:{type:mType.ObjectId,ref:'Vision'}
 });
 
 var dormModel=new Schema({
@@ -24,8 +24,10 @@ var dormModel=new Schema({
     },
     last_updated:{type:Date,default:Date.now()},
     residents:[{worker:{type:mType.ObjectId,ref:'Worker'}}],
-    backgrounds:[{type:mType.ObjectId,ref:'Background'}],
-    registry:[{key:{type:String},value:{type:String}}]
+    vision:[{type:mType.ObjectId,ref:'Vision'}],
+    registry:[{key:{type:String},value:{type:String}}],
+    running_project:[{key:{type:Schema.Types.ObjectId,ref:'Project'}}],
+    pending_project:[{key:{type:Schema.Types.ObjectId,ref:'Project'}}]
 });
 
 dormModel.pre('save',(next)=>{

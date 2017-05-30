@@ -4,13 +4,15 @@ module.exports={
     post:{
         body:{
             name:Joi.string().required(),
-            requirement:Joi.array().required()        
+            des:Joi.string().required(),
+            qualification:Joi.array().required()
         }
     },
     put:{
         body:{
             name:Joi.string().required(),
-            requirement:Joi.array().required()        
+            des:Joi.string().required(),
+            qualification:Joi.array().required()       
         }
     }
     

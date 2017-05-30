@@ -8,12 +8,12 @@ router.post('/background', validate(backgroundsValidation.post),function(req, re
     return backgroundControl.CreateNew(req,res,next);
     
 });
-router.get('/dorm',function(req,res,next){
+router.get('/background',function(req,res,next){
     return backgroundControl.get(req,res,next);
 })
 
-router.put('/dorm',function(req,res,next){
-    return backgroundControl.putDorm(req,res,next);
+router.put('/background',validate(backgroundsValidation.post),function(req,res,next){
+    return backgroundControl.UpdateRecord(req,res,next);
 });
 
 module.exports = router;

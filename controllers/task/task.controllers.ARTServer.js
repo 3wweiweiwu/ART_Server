@@ -1,0 +1,87 @@
+var taskModel=require('../../model/task/task.model.ARTServer.js');
+var taskImageDeploy=require('../../model/task/imageDeploy.model.ARTServer.js');
+
+
+const CreateNewTask=(req,res,next)=>{
+    
+    
+    var createNew=new Promise((resolve,reject)=>{
+        let task=new taskModel({
+            name:req.body.name,
+            note:req.body.note,
+            task_script_path:req.body.task_script_path,
+            
+            
+            
+        });
+        //depends on type setting, we decide what kind of document it is
+        if(req.body.setting_type==='NULL'){
+            //if there is no setting type, then we just ignore it
+            task.save((err)=>{
+                if(err) console.log(err);
+                resolve();
+            });
+        }
+        else if(req.body.setting_type==="Task.ImageDeploy"){
+            //if it is Task.ImageDeploy, then 
+            let imageDeploy=new taskImageDeploy({
+                memory_size_mb:req.body.memory_size_mb,
+                CPU_Core:req.body.CPU_Core,
+                remote_vhd_path:req.body.remote_vhd_path
+            });
+
+            imageDeploy.save((err)=>{
+                task._settings=imageDeploy._id;
+                task.setting_type=req.body.setting_type;
+                task.save((err)=>{
+                    if(err) console.log(err);
+                    resolve();
+                });    
+            });
+        }
+    });
+
+
+    return createNew;    
+
+}
+
+
+
+exports.create=function(req,res,next){
+    taskModel.findOne({name:req.body.name},(err,query)=>{
+        
+        //delete duplicate record
+        if(query!=null)
+        {
+            taskModel.remove({name:req.body.name}, (err) => { 
+                taskImageDeploy.remove({_id:query._settings},(err)=>{                    
+                })
+                
+            });            
+        }
+        
+        
+        CreateNewTask(req,res,next)
+        .then(()=>{
+            res.writeHead(200);
+            res.end();
+        })
+        
+        
+    });
+}
+
+exports.get=function(req,res,next,searchCriteria){
+    
+    //
+    taskModel.find(searchCriteria)    
+    .populate('_settings')
+    .exec((err,query)=>{
+        if(err)
+            res.send(err);
+        res.json(query);
+    })
+
+    
+}
