@@ -7,13 +7,12 @@ let projectMinModel=new Schema({
     note:{type:String,required:true},
     memory_usage_mb:{type:Number,required:true},
     disk_usage_mb:{type:Number,required:true},
-    tasks:[{
-        task_kind:{type:String},
-        task:{type:Schema.Types.ObjectId,refPath:'tasks.task_kind'}
+    tasks:[{        
+        task:{type:Schema.Types.ObjectId,ref:'Task'}
     }],
     next:[
-        {_project:Schema.Types.ObjectId,ref:'Project.Blueprint'}
+        {name:{type:String}}
     ]
 });
 
-module.exports=new mongoose.model("Project.Blueprint")
+module.exports=mongoose.model("Project.Blueprint",projectMinModel);

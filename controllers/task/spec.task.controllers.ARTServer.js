@@ -33,6 +33,26 @@ const taskMissingNote={
     CPU_Core:4,
     remote_vhd_path:"\\\\wuwei1\\d$\\VM_Image\\en_w2k16_dc_r2_x64_127gb.vhd",
 };  
+
+exports.PostTask=(Json,cb=()=>{})=>{
+    return new Promise((resolve,reject)=>{
+        chai
+        .request(app)
+        .post('/api/task')
+        .send(Json)
+        .end((err, res) => {
+            if(err){ 
+                reject(err);
+                return cb(err);
+            }
+            else {
+                resolve(res);
+                return cb(null,res);
+            }
+            
+        });  
+    });
+}
 describe("task /post",()=>{
     
     beforeEach((done) => {
@@ -168,3 +188,6 @@ describe('task /get',()=>{
     });
 
 });
+
+exports.APMInstall=taskAPMInstall;
+exports.APMDetection=taskAPM_NewMediaDetection;
