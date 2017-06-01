@@ -1,5 +1,6 @@
 process.env.NODE_ENV='test';
 let async=require('async');
+
 const EventEmitter=require('events');
 let app=require('../../app.js');
 var assert=require('assert');
@@ -13,6 +14,23 @@ class dormControlEmitter extends EventEmitter{}
 
 const myEmitter=new dormControlEmitter();
 
+const PostDorm=function(dormObj,cb=()=>{}){
+    return new Promise((resolve,reject)=>{
+        chai.request(app).post('/api/dorm').send(dormObj).end((err,res)=>{
+            if(err){
+                reject(err);
+                return cb(err,null);
+            }
+                
+            else{
+                resolve(res);
+                cb(null,res)
+            }
+                
+        });
+    });
+
+}
 
 
 describe('dorm',()=>{
@@ -265,6 +283,32 @@ describe('dorm',()=>{
         });
     });
 
+    describe('/get specific dorm',()=>{
+        before((done)=>{
+            dormModel.remove({},(err)=>{done()});
+        });        
+        it('shall get specific dorm when 2 dorm exists',(done)=>{
+            let PostDorm2=()=>{
+                return PostDorm(dorm2);
+            }
+            let PostDorm3=()=>{
+                return PostDorm(dorm3);
+            }
+            PostDorm(dorm1)
+            .then(PostDorm2)
+            .then(PostDorm3)
+            .then((res)=>{
+                chai.request(app)
+                .get('/api/dorm/'+dorm3.name)
+                .end((err,res)=>{
+                    res.should.have.status(200);
+                    assert.equal(dorm3.name,res.body[0].name);
+                    
+                    done();
+                });                
+            })
+        })
+    });
 });
 
 

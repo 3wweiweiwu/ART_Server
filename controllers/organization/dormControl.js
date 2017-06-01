@@ -1,4 +1,5 @@
 var dormModel=require('../../model/organization/dormModel');
+var dormValidation=require(('../../validation/dorm.validation.ARTServer'))
 const EventEmitter=require('events');
 
 class dormControlEmitterClass extends EventEmitter{};
@@ -10,6 +11,7 @@ const sPutDormNotFound="put dorm not found";
 
 function CreateNewDorm(req,res,next)
 {
+    
     var dorm=new dormModel();
     try{
         dorm.name=req.body.name;
@@ -67,30 +69,27 @@ exports.create=function(req,res,next){
 
 }
 
-exports.get=function(req,res,next){
+exports.get=function(req,res,next,query){
     let CPU=0;
     let free_memory_mb=0;
     let free_disk_mb=0;
-    
-    //if there is no parameter, then just list all available dorms with its information
-    if(req.url==="/dorm")
-    {
-        dormModel
-        .find({})
-        .exec((err,query)=>{
-            if(err)
-            {
-                res.end(err);
-            }
-            else
-            {
-                output=JSON.stringify(query);
-                res.writeHead(200, {'Content-Type': 'application/json'});
-                res.end(output);
-                
-            }
-        });
-    }
+
+    dormModel
+    .find(query)
+    .exec((err,query)=>{
+        if(err)
+        {
+            res.end(err);
+        }
+        else
+        {
+            output=JSON.stringify(query);
+            res.writeHead(200, {'Content-Type': 'application/json'});
+            res.end(output);
+            
+        }
+    });
+
     
 
 

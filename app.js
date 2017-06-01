@@ -10,8 +10,9 @@ var users = require('./routes/users');
 var backgrounds=require('./routes/background.routes.ARTServer')
 var task=require('./routes/task.routes.ARTServer')
 var project=require('./routes/project.routes.ARTServer')
-
+var expressValidator = require('express-validator');
 var dorms=require('./routes/dorms.js');
+
 var app = express();
 
 
@@ -28,6 +29,7 @@ app.set('view engine', 'pug');
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(expressValidator());
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
