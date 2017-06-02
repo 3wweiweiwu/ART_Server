@@ -5,18 +5,17 @@ var mongoose=require('mongoose'),
 
 
 var visionModel=new Schema({
-    name:{type:mongoose.Schema.Types.String},
-    director:{type:mType.ObjectId,ref:'Worker'},    
-    director_project:{type:mType.ObjectId,ref:'Project'},    
-    projects:[{
-        _project:{type:Schema.Types.ObjectId,ref:'Project'}
-    }],
-    watch_projects:[{
+    name:{type:String},
+    note:{type:String},
+    key_projects:[{
+        project_blueprint:{type:Schema.Types.ObjectId,ref:'Project.Blueprint'}
+    }],    
+    current_projects:[{
         _project:{type:Schema.Types.ObjectId,ref:'Project'}
     }],
     status:{type:String},
     history:[{info:String}],
-    note:[{
+    registry:[{
         key:{type:String},
         value:{type:String}
     }]

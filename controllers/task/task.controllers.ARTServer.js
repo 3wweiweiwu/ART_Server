@@ -5,7 +5,7 @@ var taskImageDeploy=require('../../model/task/imageDeploy.model.ARTServer.js');
 const CreateNewTask=(req,res,next)=>{
     
     
-    var createNew=new Promise((resolve,reject)=>{
+    return new Promise((resolve,reject)=>{
         let task=new taskModel({
             name:req.body.name,
             note:req.body.note,
@@ -42,7 +42,7 @@ const CreateNewTask=(req,res,next)=>{
     });
 
 
-    return createNew;    
+       
 
 }
 

@@ -4,17 +4,20 @@ var mongoose=require('mongoose'),
 
 let projectModel=new Schema({
     _bluePrint:{type:Schema.Types.ObjectId,ref:'Project.Blueprint'},
-    pending_tasks:[{
-        task_kind:{type:String},
-        task:{type:Schema.Types.ObjectId,refPath:'tasks.task_kind'}
+    pending_tasks:[{        
+        task:{type:Schema.Types.ObjectId,ref:'Task'}
     }],
     current_task:{
-        task_kind:{type:String},
-        task:{type:Schema.Types.ObjectId,refPath:'tasks.task_kind'}
+        task:{type:Schema.Types.ObjectId,ref:'Task'}
     },
     host:{type:Schema.Types.ObjectId,ref:'Dorm'},
     last_update:{type:Date},
     status:{type:String}
 });
 
-module.exports=new mongoose.model("Project",projectModel);
+projectModel.pre('save',(next)=>{
+    this.last_update=Date.now();
+    next();
+})
+
+module.exports=mongoose.model("Project",projectModel);

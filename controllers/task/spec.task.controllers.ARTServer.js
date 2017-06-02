@@ -5,54 +5,18 @@ let app = require('../../app.js');
 var assert = require('assert');
 var taskModel = require('../../model/task/task.model.ARTServer.js');
 var taskImageDeployment=require('../../model/task/imageDeploy.model.ARTServer');
-
+let support=require('./support.Task.Controllers.ARTServer')
 let chai = require('chai');
 let chaiHttp = require('chai-http');
 let should = chai.should();
 chai.use(chaiHttp);
-const taskAPMInstall={
-    name:"APM_Install",
-    note:'Install APM',
-    task_script_path:'\\\\nhqa-w81-q10\\v7\\Manager\\manager.main.ps1',
-    setting_type:"Task.ImageDeploy",
-    memory_size_mb:5*1024,
-    CPU_Core:4,
-    remote_vhd_path:"\\\\wuwei1\\d$\\VM_Image\\en_w2k16_dc_r2_x64_127gb.vhd",
-};
-const taskAPM_NewMediaDetection={
-    name:"APM_NewMediaDetection",
-    note:'Install APM',
-    task_script_path:'\\\\nhqa-w81-q10\\v7\\Manager\\manager.main.ps1',
-    setting_type:"NULL"
-};
-const taskMissingNote={
-    name:"APM_Install",        
-    task_script_path:'\\\\nhqa-w81-q10\\v7\\Manager\\manager.main.ps1',
-    setting_type:"Task.ImageDeploy",
-    memory_size_mb:5*1024,
-    CPU_Core:4,
-    remote_vhd_path:"\\\\wuwei1\\d$\\VM_Image\\en_w2k16_dc_r2_x64_127gb.vhd",
-};  
+const taskAPMInstall=support.taskAPMInstall;
+const taskAPM_NewMediaDetection=support.taskAPM_NewMediaDetection;
+const taskMissingNote=support.taskMissingNote;
+exports.PostTask=support.PostTask
 
-exports.PostTask=(Json,cb=()=>{})=>{
-    return new Promise((resolve,reject)=>{
-        chai
-        .request(app)
-        .post('/api/task')
-        .send(Json)
-        .end((err, res) => {
-            if(err){ 
-                reject(err);
-                return cb(err);
-            }
-            else {
-                resolve(res);
-                return cb(null,res);
-            }
-            
-        });  
-    });
-}
+
+
 describe("task /post",()=>{
     
     beforeEach((done) => {

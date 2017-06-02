@@ -10,62 +10,20 @@ var taskImageDeployment=require('../../model/task/imageDeploy.model.ARTServer');
 let chai = require('chai');
 let chaiHttp = require('chai-http');
 let should = chai.should();
+let support=require('./support.project.ARTServer')
+
 chai.use(chaiHttp);
 
-const postNewBlueprint=(query,cb=()=>{})=>{
-    return new Promise((resolve,reject)=>{
-        chai
-        .request(app)
-        .post('/api/projectBlueprint')
-        .send(query)
-        .end((err, res) => {
-            console.log();
-            if(err) {
-                reject(err);
-                return cb(err)
-            }
-            else {
-                resolve(res);
-                return cb(null,res)
-            }
-        });   
-    })
-}
+const postNewBlueprint=support.PostNewBlueprint;
 
-const projectAPMPrestaging={
-    name:'APM_Prestaging',
-    note:"Install APM media whenever it is posted",
-    memory_usage_mb:6*1024,
-    disk_usage_mb:10*1024,
-    tasks:[taskSpec.APMDetection.name,taskSpec.APMInstall.name],
-    next:[]
-}
+const projectAPMPrestaging=support.projectAPMPrestaging;
 
-const projectAPMPrestaging1={
-    name:'APM_Prestaging1',
-    note:"Install APM media whenever it is posted",
-    memory_usage_mb:10*1024,
-    disk_usage_mb:10*1024,
-    tasks:[taskSpec.APMDetection.name,taskSpec.APMInstall.name],
-    next:[]
-}
-const projectAPMPrestaging_Override={
-    name:'APM_Prestaging',
-    note:"When latest media is posted, install media",
-    memory_usage_mb:6*1024,
-    disk_usage_mb:10*1024,
-    tasks:[taskSpec.APMDetection.name,taskSpec.APMInstall.name],
-    next:[]
-}
+const projectAPMPrestaging1=support.projectAPMPrestaging1;
 
-const projectAPMPrestaging_Invalid={
-    name:'APM_Prestaging',
-    note:"When latest media is posted, install media",
-    memory_usage_mb:6*1024,
-    disk_usage_mb:10*1024,
-    tasks:['taskSpec.APMDetection.name,taskSpec.APMInstall.name'],
-    next:[]
-}
+const projectAPMPrestaging_Override=support.projectAPMPrestaging_Override;
+
+const projectAPMPrestaging_Invalid=support.projectAPMPrestaging_Invalid;
+
 describe('blueprint - /post',()=>{
     beforeEach((done) => {
         taskModel.remove({}, (err) => { 
@@ -293,3 +251,8 @@ describe('blueprint -/get',()=>{
     });
     
 });
+
+exports.PostNewBlueprint=function(query,cb=()=>{}){
+    return postNewBlueprint(query,cb);
+}
+exports.project1=projectAPMPrestaging;
