@@ -45,58 +45,46 @@ describe('create new project',()=>{
         });
     });
     it('shall create new project when blueprint is valid',(done)=>{
-        // let s1=()=>{
-        //     return taskSupport.PostTask(taskSupport.taskAPM_NewMediaDetection)
-        // };
+        postTaskAPMNewMediaDetection=()=>{
+            return taskSupport.PostTask(taskSupport.taskAPM_NewMediaDetection);
+        }
+        posttaskAPMInstall=()=>{
+            return taskSupport.PostTask(taskSupport.taskAPMInstall);
+        }
+        postProjectBlueprintAPMPrestaging=()=>{
+            return projectSupport.PostNewBlueprint(projectSupport.projectAPMPrestaging);
+        }
+        createNewProject=()=>{
+            return projectControl.CreateNewProject(projectSupport.projectAPMPrestaging.name);
+        }
         
-        // taskSupport.PostTask(taskSupport.taskAPM_NewMediaDetection)
-        // .then(taskSupport.PostTask())
-        // .then(()=>{
-        //     done();
-        // })
-        
-        // async.series([
-        //     function(cb){taskSupport.PostTask(taskSupport.taskAPM_NewMediaDetection).then(()=>{cb();})},
-        //     function(cb){taskSupport.PostTask(taskSupport.taskAPMInstall).then(()=>{cb();})},
-        //     function(cb){
-        //         cb();
-        //         done();
-        //     }
-        // ])        
-        
-
-        // .then(projectSupport.PostNewBlueprint(projectSupport.projectAPMPrestaging))
-        // .then(()=>{
-        //     projectControl.CreateNewProject(projectSupport.projectAPMPrestaging.name)
-        //     .then((id)=>{
-        //         assert.notEqual(id,null);
-                
-        //         //validate the creation of the project
-                
-        //         projectControl
-        //         .GetProjectById(id)
-        //         .then((project)=>{
-        //             assert.equal(projectStatus.waitingForScheduling.id,project.status);
-        //             done();
-        //         })
-        //         .catch((err)=>{
-        //             assert(false,'unable to get project back');
-        //             done();
-        //         });
-        //     })
-        //     .catch(()=>{
-        //         assert(false,'unable to create new project');
-        //         done();
-
-        //     });
-
+        //real workflow procedure
+        postTaskAPMNewMediaDetection()
+        .then(posttaskAPMInstall)
+        .then(postProjectBlueprintAPMPrestaging)
+        .then(createNewProject)
+        .then((id)=>{
+            assert.notEqual(id,null);
             
+            //validate the creation of the project
+            
+            projectControl
+            .GetProjectById(id)
+            .then((project)=>{
+                assert.equal(projectStatus.waitingForScheduling.id,project.status);
+                done();
+            })
+            .catch((err)=>{
+                assert(false,'unable to get project back');
+                done();
+            });            
+        })
+        .catch((err)=>{
+            assert(false,err);            
+            done();
+        });
 
-        // })
-        // .catch((err)=>{
-        //     assert(false,err)
-        //     done();
-        // });
+
 
         
     });

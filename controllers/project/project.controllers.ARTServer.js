@@ -27,7 +27,7 @@ exports.CreateNewProject=function(projectBlueprint,cb=()=>{}){
                 project=new projectModel();
                 project._bluePrint=blueprint._id;
                 project.pending_tasks=blueprint.tasks;
-                project.current_task=[];
+                project.current_task=null;
                 project.status=projectStatus.waitingForScheduling.id;
                 project.save((err)=>{
                     if(err)
@@ -45,6 +45,7 @@ exports.CreateNewProject=function(projectBlueprint,cb=()=>{}){
                     
                     
                 });
+
             }
         });
     });
