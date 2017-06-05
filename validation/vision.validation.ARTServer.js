@@ -17,6 +17,11 @@ module.exports={
         params:{
             key:Joi.string().required()
         }
+    },
+    putKeyProject:{
+        prams:{
+            vision_name:Joi.string().required(),
+            projectBlueprint:Joi.string().required()
+        }
     }
 }
-

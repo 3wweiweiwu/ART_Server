@@ -4,52 +4,20 @@ const EventEmitter = require('events');
 let app = require('../../app.js');
 var assert = require('assert');
 var visionModel = require('../../model/vision/vision.model.ARTServer.js');
+var taskModel = require('../../model/task/task.model.ARTServer');
+var taskImageDeployment  = require('../../model/task/imageDeploy.model.ARTServer');
+var projectBlueprintModel=require('../../model/project/projectBlueprint.model.ARTServer')
+var projectModel=require('../../model/project/project.model.ARTServer')
+
 var visionControl=require('./vision.controllers.ARTServer')
+let projectSupport=require('../../controllers/project/support.project.ARTServer')
+let taskSupport=require('../../controllers/task/support.Task.Controllers.ARTServer')
 let chai = require('chai');
 let chaiHttp = require('chai-http');
 let should = chai.should();
+let visionSupport=require('./support.vision.controllers.ARTServer')
 chai.use(chaiHttp);
 
-const postNewVision=function(visionObj,cb=()=>{}){
-    return new Promise((resolve,reject)=>{
-        chai
-        .request(app)
-        .post('/api/vision')
-        .send(visionObj)
-        .end((err,res)=>{
-            if(err){
-                reject({
-                    errorInfo:err,
-                    resInfo:res
-                });
-                return cb(err);
-            }
-            else{
-                resolve(res);
-                return cb(null,res);
-            }
-        });
-    });
-}
-const visionAPMChef={
-    name:'APM_Chef',
-    note:'Prepare daily APM image',
-    status:'online'
-}
-const visionAESChef={
-    name:'AES_Chef',
-    note:'Prepare daily AES image',
-    status:'online'
-}
-const visionAPMChefOffline={
-    name:'APM_Chef',
-    note:'Prepare daily APM image',
-    status:'offline'
-}
-const visionAPMChefIncomplete={
-    name:'APM_Chef',    
-    status:'offline'
-}
 describe('post /vision',()=>{
     beforeEach((done)=>{
         visionModel.remove({},(err)=>{
@@ -57,7 +25,7 @@ describe('post /vision',()=>{
         })
     });
     it('shall throw error when argument is not complete',(done)=>{
-        postNewVision(visionAPMChefIncomplete)
+        visionSupport.postNewVision(visionSupport.visionAPMChefIncomplete)
         .then((info)=>{
             assert.equal(400,info.status);
             assert(false,'error with post');
@@ -69,14 +37,14 @@ describe('post /vision',()=>{
         })
     })
     it('shall be able to create vision',(done)=>{
-        postNewVision(visionAPMChef)
-        .then(postNewVision(visionAPMChefOffline))
+        visionSupport.postNewVision(visionSupport.visionAPMChef)
+        .then(visionSupport.PostVisionAPMChefoffline)
         .then((info)=>{
             assert.equal(200,info.status);
             visionControl.getVision({})
             .then((info)=>{
                 assert.equal(info.length,1);
-                assert.equal(info[0].status,visionAPMChefOffline.status);
+                assert.equal(info[0].status,visionSupport.visionAPMChefOffline.status);
                 done();
             });
             
@@ -111,15 +79,15 @@ describe('get /vision',()=>{
         });        
     });
     it('shall return specific task when using /vision/:taskname against filled db',(done)=>{
-        postNewVision(visionAESChef)
-        .then(postNewVision(visionAPMChef))
+        visionSupport.postNewVision(visionSupport.visionAESChef)
+        .then(visionSupport.PostVisionAPMChef)
         .then(()=>{
             chai
             .request(app)
-            .get('/api/vision/'+visionAPMChef.name)
+            .get('/api/vision/'+visionSupport.visionAPMChef.name)
             .end((err,res)=>{
                 assert.equal(res.body.length,1);
-                assert.equal(res.body[0].name,visionAPMChef.name);
+                assert.equal(res.body[0].name,visionSupport.visionAPMChef.name);
                 done();
             });               
         })
@@ -131,8 +99,8 @@ describe('get /vision',()=>{
         .get('/api/vision/')
         .end((err,res)=>{
             assert.equal(res.body.length,2);
-            assert.equal(res.body[1].name,visionAPMChef.name);
-            assert.equal(res.body[0].name,visionAESChef.name);
+            assert.equal(res.body[1].name,visionSupport.visionAPMChef.name);
+            assert.equal(res.body[0].name,visionSupport.visionAESChef.name);
             done();
         });   
     });
@@ -143,10 +111,72 @@ describe('get /vision',()=>{
 
 
 describe('put /vision',()=>{
-    it('shall return 400 if vision name is invalid when putting against /vision/:vision_name/key_projects/:projectName')
+    beforeEach((done)=>{
+        taskModel.remove({}, (err) => { 
+            taskImageDeployment.remove({},(err)=>{
+                
+                projectBlueprintModel.remove({},(err)=>{
+                    projectModel.remove({}).exec(()=>{
+                        visionModel.remove({}).exec(()=>{
+                            done();
+                        })
+                        
+                    });
+                })
+                
+            })
+            
+        });          
+        
+    });
+    it('shall return 400 if vision name is invalid when putting against /vision/:vision_name/key_projects/:projectName',(done)=>{
+        chai
+        .request(app)
+        .put('/api/vision/hello/key_projects/disk')
+        .end((err,res)=>{
+            assert.equal(400,res.status)
+            done();
+        });
+
+    });
     
-    it('shall return 400 if project name is invalid')
-    it('shall add project into vision if vision name is valid')
+    it('shall return 400 if project name is invalid',(done)=>{
+        visionSupport.postNewVision(visionSupport.visionAPMChef)
+        .then(()=>{
+            chai
+            .request(app)
+            .put('/api/vision/'+visionSupport.visionAPMChef.name+'/key_projects/invalid')
+            .end((err,res)=>{
+                assert.equal(400,res.status);
+                assert.equal(res.body.note,'The project blueprint specified is incorrect')
+                done();
+            });    
+        })
+        
+    
+    });
+    it('shall add project blueprint into vision if vision name is valid',(done)=>{
+        taskSupport.postTaskAPMNewMediaDetection()
+        .then(taskSupport.posttaskAPMInstall)
+        .then(projectSupport.postProjectBlueprintAPMPrestaging)
+        .then(visionSupport.PostVisionAPMChef)
+        .then(()=>{
+            chai
+            .request(app)
+            .put(`/api/vision/${visionSupport.visionAPMChef.name}/key_projects/${projectSupport.projectAPMPrestaging.name}`)
+            .end((err,res)=>{
+                assert.equal(200,res.status);
+                assert.equal(res.body.result,'ok')
+                visionModel
+                .findOne({name:visionSupport.visionAPMChef.name})
+                .then(query=>{
+                    assert.equal(query.key_projects.length,1);
+                    done();
+                });
+                
+            });            
+        });
+    });
     it('shall return 400 if vision name is invalid when putting against  /vision/:vision_name/registry')
     it('shall create a new registry or delete new registry')
 })

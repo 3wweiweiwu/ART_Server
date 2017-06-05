@@ -62,3 +62,8 @@ exports.projectAPMPrestaging_Invalid={
     tasks:['taskSupport.APMDetection.name,taskSupport.APMInstall.name'],
     next:[]
 }
+
+exports.postProjectBlueprintAPMPrestaging=()=>{
+    return exports.PostNewBlueprint(exports.projectAPMPrestaging);
+}
+

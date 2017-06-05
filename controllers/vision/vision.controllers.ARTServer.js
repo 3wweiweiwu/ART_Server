@@ -1,6 +1,7 @@
 var visionModel=require('../../model/vision/vision.model.ARTServer');
 var projectModel=require('../../model/project/project.model.ARTServer');
 var projectControl=require('../project/project.controllers.ARTServer')
+let projectBlueprintModel=require('../../model/project/projectBlueprint.model.ARTServer')
 
 const UpdateBasicVision=function(req,cb=()=>{}){
     return new Promise((resolve,reject)=>{
@@ -23,6 +24,33 @@ const UpdateBasicVision=function(req,cb=()=>{}){
     });
 }
 
+const CreateBasicVision=function(req,cb=()=>{}){
+    return new Promise((resolve,reject)=>{
+        visionModel
+        .remove({name:req.body.name})
+        .exec((err)=>{
+            vision=new visionModel({
+                name:req.body.name,
+                note:req.body.note,
+                key_projects:[],
+                current_projects:[],
+                history:[],
+                registry:[],
+                status:req.body.status         
+            });
+            vision.save((err)=>{
+                if(err){
+                    reject(err);
+                    return cb(err);
+                }
+                else{
+                    resolve();
+                    return cb(null);
+                }
+            });
+        });
+    });
+}
 exports.getVision=function(query,cb=()=>{}){
     return new Promise((resolve,reject)=>{
         visionModel
@@ -73,7 +101,7 @@ exports.get=function(req,res,next,query){
 }
 
 exports.create=function(req,res,next){
-    UpdateBasicVision(req)
+    CreateBasicVision(req)
     .then((feedback)=>{
         res.json(feedback);
     })
@@ -91,4 +119,74 @@ exports.putProject=function(req,res,next){
     .catch((err)=>{
         res.status(400).json(err);
     });
+}
+
+exports.PutKeyProject=function(req,res,next){
+    query={
+        name:req.params.vision_name,        
+    }
+    exports.getVision(query)
+    .then((vision)=>{
+        if(vision.length==0){
+            //if no vision found, then return with error
+            res.status(400).json({
+                result:'error',
+                note:'unable to find vision specified'
+            });
+        }
+        else if(vision.length!=1){
+            //if more than 1 vision found, then flag with error
+            res.status(500).json({
+                result:'error',
+                note:'there are more than one vision with the same name'
+            });
+        }
+        else{
+            //if there is only 1 vision found, then validate projectBlueprint
+            projectBlueprintModel.findOne({name:req.params.projectBlueprint})
+            .exec((err,blueprint)=>{
+                if(err){
+                    res.status(400).json({
+                        result:'error',
+                        note:err
+                    });
+                }
+                else if(blueprint==null){
+                    //if no blueprint is found, then return error 400
+                    res.status(400).json({
+                        result:'error',
+                        note:'The project blueprint specified is incorrect'
+                    })
+                }
+                else{
+                    //if blueprint is found, then link blueprint with project
+                    vision[0].key_projects.push(blueprint._id);
+                    vision[0].save((err)=>{
+                        if(err)
+                        {
+                            //if error is found, then return error
+                            rs.status(500).json({
+                                result:'error',
+                                note:err
+                            })
+                        }
+                        else{
+                            res.json({
+                                result:'ok'
+                            });
+                        }
+
+                    });
+                }
+                
+                
+                console.log();        
+            });
+
+
+
+        }
+
+        
+    })
 }

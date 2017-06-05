@@ -23,8 +23,8 @@ router.get('/vision/:vision_name/registry/:key',validate(visionValidation.post),
     return visionControl.put(req,res,next);
 });
 
-router.put('/vision/:vision_name/key_projects/:projectName',function(req,res,next){
-    return visionControl.put(req,res,next);
+router.put('/vision/:vision_name/key_projects/:projectBlueprint',validate(visionValidation.putKeyProject),function(req,res,next){
+    return visionControl.PutKeyProject(req,res,next);
 });
 router.put('/vision/:vision_name/registry',function(req,res,next){
     return visionControl.put(req,res,next);

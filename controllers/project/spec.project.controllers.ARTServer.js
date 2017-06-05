@@ -45,24 +45,15 @@ describe('create new project',()=>{
         });
     });
     it('shall create new project when blueprint is valid',(done)=>{
-        postTaskAPMNewMediaDetection=()=>{
-            return taskSupport.PostTask(taskSupport.taskAPM_NewMediaDetection);
-        }
-        posttaskAPMInstall=()=>{
-            return taskSupport.PostTask(taskSupport.taskAPMInstall);
-        }
-        postProjectBlueprintAPMPrestaging=()=>{
-            return projectSupport.PostNewBlueprint(projectSupport.projectAPMPrestaging);
-        }
-        createNewProject=()=>{
+
+        const CreateNewProject=()=>{
             return projectControl.CreateNewProject(projectSupport.projectAPMPrestaging.name);
         }
-        
         //real workflow procedure
-        postTaskAPMNewMediaDetection()
-        .then(posttaskAPMInstall)
-        .then(postProjectBlueprintAPMPrestaging)
-        .then(createNewProject)
+        taskSupport.postTaskAPMNewMediaDetection()
+        .then(taskSupport.posttaskAPMInstall)
+        .then(projectSupport.postProjectBlueprintAPMPrestaging)
+        .then(CreateNewProject)
         .then((id)=>{
             assert.notEqual(id,null);
             

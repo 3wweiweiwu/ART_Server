@@ -56,3 +56,10 @@ exports.PostTask=(Json,cb=()=>{})=>{
     });
     return prom;
 }
+
+exports.postTaskAPMNewMediaDetection=()=>{
+    return exports.PostTask(exports.taskAPM_NewMediaDetection);
+}
+exports.posttaskAPMInstall=()=>{
+    return exports.PostTask(exports.taskAPMInstall);
+}
