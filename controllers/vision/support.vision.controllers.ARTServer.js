@@ -56,6 +56,28 @@ exports.PutRegistry=(visionName,key,value,cb=()=>{})=>{
     });
 }
 
+exports.GetRegistry=(visionName,key,cb=()=>{})=>{
+    return new Promise((resolve,reject)=>{
+        chai
+        .request(app)
+        .get(`/api/vision/${exports.visionAPMChef.name}/registry/${key}`)
+        .end((err,res)=>{
+            if(err){
+                let result={err:err,res:res}
+                reject(result);
+                return cb(result);
+            }
+            else{
+                resolve(res);
+                return cb(null,res);
+            }
+        });
+    });
+}
+exports.GetRegistryForMachineName=()=>{
+    return exports.GetRegistry(exports.registryMachineName1.projectName,exports.registryMachineName1.key);
+}
+
 exports.PutRegistryMachine1=()=>{
     return exports.PutRegistry(exports.registryMachineName1.name,exports.registryMachineName1.key,exports.registryMachineName1.value);
 }

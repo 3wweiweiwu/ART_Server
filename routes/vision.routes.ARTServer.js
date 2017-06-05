@@ -19,14 +19,14 @@ router.get('/vision',(req,res,next)=>{
     return visionControl.get(req,res,next,{});
 })
 
-router.get('/vision/:vision_name/registry/:key',validate(visionValidation.post),(req,res,next)=>{
-    return visionControl.put(req,res,next);
+router.get('/vision/:vision_name/registry/:key',validate(visionValidation.getRegistry),(req,res,next)=>{
+    return visionControl.GetRegistry(req,res,next);
 });
 
 router.put('/vision/:vision_name/key_projects/:projectBlueprint',validate(visionValidation.putKeyProject),function(req,res,next){
     return visionControl.PutKeyProject(req,res,next);
 });
-router.put('/vision/:vision_name/registry',function(req,res,next){
+router.put('/vision/:vision_name/registry',validate(visionValidation.putKeyProject),function(req,res,next){
     return visionControl.PutRegistry(req,res,next);
 });
 

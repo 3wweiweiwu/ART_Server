@@ -23,5 +23,20 @@ module.exports={
             vision_name:Joi.string().required(),
             projectBlueprint:Joi.string().required()
         }
-    }
+    },
+    getRegistry:{
+        params:{
+            vision_name:Joi.string().required(),
+            key:Joi.string().required()
+        }
+    },
+    putRegistry:{
+        params:{
+            vision_name:Joi.string().required(),            
+        },
+        body:{
+            key:Joi.string().required(),
+            value:Joi.string().required()
+        }
+    }    
 }

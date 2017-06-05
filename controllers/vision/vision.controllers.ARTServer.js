@@ -229,3 +229,22 @@ exports.PutRegistry=function(req,res,next){
         res.status(err.status||500).json(err);
     });
 }
+
+exports.GetRegistry=function(req,res,next){
+    visionModel.findOne({name:req.params.vision_name,'registry.key':req.params.key})
+    .exec((err,vision)=>{
+        if(err)
+        {
+            res.status(500).json(err);
+        }
+        else if(vision!=null)
+        {
+            //if there is such a vision
+            res.json(vision.registry.filter(value=>{return value.key==req.params.key})[0]);
+        }
+        else
+        {
+            res.status(400).json({value:null});
+        }
+    })
+}

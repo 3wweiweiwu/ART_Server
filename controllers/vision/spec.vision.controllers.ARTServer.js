@@ -105,7 +105,27 @@ describe('get /vision',()=>{
         });   
     });
 
-    it('shall return registry when using /vision/:vision_name/registry/:key')
+    it('shall return empty registry when there is nothing using /vision/:vision_name/registry/:key',done=>{
+        visionSupport.GetRegistry(visionSupport.visionAESChef,'invalid')
+        .then(result=>{
+            assert(false,'should not find value')
+            done();
+        })
+        .catch(result=>{
+            assert.equal(result.res.status,400);
+            done();
+        });
+    });
+    it('shall return valueusing /vision/:vision_name/registry/:key',(done)=>{
+        visionSupport.postNewVision(visionSupport.visionAPMChef)
+        .then(visionSupport.PutRegistryMachine1)
+        .then(visionSupport.PutRegistryMachine2)
+        .then(visionSupport.GetRegistryForMachineName)
+        .then(result=>{
+            assert.equal(result.body.value,visionSupport.registryMachineName2.value);
+            done();
+        });
+    });
 
 });
 
