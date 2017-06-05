@@ -34,6 +34,34 @@ exports.postNewVision=function(visionObj,cb=()=>{}){
     });
 }
 
+exports.PutRegistry=(visionName,key,value,cb=()=>{})=>{
+    return new Promise((resolve,reject)=>{
+        chai
+        .request(app)
+        .put('/api/vision/'+exports.visionAPMChef.name+'/registry')
+        .send({
+            key:key,
+            value:value
+        })
+        .end((err,res)=>{
+            if(err){
+                reject(err);
+                return cb(err);
+            }
+            else{
+                resolve(res);
+                return cb(null,res);
+            }
+        });
+    });
+}
+
+exports.PutRegistryMachine1=()=>{
+    return exports.PutRegistry(exports.registryMachineName1.name,exports.registryMachineName1.key,exports.registryMachineName1.value);
+}
+exports.PutRegistryMachine2=()=>{
+    return exports.PutRegistry(exports.registryMachineName2.name,exports.registryMachineName2.key,exports.registryMachineName2.value);
+}
 
 exports.visionAPMChef={
     name:'APM_Chef',
@@ -53,6 +81,18 @@ exports.visionAPMChefOffline={
 exports.visionAPMChefIncomplete={
     name:'APM_Chef',    
     status:'offline'
+}
+
+exports.registryMachineName1={
+    projectName:exports.visionAPMChef.name,
+    key:'machine name',
+    value:'machine 1'
+}
+
+exports.registryMachineName2={
+    projectName:exports.visionAPMChef.name,
+    key:'machine name',
+    value:'machine 2'
 }
 
 exports.PostVisionAPMChef=()=>{

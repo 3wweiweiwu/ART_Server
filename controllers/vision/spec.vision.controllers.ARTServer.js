@@ -177,6 +177,35 @@ describe('put /vision',()=>{
             });            
         });
     });
-    it('shall return 400 if vision name is invalid when putting against  /vision/:vision_name/registry')
-    it('shall create a new registry or delete new registry')
+    it('shall return 400 if vision name is invalid when putting against  /vision/:vision_name/registry',(done)=>{
+        visionSupport.PutRegistryMachine1()
+        .then((res)=>{
+            assert(false,'it shall give 400 error this time')
+            done();
+        })
+        .catch((res)=>{
+            assert.equal(res.status,400);
+            done();
+        })
+    });
+    it('shall create a new registry or delete new registry',done=>{
+        visionSupport.postNewVision(visionSupport.visionAPMChef)
+        .then(visionSupport.PutRegistryMachine1)
+        .then(visionSupport.PutRegistryMachine2)
+        .then(()=>{
+            visionModel.findOne({name:visionSupport.visionAPMChef.name})
+            .exec((err,vision)=>{
+                if(err) assert(false,err);
+                assert.equal(vision.registry.length,1);
+                assert.equal(vision.registry[0].value,visionSupport.registryMachineName2.value);
+                done();
+            });
+        })
+        .catch((err)=>{
+            assert(false,err)
+            done();
+        })
+    });
+        
+
 })

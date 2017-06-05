@@ -27,7 +27,7 @@ router.put('/vision/:vision_name/key_projects/:projectBlueprint',validate(vision
     return visionControl.PutKeyProject(req,res,next);
 });
 router.put('/vision/:vision_name/registry',function(req,res,next){
-    return visionControl.put(req,res,next);
+    return visionControl.PutRegistry(req,res,next);
 });
 
 

@@ -156,9 +156,7 @@ const checkVisionNameValid=function(name,cb=()=>{}){
     });
 }
 exports.PutKeyProject=function(req,res,next){
-    query={
-        name:req.params.vision_name,        
-    }
+
     checkVisionNameValid(req.params.vision_name)
     .then((vision)=>{
         //if there is only 1 vision found, then validate projectBlueprint
@@ -204,5 +202,30 @@ exports.PutKeyProject=function(req,res,next){
     })
     .catch(err=>{
         res.status(err.status).json(err);
+    });
+
+}
+
+exports.PutRegistry=function(req,res,next){
+    checkVisionNameValid(req.params.vision_name)
+    .then(query=>{
+        let queryResult=query[0];
+        queryResult.registry=queryResult.registry.filter((item)=>{return item.key!=req.body.key});        
+        queryResult.registry.push({
+            key:req.body.key,
+            value:req.body.value
+        });
+        queryResult.save((err)=>{
+            if(err){
+                res.status(500).json(err);
+            }
+            else
+            {
+                res.json({result:'ok'});
+            }
+        })
+    })
+    .catch(err=>{
+        res.status(err.status||500).json(err);
     });
 }
