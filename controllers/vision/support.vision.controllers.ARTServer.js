@@ -104,6 +104,25 @@ exports.PutBlueprintSchedule=function(visionName,blueprintName,cb=()=>{}){
     });   
 }
 
+exports.putBlueprintServerAsk=function(visionName,blueprintName,serverAsk,cb=()=>{}){
+     return new Promise((resolve,reject)=>{
+        chai
+        .request(app)
+        .put(`/api/vision/${visionName}/project_schedule/blueprint/${blueprintName}/server_ask/${serverAsk}`)
+        .end((err,res)=>{
+            if(err){
+                let result={err:err,res:res}
+                reject(result);
+                return cb(result);
+            }
+            else{
+                resolve(res);
+                return cb(null,res);
+            }
+        });
+    });   
+}
+
 exports.visionAPMChef={
     name:'APM_Chef',
     note:'Prepare daily APM image',

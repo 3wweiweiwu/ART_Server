@@ -250,10 +250,33 @@ describe('put /vision',()=>{
                     assert.equal(vision.project_schedule[0].machine_demand.length,0);
                     done();
                 }
-            })
+            });
         })
     });    
-    it('shall specify server ask with /vision/:vision_name/project_schedule/blueprint/:blueprint/server_ask/:ask')
+    it('shall specify server ask with /vision/:vision_name/project_schedule/blueprint/:blueprint/server_ask/:ask',(done)=>{
+        taskSupport.postTaskAPMNewMediaDetection()
+        .then(taskSupport.posttaskAPMInstall)
+        .then(projectSupport.postProjectBlueprintAPMPrestaging)
+        .then(visionSupport.PostVisionAPMChef)
+        .then(()=>{
+            return visionSupport.putBlueprintServerAsk(visionSupport.visionAPMChef.name,projectSupport.projectAPMPrestaging.name,5)
+        })
+        .then(()=>{
+            visionModel.findOne({name:visionSupport.visionAPMChef.name})
+            .populate('project_schedule.project_blueprint')
+            .exec((err,vision)=>{
+                if(err)
+                {
+                    assert(false,'incorrect response');
+                    done();
+                }
+                else{                    
+                    assert.equal(vision.project_schedule[0].server_ask,5);
+                    done();
+                }
+            });            
+        })
+    });
     it('shall specify machine ask with /vision/:vision_name/project_schedule/blueprint/:blueprint/machine/:machine/ask/:ask')
 
 

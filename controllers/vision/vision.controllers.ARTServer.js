@@ -329,3 +329,70 @@ exports.PutBlueprint=function(req,res,next){
     })
     .catch(err=>{res.status(err.status).json(err);});
 }
+exports.UpdateServerAsk=function(vision,blueprint,serverAsk,cb=()=>{}){
+    return new Promise((resolve,reject)=>{
+
+        visionModel.findOne({
+            name:vision            
+        })
+        .populate('project_schedule.project_blueprint')
+        .populate('machine_demand.dorm')
+        .exec((err,vision)=>{
+            if(err){
+                
+                reject(CreateVisionError(err,500));
+                return cb(CreateVisionError(err,500));
+            }
+            else if(vision==null){
+
+            }
+            else
+            {
+                //update server ask for specific schedule
+                let scheduleIndex=vision.project_schedule.findIndex(schedule=>{return schedule.project_blueprint.name===blueprint});
+                vision.project_schedule[scheduleIndex].server_ask=serverAsk;
+                vision.save((err)=>{
+                    if(err)
+                    {
+                        
+                        reject(CreateVisionError(err,500));
+                        return cb(CreateVisionError(err,500));
+                    }
+                    else{
+                        resolve();
+                        return cb();
+                    }
+                });
+
+            }
+        });
+        
+    });
+
+}
+exports.putBlueprintServerAsk=function(req,res,next){
+    //vision check
+    checkVisionNameValid(req.params.vision_name)    
+    .then((vision)=>{
+        //initialize schedule
+        return exports.CreateNewBlueprintSchedule(vision,req.params.blueprint);
+    })
+    .then(()=>{
+        //update server ask
+        return exports.UpdateServerAsk(req.params.vision_name,req.params.blueprint,req.params.ask)
+    })
+    .then(()=>{
+        //return succss indicator
+        res.json();
+    })
+    .catch(err=>{res.status(err.status).json(err);});
+}
+const CreateVisionError=function(err,statusCode=400,res={}){
+    return{
+        result:err,
+        status:statusCode,
+        err:err,
+        res:res
+
+    }
+}
