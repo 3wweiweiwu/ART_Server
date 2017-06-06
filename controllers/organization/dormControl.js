@@ -68,7 +68,23 @@ exports.create=function(req,res,next){
     
 
 }
-
+exports.GetDorm=function(name)
+{
+    return new Promise((resolve,reject)=>{
+        dormModel.findOne({name:name})
+        .exec((err,res)=>
+        {
+            if(err)
+            {
+                reject(err);
+            }
+            else
+            {
+                resolve(res);
+            }
+        })
+    });
+}
 exports.get=function(req,res,next,query){
     let CPU=0;
     let free_memory_mb=0;

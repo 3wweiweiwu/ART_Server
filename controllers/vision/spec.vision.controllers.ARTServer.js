@@ -9,6 +9,9 @@ var taskImageDeployment  = require('../../model/task/imageDeploy.model.ARTServer
 var projectBlueprintModel=require('../../model/project/projectBlueprint.model.ARTServer')
 var projectModel=require('../../model/project/project.model.ARTServer')
 
+let dormSupport=require('../organization/support.dorm.controller.ARTServer')
+let dormModel=require('../../model/organization/dormModel')
+
 var visionControl=require('./vision.controllers.ARTServer')
 let projectSupport=require('../../controllers/project/support.project.ARTServer')
 let taskSupport=require('../../controllers/task/support.Task.Controllers.ARTServer')
@@ -138,7 +141,10 @@ describe('put /vision',()=>{
                 projectBlueprintModel.remove({},(err)=>{
                     projectModel.remove({}).exec(()=>{
                         visionModel.remove({}).exec(()=>{
-                            done();
+                            dormModel.remove({}).exec(()=>{
+                                done();
+                            })
+                            
                         })
                         
                     });
@@ -254,7 +260,7 @@ describe('put /vision',()=>{
         })
     });    
     it('shall specify server ask with /vision/:vision_name/project_schedule/blueprint/:blueprint/server_ask/:ask',(done)=>{
-        taskSupport.postTaskAPMNewMediaDetection()
+        taskSupport.postTaskAPMNewMediaDetection()        
         .then(taskSupport.posttaskAPMInstall)
         .then(projectSupport.postProjectBlueprintAPMPrestaging)
         .then(visionSupport.PostVisionAPMChef)
@@ -277,7 +283,67 @@ describe('put /vision',()=>{
             });            
         })
     });
-    it('shall specify machine ask with /vision/:vision_name/project_schedule/blueprint/:blueprint/machine/:machine/ask/:ask')
+    it('shall update specified machine ask with /vision/:vision_name/project_schedule/blueprint/:blueprint/machine/:machine/ask/:ask',done=>{
+        taskSupport.postTaskAPMNewMediaDetection()        
+        .then(taskSupport.posttaskAPMInstall)
+        .then(projectSupport.postProjectBlueprintAPMPrestaging)
+        .then(visionSupport.PostVisionAPMChef)
+        .then(()=>{
+            return dormSupport.PostDorm(dormSupport.dorm1)
+        })
+        .then(()=>{
+            return visionSupport.putBlueprintMachineInstance(visionSupport.visionAPMChef.name,projectSupport.projectAPMPrestaging.name,dormSupport.dorm1.name,5);
+        })
+        .then(()=>{
+            return visionSupport.putBlueprintMachineInstance(visionSupport.visionAPMChef.name,projectSupport.projectAPMPrestaging.name,dormSupport.dorm1.name,4);
+        })        
+        .then(()=>{
+            visionModel.findOne({name:visionSupport.visionAPMChef.name})
+            .populate('project_schedule.machine_demand.dorm')
+            .exec((err,vision)=>{
+                if(err)
+                {
+                    assert(false,'incorrect response');
+                    done();
+                }
+                else{                    
+                    assert.equal(vision.project_schedule[0].machine_demand[0].instance,4);
+                    done();
+                }
+            });            
+        })        
+    });
+
+
+    it('shall specify machine ask with /vision/:vision_name/project_schedule/blueprint/:blueprint/machine/:machine/ask/:ask',done=>{
+
+        taskSupport.postTaskAPMNewMediaDetection()        
+        .then(taskSupport.posttaskAPMInstall)
+        .then(projectSupport.postProjectBlueprintAPMPrestaging)
+        .then(visionSupport.PostVisionAPMChef)
+        .then(()=>{
+            return dormSupport.PostDorm(dormSupport.dorm1)
+        })
+        .then(()=>{
+            return visionSupport.putBlueprintMachineInstance(visionSupport.visionAPMChef.name,projectSupport.projectAPMPrestaging.name,dormSupport.dorm1.name,5);
+        })
+        .then(()=>{
+            visionModel.findOne({name:visionSupport.visionAPMChef.name})
+            .populate('project_schedule.machine_demand.dorm')
+            .exec((err,vision)=>{
+                if(err)
+                {
+                    assert(false,'incorrect response');
+                    done();
+                }
+                else{                    
+                    assert.equal(vision.project_schedule[0].machine_demand[0].instance,5);
+                    done();
+                }
+            });            
+        })
+
+    });
 
 
 })

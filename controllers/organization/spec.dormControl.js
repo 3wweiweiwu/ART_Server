@@ -5,6 +5,7 @@ const EventEmitter=require('events');
 let app=require('../../app.js');
 var assert=require('assert');
 var dormModel=require('../../model/organization/dormModel');
+let dormSupport=require('./support.dorm.controller.ARTServer')
 let chai=require('chai');
 let chaiHttp=require('chai-http');
 let should=chai.should();
@@ -14,23 +15,7 @@ class dormControlEmitter extends EventEmitter{}
 
 const myEmitter=new dormControlEmitter();
 
-const PostDorm=function(dormObj,cb=()=>{}){
-    return new Promise((resolve,reject)=>{
-        chai.request(app).post('/api/dorm').send(dormObj).end((err,res)=>{
-            if(err){
-                reject(err);
-                return cb(err,null);
-            }
-                
-            else{
-                resolve(res);
-                cb(null,res)
-            }
-                
-        });
-    });
-
-}
+const PostDorm=dormSupport.PostDorm
 
 
 describe('dorm',()=>{
@@ -94,6 +79,7 @@ describe('dorm',()=>{
             ]
         }
     };
+    
     let dorm1_update={
         name:"test_dorm1",
         system_resource:{

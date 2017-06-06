@@ -3,6 +3,9 @@ var projectModel=require('../../model/project/project.model.ARTServer');
 var projectControl=require('../project/project.controllers.ARTServer')
 let projectBlueprintModel=require('../../model/project/projectBlueprint.model.ARTServer')
 let blueprintControl=require('../project/projectBlueprint.controllers.ARTServer')
+let dormModel=require('../../model/organization/dormModel')
+let dormControl=require('../../controllers/organization/dormControl')
+
 const UpdateBasicVision=function(req,cb=()=>{}){
     return new Promise((resolve,reject)=>{
         visionModel.findOneAndUpdate({name:req.body.name},{
@@ -23,7 +26,15 @@ const UpdateBasicVision=function(req,cb=()=>{}){
         })
     });
 }
+const CreateVisionError=function(err,statusCode=400,res={}){
+    return{
+        result:err,
+        status:statusCode,
+        err:err,
+        res:res
 
+    }
+}
 const CreateBasicVision=function(req,cb=()=>{}){
     return new Promise((resolve,reject)=>{
         visionModel
@@ -53,7 +64,7 @@ const CreateBasicVision=function(req,cb=()=>{}){
     });
 }
 exports.getVision=function(query,cb=()=>{}){
-    return new Promise((resolve,reject)=>{
+    return new Promise((resolve,reject)=>{       
         visionModel
         .find(query)
         .populate({
@@ -281,7 +292,7 @@ exports.CreateNewBlueprintSchedule=function(visions,blueprintName,cb=()=>{}){
             
             //find out schedule for specific blueprint
             vision=visions[0];
-            let result=vision.project_schedule.find(schedule=>{return schedule.name===req.params.blueprint});
+            let result=vision.project_schedule.find(schedule=>{return schedule.name===blueprintName});
             if(result==null){
                 schedule={
                     project_blueprint:blueprint._id,
@@ -332,11 +343,11 @@ exports.PutBlueprint=function(req,res,next){
 exports.UpdateServerAsk=function(vision,blueprint,serverAsk,cb=()=>{}){
     return new Promise((resolve,reject)=>{
 
+        
         visionModel.findOne({
             name:vision            
         })
-        .populate('project_schedule.project_blueprint')
-        .populate('machine_demand.dorm')
+        .populate('project_schedule.project_blueprint')        
         .exec((err,vision)=>{
             if(err){
                 
@@ -387,12 +398,85 @@ exports.putBlueprintServerAsk=function(req,res,next){
     })
     .catch(err=>{res.status(err.status).json(err);});
 }
-const CreateVisionError=function(err,statusCode=400,res={}){
-    return{
-        result:err,
-        status:statusCode,
-        err:err,
-        res:res
 
-    }
+exports.UpdateBlueprintMachineInstance=function(vision,blueprint,machine,ask){
+   return new Promise((resolve,reject)=>{
+        dormControl.GetDorm(machine)
+        .then((machineInfo)=>{
+            //validate machine
+            if(machineInfo==null){
+                //if no machine found, then throw no-machine error
+                result=CreateVisionError('cannot find machine specified',400);
+                return;
+            }
+
+            //machine found, then try to find blueprint
+            visionModel.findOne({
+                name:vision            
+            })
+            .populate({path:'current_projects'})
+            .populate({path:'project_schedule.project_blueprint'})
+            .populate({path:'project_schedule.machine_demand.dorm'})             
+            .exec((err,vision)=>{
+                if(err)
+                {
+                    //defend query error
+                    reject(CreateVisionError(err,500));
+                    return cb(CreateVisionError(err,500));               
+                }
+                else
+                {
+                    //find specific blueprint index
+                    let scheduleIndex=vision.project_schedule.findIndex(schedule=>{return schedule.project_blueprint.name===blueprint});
+                    //find specific machine index
+                    let machineIndex=vision.project_schedule[scheduleIndex].machine_demand.findIndex(machineInstance=>{return machineInstance.dorm.name===machine});
+                    if(machineIndex==-1){
+                        //if it is a new machine, then we push the machine into array
+                        let machine_demand={
+                            dorm:machineInfo._id,
+                            instance:ask
+                        }
+                        vision.project_schedule[scheduleIndex].machine_demand.push(machine_demand);
+                    }
+                    else{
+                        //if machine found, then update the machine info
+                        vision.project_schedule[scheduleIndex].machine_demand[machineIndex].instance=ask;
+                    }
+
+                    vision.save((err)=>{
+                        if(err){
+                            //server error is detected in save
+                            reject(CreateVisionError(err,500));
+                        }
+                        else{
+                            resolve()
+                        }
+                    })                    
+
+                }
+            });
+
+        });
+        
+
+
+
+    });
+}
+exports.putBlueprintMachineInstance=function(req,res,next){
+    //vision check
+    checkVisionNameValid(req.params.vision_name)    
+    .then((vision)=>{
+        //initialize schedule
+        return exports.CreateNewBlueprintSchedule(vision,req.params.blueprint);
+    })
+    .then(()=>{
+        //update machine instance
+        return exports.UpdateBlueprintMachineInstance(req.params.vision_name,req.params.blueprint,req.params.machine,req.params.ask)
+    })
+    .then(()=>{
+        //return succss indicator
+        res.json();
+    })
+    .catch(err=>{res.status(err.status).json(err);});
 }
