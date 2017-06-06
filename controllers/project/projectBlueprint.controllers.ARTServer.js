@@ -65,7 +65,25 @@ const newBlueprint=(req,res,next)=>{
 
 }
 
-
+exports.queryBlueprint=function(blueprint,cb=()=>{}){
+    return new Promise((resolve,reject)=>{
+        projectBlueprintModel.findOne({name:blueprint})
+        .exec((err,query)=>{
+            if(err){
+                let result={
+                    status:500,
+                    err:err
+                }
+                reject(result);
+                return cb({result});
+            }
+            else{
+                resolve(query)
+                return cb(null,query);
+            }
+        });
+    });
+}
 exports.createBlueprint=(req,res,next)=>{
     projectBlueprintModel.remove({name:req.body.name},(err,query)=>{
         newBlueprint(req,res,next)

@@ -79,40 +79,26 @@ describe('blueprint - /post',()=>{
 
     });
     it('shall override when there is existing record in the database',(done)=>{
-        
-        async.series([
-            function(cb){
-                //post task 1
-                taskSpec.PostTask(taskSpec.APMDetection)
-                .then(()=>{cb();})
-            },            
-            function(cb){
-                //post task 2
-                taskSpec.PostTask(taskSpec.APMInstall,()=>{
-                    cb();
-                })                
-            },
-            function(cb){
-                //post blue print
-                postNewBlueprint(projectAPMPrestaging)
-                .then(()=>{cb();})
-            },
-            function(cb){
-                //validate database and ensure blueprint object is what we want
-                projectBlueprintModel
-                .findOne({name:projectAPMPrestaging.name})
-                .populate('tasks.task')
-                .exec((err,blueprint)=>{
-                    assert.equal(blueprint.tasks[0].task.name,projectAPMPrestaging.tasks[0]);
-                    assert.equal(blueprint.tasks[1].task.name,projectAPMPrestaging.tasks[1]);
-                    assert.equal(blueprint.name,projectAPMPrestaging.name);                                        
-                    cb();
-                    done();
-                });
-            }
+        taskSpec.PostTask(taskSpec.APMDetection)
+        .then(()=>{
+            return taskSpec.PostTask(taskSpec.APMInstall);
+        })
+        .then(()=>{
+            return postNewBlueprint(projectAPMPrestaging);
+        })
+        .then(()=>{
+            projectBlueprintModel
+            .findOne({name:projectAPMPrestaging.name})
+            .populate('tasks.task')
+            .exec((err,blueprint)=>{
 
-        ]);
-
+                assert(blueprint.tasks[0].task.name==projectAPMPrestaging.tasks[0]||blueprint.tasks[0].task.name==projectAPMPrestaging.tasks[1]);
+                
+                
+                
+                done();           
+            }); 
+        });
     });
     it('shall return status 400 when invalid task is passed in',(done)=>{
                 

@@ -226,6 +226,35 @@ describe('put /vision',()=>{
             done();
         })
     });
-        
+
+    it('shall create a new empty blueprint schedule with /vision/:vision_name/project_schedule/blueprint/:blueprint',done=>{
+        taskSupport.postTaskAPMNewMediaDetection()
+        .then(taskSupport.posttaskAPMInstall)
+        .then(projectSupport.postProjectBlueprintAPMPrestaging)
+        .then(visionSupport.PostVisionAPMChef)
+        .then(()=>{
+            return visionSupport.PutBlueprintSchedule(visionSupport.visionAPMChef.name,projectSupport.projectAPMPrestaging.name)
+        })
+        .then(()=>{
+            visionModel.findOne({name:visionSupport.visionAPMChef.name})
+            .populate('project_schedule.project_blueprint')
+            .exec((err,vision)=>{
+                if(err)
+                {
+                    assert(false,'incorrect response');
+                    done();
+                }
+                else{
+                    assert.equal(vision.project_schedule[0].project_blueprint.name,projectSupport.projectAPMPrestaging.name);
+                    assert.equal(vision.project_schedule[0].server_ask,1);
+                    assert.equal(vision.project_schedule[0].machine_demand.length,0);
+                    done();
+                }
+            })
+        })
+    });    
+    it('shall specify server ask with /vision/:vision_name/project_schedule/blueprint/:blueprint/server_ask/:ask')
+    it('shall specify machine ask with /vision/:vision_name/project_schedule/blueprint/:blueprint/machine/:machine/ask/:ask')
+
 
 })

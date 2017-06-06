@@ -15,9 +15,7 @@ router.get('/vision/:vision_name',validate(visionValidation.getSpecificVision),f
     return visionControl.get(req,res,next,query);
 })
 
-router.get('/vision',(req,res,next)=>{
-    return visionControl.get(req,res,next,{});
-})
+
 
 router.get('/vision/:vision_name/registry/:key',validate(visionValidation.getRegistry),(req,res,next)=>{
     return visionControl.GetRegistry(req,res,next);
@@ -27,6 +25,30 @@ router.put('/vision/:vision_name/key_projects/:projectBlueprint',validate(vision
     return visionControl.PutKeyProject(req,res,next);
 });
 router.put('/vision/:vision_name/registry',validate(visionValidation.putKeyProject),function(req,res,next){
+    return visionControl.PutRegistry(req,res,next);
+});
+
+router.put('/vision/:vision_name/project_schedule/blueprint',function(req,res,next){
+    return visionControl.PutBlueprint(req,res,next);
+});
+
+
+router.put('/vision/:vision_name/project_schedule/blueprint/:blueprint',validate(visionValidation.putEmptyBlueprintSchedule),function(req,res,next){
+    return visionControl.PutBlueprint(req,res,next);
+});
+
+
+router.get('/vision',(req,res,next)=>{
+    return visionControl.get(req,res,next,{});
+})
+
+
+
+
+router.put('/vision/:vision_name/project_schedule/blueprint/:blueprint/server_ask/:ask',validate(visionValidation.putBlueprintServerAsk),function(req,res,next){
+    return visionControl.PutRegistry(req,res,next);
+});
+router.put('/vision/:vision_name/project_schedule/blueprint/:blueprint/machine/:machine/ask/:ask',validate(visionValidation.putBlueprintMachineInstance),function(req,res,next){
     return visionControl.PutRegistry(req,res,next);
 });
 

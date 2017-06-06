@@ -38,5 +38,26 @@ module.exports={
             key:Joi.string().required(),
             value:Joi.string().required()
         }
-    }    
+    },
+    putBlueprintServerAsk:{
+        params:{
+            vision_name:Joi.string().required(),            
+            blueprint:Joi.string().required(),
+            ask:Joi.number().required()
+        }
+    },
+    putBlueprintMachineInstance:{
+        params:{
+            vision_name:Joi.string().required(),
+            blueprint:Joi.string().required(),
+            machine:Joi.string().required(),
+            ask:Joi.number().required()
+        }
+    },
+    putEmptyBlueprintSchedule:{
+        params:{
+            vision_name:Joi.string().required(),
+            blueprint:Joi.string().required()
+        }
+    }
 }

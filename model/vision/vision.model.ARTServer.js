@@ -18,6 +18,14 @@ var visionModel=new Schema({
     registry:[{
         key:{type:String},
         value:{type:String}
+    }],
+    project_schedule:[{
+        project_blueprint:{type:Schema.Types.ObjectId,ref:'Project.Blueprint'},
+        server_ask:{type:Number},
+        machine_demand:[{
+            dorm:{type:Schema.Types.ObjectId,ref:'Dorm'},
+            instance:{type:Number}
+        }]
     }]
 });
 

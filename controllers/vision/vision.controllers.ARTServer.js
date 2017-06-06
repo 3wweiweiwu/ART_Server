@@ -2,7 +2,7 @@ var visionModel=require('../../model/vision/vision.model.ARTServer');
 var projectModel=require('../../model/project/project.model.ARTServer');
 var projectControl=require('../project/project.controllers.ARTServer')
 let projectBlueprintModel=require('../../model/project/projectBlueprint.model.ARTServer')
-
+let blueprintControl=require('../project/projectBlueprint.controllers.ARTServer')
 const UpdateBasicVision=function(req,cb=()=>{}){
     return new Promise((resolve,reject)=>{
         visionModel.findOneAndUpdate({name:req.body.name},{
@@ -36,7 +36,8 @@ const CreateBasicVision=function(req,cb=()=>{}){
                 current_projects:[],
                 history:[],
                 registry:[],
-                status:req.body.status         
+                status:req.body.status,
+                project_schedule:[]
             });
             vision.save((err)=>{
                 if(err){
@@ -55,6 +56,12 @@ exports.getVision=function(query,cb=()=>{}){
     return new Promise((resolve,reject)=>{
         visionModel
         .find(query)
+        .populate({
+            path:'key_projects'
+        })
+        .populate({path:'current_projects'})
+        .populate({path:'project_schedule.project_blueprint'})
+        .populate({path:'project_schedule.machine_demand.dorm'})        
         .exec((err,res)=>{
             if(err){
                 reject(err);
@@ -155,6 +162,12 @@ const checkVisionNameValid=function(name,cb=()=>{}){
         
     });
 }
+
+const initializeProject=function(vision,cb=()=>{}){
+    return new Promise((resolve,reject)=>{
+        
+    });
+}
 exports.PutKeyProject=function(req,res,next){
 
     checkVisionNameValid(req.params.vision_name)
@@ -247,4 +260,72 @@ exports.GetRegistry=function(req,res,next){
             res.status(400).json({value:null});
         }
     })
+}
+
+
+exports.CreateNewBlueprintSchedule=function(visions,blueprintName,cb=()=>{}){
+    return new Promise((resolve,reject)=>{
+        //validate blueprint status
+        
+        blueprintControl.queryBlueprint(blueprintName)
+        .then(blueprint=>{
+            //if blueprint is not found, then return error
+            if(blueprint==null){
+                let result={
+                    status:400,
+                    err:'unable to find blueprint specified'
+                };
+                reject(result)
+                return cb(result);
+            }        
+            
+            //find out schedule for specific blueprint
+            vision=visions[0];
+            let result=vision.project_schedule.find(schedule=>{return schedule.name===req.params.blueprint});
+            if(result==null){
+                schedule={
+                    project_blueprint:blueprint._id,
+                    server_ask:1,
+                    machine_demand:[]
+                }
+                vision.project_schedule.push(schedule);
+                vision.save((err)=>{
+                    if(err){
+                        let result={
+                            status:500,
+                            err:err
+                        };
+                        reject(result);
+                        return result
+
+                    }
+                    else{
+                        resolve();
+                        return cb(null)
+                    }
+                    
+                })
+            }
+            else{
+                //if there is existing project schedule, then simply return
+                resolve();
+                return cb(null)
+            }
+            
+        });
+
+
+
+    });
+}
+exports.PutBlueprint=function(req,res,next){
+    
+    checkVisionNameValid(req.params.vision_name)    
+    .then((vision)=>{
+        return exports.CreateNewBlueprintSchedule(vision,req.params.blueprint);
+    })
+    .then(()=>{
+        res.json();
+    })
+    .catch(err=>{res.status(err.status).json(err);});
 }

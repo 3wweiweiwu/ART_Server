@@ -85,6 +85,25 @@ exports.PutRegistryMachine2=()=>{
     return exports.PutRegistry(exports.registryMachineName2.name,exports.registryMachineName2.key,exports.registryMachineName2.value);
 }
 
+exports.PutBlueprintSchedule=function(visionName,blueprintName,cb=()=>{}){
+     return new Promise((resolve,reject)=>{
+        chai
+        .request(app)
+        .put(`/api/vision/${visionName}/project_schedule/blueprint/${blueprintName}`)
+        .end((err,res)=>{
+            if(err){
+                let result={err:err,res:res}
+                reject(result);
+                return cb(result);
+            }
+            else{
+                resolve(res);
+                return cb(null,res);
+            }
+        });
+    });   
+}
+
 exports.visionAPMChef={
     name:'APM_Chef',
     note:'Prepare daily APM image',
