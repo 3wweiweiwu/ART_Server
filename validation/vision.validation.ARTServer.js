@@ -73,27 +73,32 @@ module.exports={
     },
     deleteKeyProject:{
         params:{
+            vision_name:Joi.string().required(),
             projectName:Joi.string().required()
         }
     },
     deleteCurrentProject:{
         params:{
+            vision_name:Joi.string().required(),
             projectId:Joi.string().required()
         }        
     },
     deleteProjectSchedule:{
         params:{
+            vision_name:Joi.string().required(),
             blueprint:Joi.string().required()
         }
     },
     deleteDormInProjectSchedule:{
         params:{
+            vision_name:Joi.string().required(),
             blueprint:Joi.string().required(),
             dorm:Joi.string().required()
         }
     },
     deleteNextBlueprintFromSchedule:{
         params:{
+            vision_name:Joi.string().required(),
             blueprint:Joi.string().required(),
             nextBlueprint:Joi.string().required()
         }

@@ -2,7 +2,7 @@ var projectBlueprintModel=require('../../model/project/projectBlueprint.model.AR
 var taskModel=require('../../model/task/task.model.ARTServer.js');
 var EventEmitter=require('events');
 var async=require('async');
-
+let standardError=require('../common/error.controllers.ARTServer')
 class bluePrintClass extends EventEmitter{};
 
 
@@ -26,6 +26,7 @@ exports.getBlueprints = function (blueprintQuery,cb=()=>{}) {
         
     });
 }
+
 
 
 const newBlueprint=(req,res,next)=>{
@@ -102,6 +103,29 @@ exports.queryBlueprint=function(blueprint,cb=()=>{}){
         });
     });
 }
+
+exports.isBlueprintValid=function(blueprint,cb=()=>{}){
+    return new Promise((resolve,reject)=>{
+        exports.queryBlueprint(blueprint)
+        .then((blueprint)=>{
+            if(blueprint==null)
+            {
+                reject(standardError('blueprint is invalid',400))
+                return cb(standardError('blueprint is invalid',400));
+            }
+            else{
+                resolve(blueprint);
+                return cb(null,blueprint);;
+            }
+        })
+        .catch(err=>{
+            reject(err);
+            return cb(err);
+        })
+
+    });
+};
+
 exports.createBlueprint=(req,res,next)=>{
     projectBlueprintModel.remove({name:req.body.name},(err,query)=>{
         newBlueprint(req,res,next)

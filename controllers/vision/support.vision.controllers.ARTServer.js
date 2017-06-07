@@ -34,6 +34,42 @@ exports.postNewVision=function(visionObj,cb=()=>{}){
     });
 }
 
+exports.PutKeyProject=function(vision,blueprint,cb=()=>{}){
+    return new Promise((resolve,reject)=>{
+        chai
+            .request(app)
+            .put(`/api/vision/${vision}/key_projects/${blueprint}`)
+            .end((err, res) => {
+                if(err){
+                    let result={err:err,res:res}
+                    reject(result);
+                    return cb(result);
+                }
+                else{
+                    resolve(res);
+                    return cb(null,res);
+                }            
+            });        
+    })
+}
+exports.deleteKeyProject=function(vision,blueprint,cb=()=>{}){
+    return new Promise((resolve,reject)=>{
+        chai
+            .request(app)
+            .del(`/api/vision/${vision}/key_projects/${blueprint}`)
+            .end((err, res) => {
+                if(err){
+                    let result={err:err,res:res}
+                    reject(result);
+                    return cb(result);
+                }
+                else{
+                    resolve(res);
+                    return cb(null,res);
+                }            
+            });        
+    })
+}
 exports.PutRegistry=(visionName,key,value,cb=()=>{})=>{
     return new Promise((resolve,reject)=>{
         chai

@@ -5,7 +5,7 @@ let projectBlueprintModel = require('../../model/project/projectBlueprint.model.
 let blueprintControl = require('../project/projectBlueprint.controllers.ARTServer')
 let dormModel = require('../../model/organization/dormModel')
 let dormControl = require('../../controllers/organization/dormControl')
-
+let standardError=require('../common/error.controllers.ARTServer')
 const UpdateBasicVision = function (req, cb = () => { }) {
     return new Promise((resolve, reject) => {
         visionModel.findOneAndUpdate({ name: req.body.name }, {
@@ -26,15 +26,7 @@ const UpdateBasicVision = function (req, cb = () => { }) {
             })
     });
 }
-const CreateVisionError = function (err, statusCode = 400, res = {}) {
-    return {
-        result: err,
-        status: statusCode,
-        err: err,
-        res: res
-
-    }
-}
+const CreateVisionError = standardError;
 const CreateBasicVision = function (req, cb = () => { }) {
     return new Promise((resolve, reject) => {
         visionModel
@@ -202,7 +194,7 @@ exports.PutKeyProject = function (req, res, next) {
                     }
                     else {
                         //if blueprint is found, then link blueprint with project
-                        vision[0].key_projects.push(blueprint._id);
+                        vision[0].key_projects.push({project_blueprint:blueprint._id});
                         vision[0].save((err) => {
                             if (err) {
                                 //if error is found, then return error
@@ -541,19 +533,78 @@ exports.putNextBlueprint = function (req, res, next) {
             
         });        
 }
-
+exports.RemoveKeyProject=function(visionName,blueprintName){
+    //this function is used to remove key Blueprint
+    return new Promise((resolve,reject)=>{
+        visionModel.findOne({name:visionName})
+        .populate('key_projects.project_blueprint')
+        .exec((err,vision)=>{
+            if(err){
+                reject(standardError(err,500));
+            }
+            else{
+                //remove blueprint from key project
+                vision.key_projects=vision.key_projects.filter(item=>{item.project_blueprint.name!=blueprintName});
+                vision.save(err=>{
+                    if(err){
+                        //error during save
+                        reject(standardError(err,500));
+                    }
+                    else{
+                        //save success
+                        resolve();
+                    }
+                });
+            }
+        });
+        
+    });
+}
 exports.deleteKeyProject=function(req,res,next){
-
+    checkVisionNameValid(req.params.vision_name)
+        .then(()=>{
+            //check if blueprint is valid
+            return blueprintControl.isBlueprintValid(req.params.projectName);
+        })
+        .then(()=>{
+            //remove key blueprint
+            return exports.RemoveKeyProject(req.params.vision_name,req.params.projectName);
+        })
+        .then(()=>{
+            //delete successfully
+            res.json();
+        })
+        .catch((err)=>{
+            res.status(err.status).json(err);             
+        }); 
 }
 exports.deleteCurrentProject=function(req,res,next){
-    
+    checkVisionNameValid(req.params.vision_name)
+        .then(()=>{
+            return blueprintControl.isBlueprintValid(req.params.vision_name);
+        })
+        .catch((err)=>{
+            res.status(err.status).json(err);             
+        });     
 }
 exports.deleteKeydeleteProjectScheduleProject=function(req,res,next){
-    
+    checkVisionNameValid(req.params.vision_name)
+        .then()
+        .catch((err)=>{
+            res.status(err.status).json(err);             
+        });     
 }
 exports.deleteDormInProjectSchedule=function(req,res,next){
-    
+    checkVisionNameValid(req.params.vision_name)
+        .then()
+        .catch((err)=>{
+            res.status(err.status).json(err);             
+        });     
 }
 exports.deleteNextBlueprintFromSchedule=function(req,res,next){
-    
+    checkVisionNameValid(req.params.vision_name)
+        .then()
+        .catch((err)=>{
+            res.status(err.status).json(err);             
+        });     
 }

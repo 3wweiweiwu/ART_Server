@@ -186,21 +186,22 @@ describe('put /vision', () => {
             .then(taskSupport.posttaskAPMInstall)
             .then(projectSupport.postProjectBlueprintAPMPrestaging)
             .then(visionSupport.PostVisionAPMChef)
-            .then(() => {
-                chai
-                    .request(app)
-                    .put(`/api/vision/${visionSupport.visionAPMChef.name}/key_projects/${projectSupport.projectAPMPrestaging.name}`)
-                    .end((err, res) => {
-                        assert.equal(200, res.status);
-                        assert.equal(res.body.result, 'ok')
-                        visionModel
-                            .findOne({ name: visionSupport.visionAPMChef.name })
-                            .then(query => {
-                                assert.equal(query.key_projects.length, 1);
-                                done();
-                            });
+            .then(()=>{
+                return visionSupport.PutKeyProject(visionSupport.visionAPMChef.name,projectSupport.projectAPMPrestaging.name);
+            })
+            .then((res) => {
 
+
+                assert.equal(200, res.status);
+                assert.equal(res.body.result, 'ok')
+                visionModel
+                    .findOne({ name: visionSupport.visionAPMChef.name })
+                    .then(query => {
+                        assert.equal(query.key_projects.length, 1);
+                        done();
                     });
+
+
             });
     });
     it('shall return 400 if vision name is invalid when putting against  /vision/:vision_name/registry', (done) => {
@@ -475,8 +476,52 @@ describe('put /vision', () => {
 });
 
 describe('/delete',()=>{
-    
-    it('shall delete key projects with /vision/:vision_name/key_projects/:projectName');
+    beforeEach((done) => {
+        taskModel.remove({}, (err) => {
+            taskImageDeployment.remove({}, (err) => {
+
+                projectBlueprintModel.remove({}, (err) => {
+                    projectModel.remove({}).exec(() => {
+                        visionModel.remove({}).exec(() => {
+                            dormModel.remove({}).exec(() => {
+                                done();
+                            })
+
+                        })
+
+                    });
+                })
+
+            })
+
+        });
+
+    });    
+    it('shall delete key projects with /vision/:vision_name/key_projects/:projectName',done=>{
+        taskSupport.postTaskAPMNewMediaDetection()
+            .then(taskSupport.posttaskAPMInstall)
+            .then(projectSupport.postProjectBlueprintAPMPrestaging)
+            .then(visionSupport.PostVisionAPMChef)
+            .then(()=>{
+                return visionSupport.PutKeyProject(visionSupport.visionAPMChef.name,projectSupport.projectAPMPrestaging.name);
+            })
+            .then(()=>{
+                return visionSupport.deleteKeyProject(visionSupport.visionAPMChef.name,projectSupport.projectAPMPrestaging.name)                
+            })
+            .then(()=>{
+                visionModel.findOne({name:visionSupport.visionAPMChef.name})
+                .exec((err,vision)=>{
+                    if(err){
+                        assert(false,err);
+                        done();
+                    }
+                    else{
+                        assert.equal(vision.key_projects.length,0);
+                        done();
+                    }
+                })
+            });
+    });
     it('shall throw 400 error when vision name is invalid vision/:vision_name/key_projects/:projectName')
     it('shall throw 400 error when projectname is invalid /vision/:vision_name/key_projects/:projectName');
 
@@ -492,7 +537,7 @@ describe('/delete',()=>{
     it('shall return 400 error when blueprint is invalid /vision/:vision_name/project_schedule/:blueprint')
     it('shall return 400 error when dorm is invalid /vision/:vision_name/project_schedule/:blueprint')
     it('shall return 400 error when vision is invalid')
-    
+
     it('shall delete nextBlueprint /vision/:vision_name/project_schedule/:blueprint/next/:nextBlueprint')
     it('shall throw 400 error when  blueprint is invlaid /vision/:vision_name/project_schedule/:blueprint/next/:nextBlueprint')
     it('shall throw 400 error when nextblueprint is invalid /vision/:vision_name/project_schedule/:blueprint/next/:nextBlueprint')
