@@ -7,7 +7,25 @@ class bluePrintClass extends EventEmitter{};
 
 
 
-
+exports.getBlueprints = function (blueprintQuery,cb=()=>{}) {
+    return new Promise((resolve,reject)=>{
+        //validate baseblueprint and next blueprint to ensure its validation
+        projectBlueprintModel            
+            .find(blueprintQuery)
+            .exec((err,res)=>{
+                if(err)
+                {
+                    reject(err);
+                    return cb(err);
+                }
+                else{
+                    resolve(res);
+                    return cb(null,res)
+                }
+            })
+        
+    });
+}
 
 
 const newBlueprint=(req,res,next)=>{

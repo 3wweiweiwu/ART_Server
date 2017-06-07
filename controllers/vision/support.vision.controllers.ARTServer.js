@@ -140,6 +140,25 @@ exports.putBlueprintMachineInstance=function(visionName,blueprintName,machine,as
         });
     });   
 }
+
+exports.putNextBlueprint=function(visionName,baseBlueprint,nextBlueprint,cb=()=>{}){
+     return new Promise((resolve,reject)=>{
+        chai
+        .request(app)
+        .put(`/api/vision/${visionName}/project_schedule/blueprint/${baseBlueprint}/next/${nextBlueprint}`)
+        .end((err,res)=>{
+            if(err){
+                let result={err:err,res:res}
+                reject(result);
+                return cb(result);
+            }
+            else{
+                resolve(res);
+                return cb(null,res);
+            }
+        });
+    });   
+}
 exports.visionAPMChef={
     name:'APM_Chef',
     note:'Prepare daily APM image',

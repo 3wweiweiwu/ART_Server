@@ -68,3 +68,6 @@ exports.postProjectBlueprintAPMPrestaging=()=>{
     return exports.PostNewBlueprint(exports.projectAPMPrestaging);
 }
 
+exports.postProjectBlueprintAESPrestaging1=()=>{
+    return exports.PostNewBlueprint(exports.projectAPMPrestaging1);
+}

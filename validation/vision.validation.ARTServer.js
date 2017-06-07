@@ -59,5 +59,11 @@ module.exports={
             vision_name:Joi.string().required(),
             blueprint:Joi.string().required()
         }
+    },
+    putNextBlueprint:{
+        params:{
+            vision_name:Joi.string().required(),
+            blueprint:Joi.string().required()
+        }
     }
 }

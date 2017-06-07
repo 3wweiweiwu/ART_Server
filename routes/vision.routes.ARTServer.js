@@ -42,6 +42,9 @@ router.put('/vision/:vision_name/project_schedule/blueprint/:blueprint/server_as
     return visionControl.putBlueprintServerAsk(req,res,next);
 });
 
+router.put('/vision/:vision_name/project_schedule/blueprint/:blueprint/next/:next',validate(visionValidation.putNextBlueprint),function(req,res,next){
+    return visionControl.putNextBlueprint(req,res,next);
+});
 
 router.put('/vision/:vision_name/project_schedule/blueprint/:blueprint',validate(visionValidation.putEmptyBlueprintSchedule),function(req,res,next){
     return visionControl.PutBlueprint(req,res,next);
