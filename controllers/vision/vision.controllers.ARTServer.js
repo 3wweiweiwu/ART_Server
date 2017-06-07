@@ -541,3 +541,19 @@ exports.putNextBlueprint = function (req, res, next) {
             
         });        
 }
+
+exports.deleteKeyProject=function(req,res,next){
+
+}
+exports.deleteCurrentProject=function(req,res,next){
+    
+}
+exports.deleteKeydeleteProjectScheduleProject=function(req,res,next){
+    
+}
+exports.deleteDormInProjectSchedule=function(req,res,next){
+    
+}
+exports.deleteNextBlueprintFromSchedule=function(req,res,next){
+    
+}

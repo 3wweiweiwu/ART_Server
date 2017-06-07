@@ -57,19 +57,25 @@ router.put('/vision',validate(visionValidation.post),function(req,res,next){
 });
 
 
-router.put('/vision/:vision_name/current_projects/:projectName',function(req,res,next){
+router.put('/vision/:vision_name/current_projects/:projectName',validate(visionValidation.put),function(req,res,next){
     return visionControl.put(req,res,next);
 });
 
-router.delete('/vision/:vision_name/key_projects/:projectName',function(req,res,next){
-    return visionControl.put(req,res,next);
+router.delete('/vision/:vision_name/key_projects/:projectName',validate(visionValidation.deleteKeyProject),function(req,res,next){
+    return visionControl.deleteKeyProject(req,res,next);
 });
-router.delete('/vision/:vision_name/current_projects/:projectId',function(req,res,next){
-    return visionControl.put(req,res,next);
+router.delete('/vision/:vision_name/current_projects/:projectId',validate(visionValidation.deleteCurrentProject),function(req,res,next){
+    return visionControl.deleteCurrentProject(req,res,next);
 });
-
-
-
+router.delete('/vision/:vision_name/project_schedule/:blueprint',validate(visionValidation.deleteProjectSchedule),function(req,res,next){
+    return visionControl.deleteProjectSchedule(req,res,next);
+});
+router.delete('/vision/:vision_name/project_schedule/:blueprint/machine_demand/:dorm',validate(visionValidation.deleteDormInProjectSchedule),function(req,res,next){
+    return visionControl.deleteDormInProjectSchedule(req,res,next);
+});
+router.delete('/vision/:vision_name/project_schedule/:blueprint/next/:nextBlueprint',validate(visionValidation.deleteNextBlueprintFromSchedule),function(req,res,next){
+    return visionControl.deleteNextBlueprintFromSchedule(req,res,next);
+});
 
 
 

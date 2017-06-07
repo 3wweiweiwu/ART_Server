@@ -472,4 +472,30 @@ describe('put /vision', () => {
             });                     
     });
 
+});
+
+describe('/delete',()=>{
+    
+    it('shall delete key projects with /vision/:vision_name/key_projects/:projectName');
+    it('shall throw 400 error when vision name is invalid vision/:vision_name/key_projects/:projectName')
+    it('shall throw 400 error when projectname is invalid /vision/:vision_name/key_projects/:projectName');
+
+    it('shall delete project in current project /vision/:vision_name/current_projects/:projectId')
+    it('shall report 400 error if projectid is invalid /vision/:vision_name/current_projects/:projectId')
+    it('shall report 400 error if vision is invalid /vision/:vision_name/current_projects/:projectId')
+
+    it('shall delete blueprint schedule /vision/:vision_name/project_schedule/:blueprint')
+    it('shall throw 400 error when blueprint is invalid /vision/:vision_name/project_schedule/:blueprint')
+    it('shall throw 400 error if vision is invalid /vision/:vision_name/project_schedule/:blueprint')
+
+    it('shall delete dorm  /vision/:vision_name/project_schedule/:blueprint')
+    it('shall return 400 error when blueprint is invalid /vision/:vision_name/project_schedule/:blueprint')
+    it('shall return 400 error when dorm is invalid /vision/:vision_name/project_schedule/:blueprint')
+    it('shall return 400 error when vision is invalid')
+    
+    it('shall delete nextBlueprint /vision/:vision_name/project_schedule/:blueprint/next/:nextBlueprint')
+    it('shall throw 400 error when  blueprint is invlaid /vision/:vision_name/project_schedule/:blueprint/next/:nextBlueprint')
+    it('shall throw 400 error when nextblueprint is invalid /vision/:vision_name/project_schedule/:blueprint/next/:nextBlueprint')
+    it('shall throw 400 error when vision name is invalid /vision/:vision_name/project_schedule/:blueprint/next/:nextBlueprint')
+
 })
