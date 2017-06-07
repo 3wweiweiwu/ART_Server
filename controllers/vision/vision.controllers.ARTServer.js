@@ -515,7 +515,10 @@ exports.UpdateNextBlueprint=function(vision_name,baseBlueprint,nextBlueprint,cb=
 
                     })
 
-            })        
+            })
+            .catch(err=>{
+                reject(err);
+            })
     });
 }
 exports.putNextBlueprint = function (req, res, next) {
@@ -532,5 +535,8 @@ exports.putNextBlueprint = function (req, res, next) {
             //return succss indicator
             res.json();
         })
-        .catch(err => { res.status(err.status).json(err); });        
+        .catch((err)=>{
+            res.status(err.status).json(err); 
+            
+        });        
 }

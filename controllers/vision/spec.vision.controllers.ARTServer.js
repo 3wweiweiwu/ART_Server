@@ -258,6 +258,24 @@ describe('put /vision', () => {
                     });
             })
     });
+    it('shall return 400 error when blueprint is inalid with /vision/:vision_name/project_schedule/blueprint/:blueprint', done => {
+        taskSupport.postTaskAPMNewMediaDetection()
+            .then(taskSupport.posttaskAPMInstall)
+            .then(projectSupport.postProjectBlueprintAPMPrestaging)
+            .then(visionSupport.PostVisionAPMChef)
+            .then(() => {
+                return visionSupport.PutBlueprintSchedule(visionSupport.visionAPMChef.name, projectSupport.projectAPMPrestaging.name)
+            })
+            .then(() => {
+                assert(false,'it shall return 400 error')
+                done();
+            })
+            .catch((err)=>{
+                assert.equal(err.err.status,400);
+                done();               
+            })
+    });
+
     it('shall specify server ask with /vision/:vision_name/project_schedule/blueprint/:blueprint/server_ask/:ask', (done) => {
         taskSupport.postTaskAPMNewMediaDetection()
             .then(taskSupport.posttaskAPMInstall)
@@ -372,7 +390,45 @@ describe('put /vision', () => {
             })
 
     });
-    it('shall throw error when initial blueprint is invlaid list with /vision/:vision_name/project_schedule/blueprint/:blueprint/next/:next')
-    it('shall throw error when next blueprint is invlaid list with /vision/:vision_name/project_schedule/blueprint/:blueprint/next/:next')
+    it('shall throw error when initial blueprint is invlaid list with /vision/:vision_name/project_schedule/blueprint/:blueprint/next/:next',done=>{
+        taskSupport.postTaskAPMNewMediaDetection()
+            .then(taskSupport.posttaskAPMInstall)
+            .then(projectSupport.postProjectBlueprintAESPrestaging1)
+            .then(visionSupport.PostVisionAPMChef)
+            .then(() => {
+                return dormSupport.PostDorm(dormSupport.dorm1)
+            })
+            .then(() => {
+                return visionSupport.putNextBlueprint(visionSupport.visionAPMChef.name, projectSupport.projectAPMPrestaging.name, projectSupport.projectAPMPrestaging1.name);
+            })
+            .then(()=>{
+                assert(false,'error should be thrown as initial blueprint is invalid')
+                done();
+            })
+            .catch((err)=>{
+                assert.equal(err.err.status,400);
+                done();
+            });
+    });
+    it('shall throw error when next blueprint is invlaid list with /vision/:vision_name/project_schedule/blueprint/:blueprint/next/:next',done=>{
+        taskSupport.postTaskAPMNewMediaDetection()
+            .then(taskSupport.posttaskAPMInstall)
+            .then(projectSupport.postProjectBlueprintAPMPrestaging)
+            .then(visionSupport.PostVisionAPMChef)        
+            .then(() => {
+                return dormSupport.PostDorm(dormSupport.dorm1)
+            })
+            .then(() => {
+                return visionSupport.putNextBlueprint(visionSupport.visionAPMChef.name, projectSupport.projectAPMPrestaging.name, projectSupport.projectAPMPrestaging1.name);
+            })   
+            .then(()=>{
+                assert(false,'error should be thrown as initial blueprint is invalid')
+                done();
+            })
+            .catch((err)=>{
+                assert.equal(err.err.status,400);
+                done();
+            });                     
+    });
 
 })
