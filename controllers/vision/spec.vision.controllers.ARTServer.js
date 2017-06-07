@@ -264,7 +264,7 @@ describe('put /vision', () => {
             .then(projectSupport.postProjectBlueprintAPMPrestaging)
             .then(visionSupport.PostVisionAPMChef)
             .then(() => {
-                return visionSupport.PutBlueprintSchedule(visionSupport.visionAPMChef.name, projectSupport.projectAPMPrestaging.name)
+                return visionSupport.PutBlueprintSchedule(visionSupport.visionAPMChef.name, 'invalid blueprint')
             })
             .then(() => {
                 assert(false,'it shall return 400 error')
@@ -299,6 +299,25 @@ describe('put /vision', () => {
                     });
             })
     });
+    it('shall return error for invalid blueprint name with /vision/:vision_name/project_schedule/blueprint/:blueprint/server_ask/:ask', (done) => {
+        taskSupport.postTaskAPMNewMediaDetection()
+            .then(taskSupport.posttaskAPMInstall)
+            .then(projectSupport.postProjectBlueprintAPMPrestaging)
+            .then(visionSupport.PostVisionAPMChef)
+            .then(() => {
+                return visionSupport.putBlueprintServerAsk(visionSupport.visionAPMChef.name, projectSupport.projectAPMPrestaging1.name, 5)
+            })
+            .then(() => {
+                assert(false,'shall return error for this');
+                done();                
+
+            })
+            .catch((err)=>{
+                assert.equal(err.err.status,400)
+                done();
+            })
+    });
+
     it('shall update specified machine ask with /vision/:vision_name/project_schedule/blueprint/:blueprint/machine/:machine/ask/:ask', done => {
         taskSupport.postTaskAPMNewMediaDetection()
             .then(taskSupport.posttaskAPMInstall)
@@ -328,7 +347,29 @@ describe('put /vision', () => {
                     });
             })
     });
-
+    it('shall return error 400 for invalid machine name /vision/:vision_name/project_schedule/blueprint/:blueprint/machine/:machine/ask/:ask', done => {
+        taskSupport.postTaskAPMNewMediaDetection()
+            .then(taskSupport.posttaskAPMInstall)
+            .then(projectSupport.postProjectBlueprintAPMPrestaging)
+            .then(visionSupport.PostVisionAPMChef)
+            .then(() => {
+                return dormSupport.PostDorm(dormSupport.dorm1)
+            })
+            .then(() => {
+                return visionSupport.putBlueprintMachineInstance(visionSupport.visionAPMChef.name, projectSupport.projectAPMPrestaging.name, dormSupport.dorm1.name, 5);
+            })
+            .then(() => {
+                return visionSupport.putBlueprintMachineInstance(visionSupport.visionAPMChef.name, projectSupport.projectAPMPrestaging.name, 'invalid machine name', 4);
+            })
+            .then(() => {
+                assert(false,'shall return error 400');
+                done();
+            })
+            .catch(err=>{
+                assert.equal(err.err.status,400)
+                done();
+            });
+    });
 
     it('shall specify machine ask with /vision/:vision_name/project_schedule/blueprint/:blueprint/machine/:machine/ask/:ask', done => {
 

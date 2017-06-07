@@ -400,6 +400,7 @@ exports.UpdateBlueprintMachineInstance = function (vision, blueprint, machine, a
                 if (machineInfo == null) {
                     //if no machine found, then throw no-machine error
                     result = CreateVisionError('cannot find machine specified', 400);
+                    reject(result);
                     return;
                 }
 
