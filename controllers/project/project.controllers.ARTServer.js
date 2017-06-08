@@ -1,6 +1,7 @@
 var projectModel=require('../../model/project/project.model.ARTServer');
 var projectBlueprintModel=require('../../model/project/projectBlueprint.model.ARTServer');
 var projectStatus=require('./status.project.controllers.ARTServer')
+let CreateStandardError=require('../common/error.controllers.ARTServer')
 exports.CreateNewProject=function(projectBlueprint,cb=()=>{}){
     //create new project based on project blueprint
     return new Promise((resolve,reject)=>{
@@ -59,7 +60,7 @@ exports.GetProjectById=function(id,cb=()=>{}){
         .exec((err,project)=>{
             if(err){
                 reject(err);
-                return cb(err);
+                return cb(CreateStandardError(err,500));
             }
             else{
                 resolve(project);
@@ -68,4 +69,22 @@ exports.GetProjectById=function(id,cb=()=>{}){
         });
 
     });
+}
+
+exports.isProjectValid=function(id){
+    return new Promise((resolve,reject)=>{
+        exports.GetProjectById(id)
+        .then(project=>{
+            if(project!=null){
+                resolve(project)
+            }
+            else
+            {   reject(CreateStandardError(`project id:{id} is invalid`,400))
+                
+            }
+        })
+        .catch(err=>{
+            reject(err);
+        });
+    })
 }

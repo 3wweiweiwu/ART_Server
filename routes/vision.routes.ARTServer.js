@@ -6,9 +6,15 @@ var validate = require('express-validation')
 var visionValidation=require('../validation/vision.validation.ArtServer.js')
 
 
+router.post('/vision/:vision/NewProject/:blueprint',validate(visionValidation.postNewProject),function(req, res, next) {
+    return visionControl.postNewProject(req,res,next);    
+});
+
 router.post('/vision',validate(visionValidation.post),function(req, res, next) {
     return visionControl.create(req,res,next);    
 });
+
+
 
 router.get('/vision/:vision_name',validate(visionValidation.getSpecificVision),function(req,res,next){
     query={name:req.params.vision_name}
@@ -41,6 +47,8 @@ router.put('/vision/:vision_name/project_schedule/blueprint/:blueprint/machine/:
 router.put('/vision/:vision_name/project_schedule/blueprint/:blueprint/server_ask/:ask',validate(visionValidation.putBlueprintServerAsk),function(req,res,next){
     return visionControl.putBlueprintServerAsk(req,res,next);
 });
+
+
 
 router.put('/vision/:vision_name/project_schedule/blueprint/:blueprint/next/:next',validate(visionValidation.putNextBlueprint),function(req,res,next){
     return visionControl.putNextBlueprint(req,res,next);

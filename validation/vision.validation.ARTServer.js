@@ -8,6 +8,12 @@ module.exports={
             status:Joi.string().required()
         }
     },
+    postNewProject:{
+        params:{
+            vision:Joi.string().required(),
+            blueprint:Joi.string().required(),                
+        }
+    },    
     getSpecificVision:{
         params:{
             vision_name:Joi.string().required()

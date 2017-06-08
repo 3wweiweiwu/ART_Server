@@ -23,9 +23,25 @@ chai.use(chaiHttp);
 
 describe('post /vision', () => {
     beforeEach((done) => {
-        visionModel.remove({}, (err) => {
-            done();
-        })
+        taskModel.remove({}, (err) => {
+            taskImageDeployment.remove({}, (err) => {
+
+                projectBlueprintModel.remove({}, (err) => {
+                    projectModel.remove({}).exec(() => {
+                        visionModel.remove({}).exec(() => {
+                            dormModel.remove({}).exec(() => {
+                                done();
+                            })
+
+                        })
+
+                    });
+                })
+
+            })
+
+        });
+
     });
     it('shall throw error when argument is not complete', (done) => {
         visionSupport.postNewVision(visionSupport.visionAPMChefIncomplete)
@@ -52,6 +68,84 @@ describe('post /vision', () => {
                     });
 
 
+            })
+    });
+    it('shall post new project into vision with /vision/:vision/NewProject/:blueprint',done=>{
+        taskSupport.postTaskAPMNewMediaDetection()
+            .then(taskSupport.posttaskAPMInstall)
+            .then(projectSupport.postProjectBlueprintAPMPrestaging)
+            .then(visionSupport.PostVisionAPMChef)        
+            .then(()=>{
+                return visionSupport.postNewProject(visionSupport.visionAPMChef.name,projectSupport.projectAPMPrestaging.name)
+            })
+            .then(()=>{
+                visionModel.findOne({name:visionSupport.visionAPMChef.name})
+                    .populate('current_projects._project')
+                    .exec((err,vision)=>{
+                        if(err){
+                            assert(false,err);
+                            done();
+                        }
+                        else{
+                            assert.equal(vision.current_projects.length,1);
+                            assert.equal(vision.current_projects[0]._project.status,1);
+                            done();
+                        }
+                    });                  
+            })
+    });
+    it('shall throw 400 error with invalid vision name /vision/:vision/NewProject/:blueprint',done=>{
+        taskSupport.postTaskAPMNewMediaDetection()
+            .then(taskSupport.posttaskAPMInstall)
+            .then(projectSupport.postProjectBlueprintAPMPrestaging)
+            .then(visionSupport.PostVisionAPMChef)        
+            .then(()=>{
+                return visionSupport.postNewProject('invalid vision name',projectSupport.projectAPMPrestaging.name)
+            })
+            .then(()=>{
+                assert.fail(false,'the vision name is invalid. expect error 400')
+            })
+            .catch((err)=>{
+                assert.equal(err.err.status,400);
+                visionModel.findOne({name:visionSupport.visionAPMChef.name})
+                    .populate('current_projects._project')
+                    .exec((err,vision)=>{
+                        if(err){
+                            assert(false,err);
+                            done();
+                        }
+                        else{
+                            assert.equal(vision.current_projects.length,0);                            
+                            done();
+                        }
+                    });                  
+            })
+    });
+    it('shall throw 400 error when invalid blueprint name /vision/:vision/NewProject/:blueprint',done=>{
+        taskSupport.postTaskAPMNewMediaDetection()
+            .then(taskSupport.posttaskAPMInstall)
+            .then(projectSupport.postProjectBlueprintAPMPrestaging)
+            .then(visionSupport.PostVisionAPMChef)        
+            .then(()=>{
+                return visionSupport.postNewProject(visionSupport.visionAPMChef.name,'invalid blueprint')
+            })
+            .then(()=>{
+                assert.fail(false,'the vision name is invalid. expect error 400')
+            })
+            .catch((err)=>{
+                assert.equal(err.err.status,400);
+                visionModel.findOne({name:visionSupport.visionAPMChef.name})
+                    .populate('current_projects._project')
+                    .exec((err,vision)=>{
+                        if(err){
+                            assert(false,err);
+                            done();
+                        }
+                        else{
+                            assert.equal(vision.current_projects.length,0);                            
+                            done();
+                        }
+                    });                  
             })
     });
 
@@ -473,6 +567,7 @@ describe('put /vision', () => {
             });                     
     });
 
+    
 });
 
 describe('/delete',()=>{
@@ -582,7 +677,17 @@ describe('/delete',()=>{
             });
     });
 
-    it('shall delete project in current project /vision/:vision_name/current_projects/:projectId')
+    // it('shall delete project in current project /vision/:vision_name/current_projects/:projectId',done=>{
+    //     const CreateNewProject=()=>{
+    //         return projectControl.CreateNewProject(projectSupport.projectAPMPrestaging.name);
+    //     }
+    //     //real workflow procedure
+    //     taskSupport.postTaskAPMNewMediaDetection()
+    //     .then(taskSupport.posttaskAPMInstall)
+    //     .then(projectSupport.postProjectBlueprintAPMPrestaging)
+    //     .then(CreateNewProject)
+
+    // })
     it('shall report 400 error if projectid is invalid /vision/:vision_name/current_projects/:projectId')
     it('shall report 400 error if vision is invalid /vision/:vision_name/current_projects/:projectId')
 

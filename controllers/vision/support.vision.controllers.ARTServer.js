@@ -33,6 +33,24 @@ exports.postNewVision=function(visionObj,cb=()=>{}){
         });
     });
 }
+exports.postNewProject=function(vision,blueprint,cb=()=>{}){
+    return new Promise((resolve,reject)=>{
+        chai
+        .request(app)
+        .post(`/api/vision/${vision}/NewProject/${blueprint}`)
+        .end((err,res)=>{
+            if(err){
+                let result={err:err,res:res}
+                reject(result);
+                return cb(err);
+            }
+            else{
+                resolve(res);
+                return cb(null,res);
+            }
+        });
+    });
+}
 
 exports.PutKeyProject=function(vision,blueprint,cb=()=>{}){
     return new Promise((resolve,reject)=>{

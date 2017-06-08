@@ -119,6 +119,49 @@ exports.create = function (req, res, next) {
         });
 }
 
+exports.CreateNewProjectAndAddToVision=function(visionName,blueprint){
+    return new Promise((resolve,reject)=>{
+        projectControl.CreateNewProject(blueprint)
+            .then(projectId=>{
+                //add projectId into vision
+                visionModel.update(
+                        {name:visionName},
+                        {$addToSet:{current_projects:{_project:projectId}}},
+                        (err,raw)=>{
+                            if(err){
+                                reject(standardError(err,500));
+                            }
+                            else{
+                                resolve(raw);
+                            }
+                        }
+                    );
+            })        
+    });
+}
+
+exports.postNewProject=function(req,res,next){
+    
+    checkVisionNameValid(req.params.vision)
+        .then(() => {
+            //check if blueprint is valid
+            return blueprintControl.isBlueprintValid(req.params.blueprint);
+        })
+        .then((blueprintDoc) => {
+            //remove key blueprint
+            return exports.CreateNewProjectAndAddToVision(req.params.vision, req.params.blueprint);
+        })
+        .then((raw) => {
+            //delete successfully
+            res.json(raw);
+        })
+        .catch((err) => {
+            res.status(err.status).json(err);
+        });
+
+}
+
+
 exports.putProject = function (req, res, next) {
     exports.getVision({ name: req.params.vision_name })
         .then(isVisionExists(result))
@@ -572,14 +615,24 @@ exports.deleteKeyProject = function (req, res, next) {
 
 exports.RemoveCurrentProject = function (vision_name, projectId) {
     return new Promise((resolve, reject) => {
-
+        visionModel.update({name:visionName},
+        {$pull:{key_projects:{current_projects:projectId}}}
+        ,{multi:true}
+        ,(err,raw)=>{
+            if(err){
+                reject(standardError(err,500));
+            }
+            else{
+                resolve(raw);
+            }
+        })        
     });
 }
 exports.deleteCurrentProject = function (req, res, next) {
     checkVisionNameValid(req.params.vision_name)
         .then(() => {
-            //check if blueprint is valid
-            return blueprintControl.isBlueprintValid(req.params.projectName);
+            //check if project id is valid
+            return projectControl.isProjectValid(req.params.projectId)
         })
         .then(() => {
             //remove key blueprint
