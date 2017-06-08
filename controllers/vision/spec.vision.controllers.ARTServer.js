@@ -510,20 +510,77 @@ describe('/delete',()=>{
             })
             .then(()=>{
                 visionModel.findOne({name:visionSupport.visionAPMChef.name})
-                .exec((err,vision)=>{
-                    if(err){
-                        assert(false,err);
-                        done();
-                    }
-                    else{
-                        assert.equal(vision.key_projects.length,0);
-                        done();
-                    }
-                })
+                    .exec((err,vision)=>{
+                        if(err){
+                            assert(false,err);
+                            done();
+                        }
+                        else{
+                            assert.equal(vision.key_projects.length,0);
+                            done();
+                        }
+                    })
             });
     });
-    it('shall throw 400 error when vision name is invalid vision/:vision_name/key_projects/:projectName')
-    it('shall throw 400 error when projectname is invalid /vision/:vision_name/key_projects/:projectName');
+    it('shall throw 400 error when vision name is invalid vision/:vision_name/key_projects/:projectName',done=>{
+        taskSupport.postTaskAPMNewMediaDetection()
+            .then(taskSupport.posttaskAPMInstall)
+            .then(projectSupport.postProjectBlueprintAPMPrestaging)
+            .then(visionSupport.PostVisionAPMChef)
+            .then(()=>{
+                return visionSupport.PutKeyProject(visionSupport.visionAPMChef.name,projectSupport.projectAPMPrestaging.name);
+            })
+            .then(()=>{
+                return visionSupport.deleteKeyProject('invalid vision',projectSupport.projectAPMPrestaging.name)                
+            })
+            .then(()=>{
+                assert(false,'vision name is invalid, it shall return error 400');
+            })
+            .catch(err=>{
+                assert.equal(err.err.status,400)
+                visionModel.findOne({name:visionSupport.visionAPMChef.name})
+                    .exec((err,vision)=>{
+                        if(err){
+                            assert(false,err);
+                            done();
+                        }
+                        else{
+                            assert.equal(vision.key_projects.length,1);
+                            done();
+                        }
+                    });        
+                
+            });
+    });
+    it('shall throw 400 error when projectname is invalid /vision/:vision_name/key_projects/:projectName',done=>{
+        taskSupport.postTaskAPMNewMediaDetection()
+            .then(taskSupport.posttaskAPMInstall)
+            .then(projectSupport.postProjectBlueprintAPMPrestaging)
+            .then(visionSupport.PostVisionAPMChef)
+            .then(()=>{
+                return visionSupport.PutKeyProject(visionSupport.visionAPMChef.name,projectSupport.projectAPMPrestaging.name);
+            })
+            .then(()=>{
+                return visionSupport.deleteKeyProject(visionSupport.visionAPMChef.name,'invalid project name')                
+            })
+            .then(()=>{
+                assert(false,'vision name is invalid, it shall return error 400');
+            })
+            .catch(err=>{
+                assert.equal(err.err.status,400)
+                visionModel.findOne({name:visionSupport.visionAPMChef.name})
+                    .exec((err,vision)=>{
+                        if(err){
+                            assert(false,err);
+                            done();
+                        }
+                        else{
+                            assert.equal(vision.key_projects.length,1);
+                            done();
+                        }
+                    });
+            });
+    });
 
     it('shall delete project in current project /vision/:vision_name/current_projects/:projectId')
     it('shall report 400 error if projectid is invalid /vision/:vision_name/current_projects/:projectId')

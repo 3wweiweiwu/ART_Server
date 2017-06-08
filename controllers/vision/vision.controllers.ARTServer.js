@@ -5,7 +5,7 @@ let projectBlueprintModel = require('../../model/project/projectBlueprint.model.
 let blueprintControl = require('../project/projectBlueprint.controllers.ARTServer')
 let dormModel = require('../../model/organization/dormModel')
 let dormControl = require('../../controllers/organization/dormControl')
-let standardError=require('../common/error.controllers.ARTServer')
+let standardError = require('../common/error.controllers.ARTServer')
 const UpdateBasicVision = function (req, cb = () => { }) {
     return new Promise((resolve, reject) => {
         visionModel.findOneAndUpdate({ name: req.body.name }, {
@@ -194,7 +194,7 @@ exports.PutKeyProject = function (req, res, next) {
                     }
                     else {
                         //if blueprint is found, then link blueprint with project
-                        vision[0].key_projects.push({project_blueprint:blueprint._id});
+                        vision[0].key_projects.push({ project_blueprint: blueprint._id });
                         vision[0].save((err) => {
                             if (err) {
                                 //if error is found, then return error
@@ -464,52 +464,51 @@ exports.putBlueprintMachineInstance = function (req, res, next) {
         })
         .catch(err => { res.status(err.status).json(err); });
 }
-exports.UpdateNextBlueprint=function(vision_name,baseBlueprint,nextBlueprint,cb=()=>{}){
-    return new Promise((resolve,reject)=>{
+exports.UpdateNextBlueprint = function (vision_name, baseBlueprint, nextBlueprint, cb = () => { }) {
+    return new Promise((resolve, reject) => {
         blueprintControl
-            .getBlueprints({$or:[{name:baseBlueprint},{name:nextBlueprint}]})
-            .then(blueprints=>{
+            .getBlueprints({ $or: [{ name: baseBlueprint }, { name: nextBlueprint }] })
+            .then(blueprints => {
                 //check if baseblueprint and nextblueprint are valid
-                return new Promise((resolve,reject)=>{
-                    if(blueprints.length!=2){
+                return new Promise((resolve, reject) => {
+                    if (blueprints.length != 2) {
                         //if the blueprint count is not 2, then there is error
-                        let visionErr=CreateVisionError('unable to find 2 blueprint specified',400)
-                        reject(visionErr);                    
+                        let visionErr = CreateVisionError('unable to find 2 blueprint specified', 400)
+                        reject(visionErr);
                     }
-                    else{
+                    else {
                         //add next into baseblueprint
-                        resolve(blueprints);                    
-                    }                
+                        resolve(blueprints);
+                    }
                 })
             })
-            .then(blueprints=>{
+            .then(blueprints => {
                 //get vision and update base blueprint specified
-                visionModel.findOne({name:vision_name})
+                visionModel.findOne({ name: vision_name })
                     .populate('project_schedule.project_blueprint')
-                    .exec((err,vision)=>{
-                        if(err){
-                            reject(CreateVisionError(500,err));
+                    .exec((err, vision) => {
+                        if (err) {
+                            reject(CreateVisionError(500, err));
                         }
-                        else{
-                            let nextBlueprintDoc=blueprints.find(item=>{return item.name==nextBlueprint});
-                            let scheduleIndex=vision.project_schedule.findIndex(item=>{return item.project_blueprint.name==baseBlueprint});
-                            vision.project_schedule[scheduleIndex].next_project.push({blueprint:nextBlueprintDoc._id});
-                            vision.save((err)=>{
-                                if(err){
-                                    reject(CreateVisionError(500,err));
+                        else {
+                            let nextBlueprintDoc = blueprints.find(item => { return item.name == nextBlueprint });
+                            let scheduleIndex = vision.project_schedule.findIndex(item => { return item.project_blueprint.name == baseBlueprint });
+                            vision.project_schedule[scheduleIndex].next_project.push({ blueprint: nextBlueprintDoc._id });
+                            vision.save((err) => {
+                                if (err) {
+                                    reject(CreateVisionError(500, err));
                                 }
-                                else
-                                {
+                                else {
                                     resolve();
                                 }
                             })
-                            
+
                         }
 
                     })
 
             })
-            .catch(err=>{
+            .catch(err => {
                 reject(err);
             })
     });
@@ -528,83 +527,90 @@ exports.putNextBlueprint = function (req, res, next) {
             //return succss indicator
             res.json();
         })
-        .catch((err)=>{
-            res.status(err.status).json(err); 
-            
-        });        
+        .catch((err) => {
+            res.status(err.status).json(err);
+
+        });
 }
-exports.RemoveKeyProject=function(visionName,blueprintName){
+
+exports.RemoveKeyProject = function (visionName, blueprint) {
     //this function is used to remove key Blueprint
-    return new Promise((resolve,reject)=>{
-        visionModel.findOne({name:visionName})
-        .populate('key_projects.project_blueprint')
-        .exec((err,vision)=>{
+    return new Promise((resolve, reject) => {
+        visionModel.update({name:visionName},
+        {$pull:{key_projects:{project_blueprint:blueprint._id}}}
+        ,{multi:true}
+        ,(err,raw)=>{
             if(err){
                 reject(standardError(err,500));
             }
             else{
-                //remove blueprint from key project
-                vision.key_projects=vision.key_projects.filter(item=>{item.project_blueprint.name!=blueprintName});
-                vision.save(err=>{
-                    if(err){
-                        //error during save
-                        reject(standardError(err,500));
-                    }
-                    else{
-                        //save success
-                        resolve();
-                    }
-                });
+                resolve(raw);
             }
-        });
-        
+        })
+
+
     });
 }
-exports.deleteKeyProject=function(req,res,next){
+exports.deleteKeyProject = function (req, res, next) {
     checkVisionNameValid(req.params.vision_name)
-        .then(()=>{
+        .then(() => {
             //check if blueprint is valid
             return blueprintControl.isBlueprintValid(req.params.projectName);
         })
-        .then(()=>{
+        .then((blueprint) => {
             //remove key blueprint
-            return exports.RemoveKeyProject(req.params.vision_name,req.params.projectName);
+            return exports.RemoveKeyProject(req.params.vision_name, blueprint);
         })
-        .then(()=>{
+        .then(() => {
             //delete successfully
             res.json();
         })
-        .catch((err)=>{
-            res.status(err.status).json(err);             
-        }); 
+        .catch((err) => {
+            res.status(err.status).json(err);
+        });
 }
-exports.deleteCurrentProject=function(req,res,next){
+
+exports.RemoveCurrentProject = function (vision_name, projectId) {
+    return new Promise((resolve, reject) => {
+
+    });
+}
+exports.deleteCurrentProject = function (req, res, next) {
     checkVisionNameValid(req.params.vision_name)
-        .then(()=>{
-            return blueprintControl.isBlueprintValid(req.params.vision_name);
+        .then(() => {
+            //check if blueprint is valid
+            return blueprintControl.isBlueprintValid(req.params.projectName);
         })
-        .catch((err)=>{
-            res.status(err.status).json(err);             
-        });     
+        .then(() => {
+            //remove key blueprint
+            return exports.RemoveCurrentProject(req.params.vision_name, req.params.projectId);
+        })
+        .then(() => {
+            //delete successfully
+            res.json();
+        })
+        .catch((err) => {
+            res.status(err.status).json(err);
+        });
 }
-exports.deleteKeydeleteProjectScheduleProject=function(req,res,next){
+exports.deleteKeydeleteProjectScheduleProject = function (req, res, next) {
     checkVisionNameValid(req.params.vision_name)
         .then()
-        .catch((err)=>{
-            res.status(err.status).json(err);             
-        });     
+        .catch((err) => {
+            res.status(err.status).json(err);
+        });
 }
-exports.deleteDormInProjectSchedule=function(req,res,next){
+exports.deleteDormInProjectSchedule = function (req, res, next) {
     checkVisionNameValid(req.params.vision_name)
         .then()
-        .catch((err)=>{
-            res.status(err.status).json(err);             
-        });     
+        .catch((err) => {
+            res.status(err.status).json(err);
+        });
 }
-exports.deleteNextBlueprintFromSchedule=function(req,res,next){
+exports.deleteNextBlueprintFromSchedule = function (req, res, next) {
     checkVisionNameValid(req.params.vision_name)
         .then()
-        .catch((err)=>{
-            res.status(err.status).json(err);             
-        });     
+        .catch((err) => {
+            res.status(err.status).json(err);
+        });
 }
