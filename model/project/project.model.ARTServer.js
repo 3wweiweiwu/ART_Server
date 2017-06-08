@@ -7,9 +7,6 @@ let projectModel=new Schema({
     pending_tasks:[{        
         task:{type:Schema.Types.ObjectId,ref:'Task'}
     }],
-    current_task:{
-        task:{type:Schema.Types.ObjectId,ref:'Task'}
-    },
     host:{type:Schema.Types.ObjectId,ref:'Dorm'},
     last_update:{type:Date},
     status:{type:String}

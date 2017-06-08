@@ -27,8 +27,7 @@ exports.CreateNewProject=function(projectBlueprint,cb=()=>{}){
                 //if blueprint is found successfully
                 project=new projectModel();
                 project._bluePrint=blueprint._id;
-                project.pending_tasks=blueprint.tasks;
-                project.current_task=null;
+                project.pending_tasks=blueprint.tasks;                
                 project.status=projectStatus.waitingForScheduling.id;
                 project.save((err)=>{
                     if(err)
@@ -57,6 +56,10 @@ exports.GetProjectById=function(id,cb=()=>{}){
     return new Promise((resolve,reject)=>{
         projectModel
         .findOne({_id:id})
+        .populate('_bluePrint')
+        .populate('pending_tasks.task')
+        .populate('current_task.task')
+        .populate('host')        
         .exec((err,project)=>{
             if(err){
                 reject(err);
@@ -87,4 +90,23 @@ exports.isProjectValid=function(id){
             reject(err);
         });
     })
+}
+
+exports.GotoNextTaskInProject=function(id){
+    return new Promise((resolve,reject)=>{
+        projectModel.update(
+            {_id:id},
+            {$pop:{pending_tasks:-1}},
+            {multi:false},
+            (err,raw)=>{
+                if(err)
+                {
+                    reject(CreateStandardError(err,500));
+                }
+                else{
+                    resolve(raw);
+                }
+            });
+            
+    });
 }

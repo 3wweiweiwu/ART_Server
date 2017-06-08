@@ -77,6 +77,26 @@ module.exports={
             blueprint:Joi.string().required()
         }
     },
+    putNextTask:{
+        params:{
+            vision_name:Joi.string().required(),
+            project_id:Joi.string().required()
+        }
+    },
+    putProjectHost:{
+        params:{
+            vision_name:Joi.string().required(),
+            project_id:Joi.string().required(),
+            hostName:Joi.string().required()
+        }
+    },    
+    putProjectStatus:{
+        params:{
+            vision_name:Joi.string().required(),
+            project_id:Joi.string().required(),
+            status:Joi.string().required()
+        }
+    },        
     deleteKeyProject:{
         params:{
             vision_name:Joi.string().required(),

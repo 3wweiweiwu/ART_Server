@@ -58,6 +58,25 @@ router.put('/vision/:vision_name/project_schedule/blueprint/:blueprint',validate
     return visionControl.PutBlueprint(req,res,next);
 });
 
+//project Section
+    router.put('/vision/:vision_name/current_projects/:project_id/next_task',validate(visionValidation.putNextTask),function(req,res,next){
+        //remove current task and get task from pending task
+        return visionControl.putNextTask(req,res,next);
+    });
+    router.put('/vision/:vision_name/current_projects/:project_id/host/:hostName',validate(visionValidation.putProjectHost),function(req,res,next){
+        //update the host name for project
+        return visionControl.putProjectHost(req,res,next);
+    });
+    router.put('/vision/:vision_name/current_projects/:project_id/status/:status',validate(visionValidation.putProjectStatus),function(req,res,next){
+        //update status for project
+        return visionControl.putProjectStatus(req,res,next);
+    });
+
+
+
+
+
+
 
 router.put('/vision',validate(visionValidation.post),function(req,res,next){
     //post and put are essnetially same function....

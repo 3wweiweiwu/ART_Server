@@ -213,6 +213,25 @@ exports.putNextBlueprint=function(visionName,baseBlueprint,nextBlueprint,cb=()=>
         });
     });   
 }
+exports.putNextTask=function(visionName,project_id,cb=()=>{}){
+     return new Promise((resolve,reject)=>{
+        chai
+        .request(app)
+        .put(`/api/vision/${visionName}/current_projects/${project_id}/next_task`)
+        .end((err,res)=>{
+            if(err){
+                let result={err:err,res:res}
+                reject(result);
+                return cb(result);
+            }
+            else{
+                resolve(res);
+                return cb(null,res);
+            }
+        });
+    });   
+}
+
 exports.visionAPMChef={
     name:'APM_Chef',
     note:'Prepare daily APM image',

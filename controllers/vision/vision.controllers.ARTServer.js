@@ -132,7 +132,7 @@ exports.CreateNewProjectAndAddToVision=function(visionName,blueprint){
                                 reject(standardError(err,500));
                             }
                             else{
-                                resolve(raw);
+                                resolve({projectId:projectId});
                             }
                         }
                     );
@@ -666,4 +666,26 @@ exports.deleteNextBlueprintFromSchedule = function (req, res, next) {
         .catch((err) => {
             res.status(err.status).json(err);
         });
+}
+
+exports.putNextTask=function(req,res,next){
+    checkVisionNameValid(req.params.vision_name)
+        .then(()=>{
+            return projectControl.isProjectValid(req.params.project_id)            
+        })
+        .then(()=>{
+            return projectControl.GotoNextTaskInProject(req.params.project_id)
+        })
+        .then(()=>{
+            res.json();
+        })
+        .catch((err) => {
+            res.status(err.status).json(err);
+        });    
+}
+exports.putProjectHost=function(req,res,next){
+    
+}
+exports.putProjectStatus=function(req,res,next){
+    
 }
