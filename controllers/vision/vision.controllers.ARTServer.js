@@ -707,5 +707,20 @@ exports.putProjectHost=function(req,res,next){
 
 }
 exports.putProjectStatus=function(req,res,next){
-    
+    //validate visio nname
+    checkVisionNameValid(req.params.vision_name)
+        .then(()=>{
+            //validate project id
+            return projectControl.isProjectValid(req.params.project_id)            
+        })
+        .then(()=>{
+            //update the project status
+            return projectControl.UpdateProjectStatus(req.params.project_id,req.params.status)
+        })
+        .then(()=>{
+            res.json();
+        })
+        .catch((err) => {
+            res.status(err.status).json(err);
+        });     
 }

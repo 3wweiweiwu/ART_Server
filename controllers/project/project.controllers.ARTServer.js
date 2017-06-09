@@ -147,3 +147,31 @@ exports.UpdateHostInProject=function(id,host){
             
     });
 }
+
+exports.UpdateProjectStatus=function(id,status){
+    //this function does not validate the existence of the id and host, please valid these 2 field before using it!
+    
+
+    return new Promise((resolve,reject)=>{
+        projectModel.update(
+            {_id:id},
+            {$set:{status:status}},
+            {multi:false},
+            (err,raw)=>{
+                if(err)
+                {
+                    reject(CreateStandardError(err,500));
+                }
+                else{
+                    resolve(raw);
+                }
+            });        
+
+    });
+
+
+
+
+            
+
+}

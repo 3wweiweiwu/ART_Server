@@ -8,7 +8,7 @@ var taskModel = require('../../model/task/task.model.ARTServer');
 var taskImageDeployment = require('../../model/task/imageDeploy.model.ARTServer');
 var projectBlueprintModel = require('../../model/project/projectBlueprint.model.ARTServer')
 var projectModel = require('../../model/project/project.model.ARTServer')
-
+let projectStatus=require('../project/status.project.controllers.ARTServer');
 let dormSupport = require('../organization/support.dorm.controller.ARTServer')
 let dormModel = require('../../model/organization/dormModel')
 
@@ -778,9 +778,98 @@ describe('put /vision', () => {
             });        
     });
 
-    it('shall update host status  /vision/:vision_name/current_projects/:project_id/status/:status')
-    it('shall throw 400 error when vision name is invalid /vision/:vision_name/current_projects/:project_id/status/:status')
-    it('shall throw 400 error when status is invalid /vision/:vision_name/current_projects/:project_id/status/:status')
+    it('shall update host status  /vision/:vision_name/current_projects/:project_id/status/:status',done=>{
+        taskSupport.postTaskAPMNewMediaDetection()            
+            .then(taskSupport.posttaskAPMInstall)
+            .then(projectSupport.postProjectBlueprintAPMPrestaging)
+            .then(visionSupport.PostVisionAPMChef)
+            .then(()=>{
+                return dormSupport.PostDorm(dormSupport.dorm1);
+            })
+            .then(()=>{
+                return visionSupport.postNewProject(visionSupport.visionAPMChef.name,projectSupport.projectAPMPrestaging.name)
+            })            
+            .then((projectRes)=>{
+                return visionSupport.putProjectStatus(visionSupport.visionAPMChef.name,projectRes.body.projectId,projectStatus.waitingForScheduling.id);                
+            })
+            .then((result)=>{
+                visionModel.findOne({name:visionSupport.visionAPMChef.name})
+                    .populate({
+                            path:'current_projects._project',
+                            model:'Project',
+                            populate:[{
+                                path:'pending_tasks.task',
+                                model:'Task'
+                            },
+                            {
+                                path:'host',
+                                model:'Dorm'
+                            }]
+                        })
+                    .exec((err,vision)=>{
+                        if(err){
+                            assert(false,err);
+                            done();
+                        }
+                        else{                            
+                            assert.equal(vision.current_projects[0]._project.status,projectStatus.waitingForScheduling.id);
+                            done();
+                        }
+                    });
+            })
+            .catch(()=>{
+                assert(false,'it shall not throw error');
+                done();
+            });  
+    });
+    it('shall throw 400 error when vision name is invalid /vision/:vision_name/current_projects/:project_id/status/:status',done=>{
+        taskSupport.postTaskAPMNewMediaDetection()            
+            .then(taskSupport.posttaskAPMInstall)
+            .then(projectSupport.postProjectBlueprintAPMPrestaging)
+            .then(visionSupport.PostVisionAPMChef)
+            .then(()=>{
+                return dormSupport.PostDorm(dormSupport.dorm1);
+            })
+            .then(()=>{
+                return visionSupport.postNewProject(visionSupport.visionAPMChef.name,projectSupport.projectAPMPrestaging.name)
+            })            
+            .then((projectRes)=>{
+                //return visionSupport.putProjectStatus(visionSupport.visionAPMChef.name,projectRes.body.projectId,projectStatus.waitingForScheduling.id);                
+                return visionSupport.putProjectStatus('invalid vision name',projectRes.body.projectId,projectStatus.waitingForScheduling.id);
+            })
+            .then((result)=>{
+                assert(false,'it shall throw error');
+                done();
+            })
+            .catch((err)=>{
+                assert(err.err.status,400);
+                done();
+            });  
+    });
+    it('shall throw 400 error when status is invalid /vision/:vision_name/current_projects/:project_id/status/:status',done=>{
+        taskSupport.postTaskAPMNewMediaDetection()            
+            .then(taskSupport.posttaskAPMInstall)
+            .then(projectSupport.postProjectBlueprintAPMPrestaging)
+            .then(visionSupport.PostVisionAPMChef)
+            .then(()=>{
+                return dormSupport.PostDorm(dormSupport.dorm1);
+            })
+            .then(()=>{
+                return visionSupport.postNewProject(visionSupport.visionAPMChef.name,projectSupport.projectAPMPrestaging.name)
+            })            
+            .then((projectRes)=>{
+                return visionSupport.putProjectStatus(visionSupport.visionAPMChef.name,'invalid project id',projectStatus.waitingForScheduling.id);                
+                
+            })
+            .then((result)=>{
+                assert(false,'it shall throw error');
+                done();
+            })
+            .catch((err)=>{
+                assert(err.err.status,400);
+                done();
+            });  
+    });
 
 });
 
