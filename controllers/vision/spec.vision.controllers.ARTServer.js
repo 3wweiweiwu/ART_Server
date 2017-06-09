@@ -685,9 +685,98 @@ describe('put /vision', () => {
             });
     });
 
-    it('shall update host name /vision/:vision_name/current_projects/:project_id/host/:hostName')
-    it('shall throw 400 error when vision name is invalid /vision/:vision_name/current_projects/:project_id/host/:hostName')
-    it('shall throw 400 error when host name is invalid /vision/:vision_name/current_projects/:project_id/host/:hostName')
+    it('shall update host name /vision/:vision_name/current_projects/:project_id/host/:hostName',done=>{
+        taskSupport.postTaskAPMNewMediaDetection()            
+            .then(taskSupport.posttaskAPMInstall)
+            .then(projectSupport.postProjectBlueprintAPMPrestaging)
+            .then(visionSupport.PostVisionAPMChef)
+            .then(()=>{
+                return dormSupport.PostDorm(dormSupport.dorm1);
+            })
+            .then(()=>{
+                return visionSupport.postNewProject(visionSupport.visionAPMChef.name,projectSupport.projectAPMPrestaging.name)
+            })            
+            .then((projectRes)=>{
+                return visionSupport.putProjectHost(visionSupport.visionAPMChef.name,projectRes.body.projectId,dormSupport.dorm1.name);
+            })
+            .then((result)=>{
+                visionModel.findOne({name:visionSupport.visionAPMChef.name})
+                    .populate({
+                            path:'current_projects._project',
+                            model:'Project',
+                            populate:[{
+                                path:'pending_tasks.task',
+                                model:'Task'
+                            },
+                            {
+                                path:'host',
+                                model:'Dorm'
+                            }]
+                        })
+                    .exec((err,vision)=>{
+                        if(err){
+                            assert(false,err);
+                            done();
+                        }
+                        else{                            
+                            assert.equal(vision.current_projects[0]._project.host.name,dormSupport.dorm1.name);
+                            done();
+                        }
+                    });
+            })
+            .catch(()=>{
+                assert(false,'it shall not throw error');
+                done();
+            });        
+    });
+    it('shall throw 400 error when vision name is invalid /vision/:vision_name/current_projects/:project_id/host/:hostName',done=>{
+        taskSupport.postTaskAPMNewMediaDetection()            
+            .then(taskSupport.posttaskAPMInstall)
+            .then(projectSupport.postProjectBlueprintAPMPrestaging)
+            .then(visionSupport.PostVisionAPMChef)
+            .then(()=>{
+                return dormSupport.PostDorm(dormSupport.dorm1);
+            })
+            .then(()=>{
+                return visionSupport.postNewProject(visionSupport.visionAPMChef.name,projectSupport.projectAPMPrestaging.name)
+            })            
+            .then((projectRes)=>{
+                // return visionSupport.putProjectHost(visionSupport.visionAPMChef.name,projectRes.body.projectId,dormSupport.dorm1.name);
+                return visionSupport.putProjectHost('invalid vision name',projectRes.body.projectId,dormSupport.dorm1.name);
+            })
+            .then((result)=>{
+                assert(false,'it shall throw error 400')
+                done();
+            })
+            .catch((err)=>{
+                assert.equal(err.err.status,400);
+                done();
+            });        
+    });
+    it('shall throw 400 error when host name is invalid /vision/:vision_name/current_projects/:project_id/host/:hostName',done=>{
+        taskSupport.postTaskAPMNewMediaDetection()            
+            .then(taskSupport.posttaskAPMInstall)
+            .then(projectSupport.postProjectBlueprintAPMPrestaging)
+            .then(visionSupport.PostVisionAPMChef)
+            .then(()=>{
+                return dormSupport.PostDorm(dormSupport.dorm1);
+            })
+            .then(()=>{
+                return visionSupport.postNewProject(visionSupport.visionAPMChef.name,projectSupport.projectAPMPrestaging.name)
+            })            
+            .then((projectRes)=>{
+                 return visionSupport.putProjectHost(visionSupport.visionAPMChef.name,'invalid dorm');
+                
+            })
+            .then((result)=>{
+                assert(false,'it shall throw error 400')
+                done();
+            })
+            .catch((err)=>{
+                assert.equal(err.err.status,400);
+                done();
+            });        
+    });
 
     it('shall update host status  /vision/:vision_name/current_projects/:project_id/status/:status')
     it('shall throw 400 error when vision name is invalid /vision/:vision_name/current_projects/:project_id/status/:status')

@@ -684,7 +684,27 @@ exports.putNextTask=function(req,res,next){
         });    
 }
 exports.putProjectHost=function(req,res,next){
-    
+    //validate visio nname
+    checkVisionNameValid(req.params.vision_name)
+        .then(()=>{
+            //validate project id
+            return projectControl.isProjectValid(req.params.project_id)            
+        })
+        .then(()=>{
+            //validate host name
+            return dormControl.IsDormValid(req.params.hostName)
+        })
+        .then(()=>{
+            //update the dorm information in the project
+            return projectControl.UpdateHostInProject(req.params.project_id,req.params.hostName)
+        })
+        .then(()=>{
+            res.json();
+        })
+        .catch((err) => {
+            res.status(err.status).json(err);
+        });          
+
 }
 exports.putProjectStatus=function(req,res,next){
     

@@ -2,6 +2,7 @@ var projectModel=require('../../model/project/project.model.ARTServer');
 var projectBlueprintModel=require('../../model/project/projectBlueprint.model.ARTServer');
 var projectStatus=require('./status.project.controllers.ARTServer')
 let CreateStandardError=require('../common/error.controllers.ARTServer')
+let dormModel=require('../../model/organization/dormModel')
 exports.CreateNewProject=function(projectBlueprint,cb=()=>{}){
     //create new project based on project blueprint
     return new Promise((resolve,reject)=>{
@@ -117,6 +118,32 @@ exports.GotoNextTaskInProject=function(id){
                     resolve(raw);
                 }
             });
+            
+    });
+}
+
+exports.UpdateHostInProject=function(id,host){
+    //this function does not validate the existence of the id and host, please valid these 2 field before using it!
+    return new Promise((resolve,reject)=>{
+        dormModel.findOne({name:host})
+        .exec((err,dorm)=>{
+
+            projectModel.update(
+                {_id:id},
+                {$set:{host:dorm._id}},
+                {multi:false},
+                (err,raw)=>{
+                    if(err)
+                    {
+                        reject(CreateStandardError(err,500));
+                    }
+                    else{
+                        resolve(raw);
+                    }
+                });
+
+            })
+
             
     });
 }

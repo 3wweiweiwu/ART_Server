@@ -1,5 +1,6 @@
 var dormModel=require('../../model/organization/dormModel');
 var dormValidation=require(('../../validation/dorm.validation.ARTServer'))
+let CreateStandardError=require('../common/error.controllers.ARTServer')
 const EventEmitter=require('events');
 
 class dormControlEmitterClass extends EventEmitter{};
@@ -76,7 +77,7 @@ exports.GetDorm=function(name)
         {
             if(err)
             {
-                reject(err);
+                reject(CreateStandardError(err,500));
             }
             else
             {
@@ -85,6 +86,24 @@ exports.GetDorm=function(name)
         })
     });
 }
+exports.IsDormValid=function(name){
+    return new Promise((resolve,reject)=>{
+        exports.GetDorm(name)
+        .then((dorm)=>{
+            if(dorm==null)
+            {
+                reject(CreateStandardError('unable to find dorm',400));
+            }
+            else{
+                resolve(dorm);
+            }
+        })
+        .catch((err)=>{
+            reject(err);
+        })
+    });
+}
+
 exports.get=function(req,res,next,query){
     let CPU=0;
     let free_memory_mb=0;
