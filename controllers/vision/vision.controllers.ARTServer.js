@@ -613,10 +613,10 @@ exports.deleteKeyProject = function (req, res, next) {
         });
 }
 
-exports.RemoveCurrentProject = function (vision_name, projectId) {
+exports.RemoveCurrentProject = function (visionName, projectId) {
     return new Promise((resolve, reject) => {
         visionModel.update({name:visionName},
-        {$pull:{key_projects:{current_projects:projectId}}}
+        {$pull:{current_projects:{_project:projectId}}}
         ,{multi:true}
         ,(err,raw)=>{
             if(err){

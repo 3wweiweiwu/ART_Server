@@ -270,6 +270,26 @@ exports.putProjectStatus=function(visionName,project_id,status,cb=()=>{}){
 }
 
 
+exports.deleteCurrentProject=function(visionName,project_id,cb=()=>{}){
+     return new Promise((resolve,reject)=>{
+        chai
+        .request(app)
+        .del(`/api/vision/${visionName}/current_projects/${project_id}`)
+        .end((err,res)=>{
+            if(err){
+                let result={err:err,res:res}
+                reject(result);
+                return cb(result);
+            }
+            else{
+                resolve(res);
+                return cb(null,res);
+            }
+        });
+    });   
+}
+
+
 exports.visionAPMChef={
     name:'APM_Chef',
     note:'Prepare daily APM image',
