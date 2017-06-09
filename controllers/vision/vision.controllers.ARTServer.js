@@ -119,29 +119,29 @@ exports.create = function (req, res, next) {
         });
 }
 
-exports.CreateNewProjectAndAddToVision=function(visionName,blueprint){
-    return new Promise((resolve,reject)=>{
+exports.CreateNewProjectAndAddToVision = function (visionName, blueprint) {
+    return new Promise((resolve, reject) => {
         projectControl.CreateNewProject(blueprint)
-            .then(projectId=>{
+            .then(projectId => {
                 //add projectId into vision
                 visionModel.update(
-                        {name:visionName},
-                        {$addToSet:{current_projects:{_project:projectId}}},
-                        (err,raw)=>{
-                            if(err){
-                                reject(standardError(err,500));
-                            }
-                            else{
-                                resolve({projectId:projectId});
-                            }
+                    { name: visionName },
+                    { $addToSet: { current_projects: { _project: projectId } } },
+                    (err, raw) => {
+                        if (err) {
+                            reject(standardError(err, 500));
                         }
-                    );
-            })        
+                        else {
+                            resolve({ projectId: projectId });
+                        }
+                    }
+                );
+            })
     });
 }
 
-exports.postNewProject=function(req,res,next){
-    
+exports.postNewProject = function (req, res, next) {
+
     checkVisionNameValid(req.params.vision)
         .then(() => {
             //check if blueprint is valid
@@ -579,17 +579,17 @@ exports.putNextBlueprint = function (req, res, next) {
 exports.RemoveKeyProject = function (visionName, blueprint) {
     //this function is used to remove key Blueprint
     return new Promise((resolve, reject) => {
-        visionModel.update({name:visionName},
-        {$pull:{key_projects:{project_blueprint:blueprint._id}}}
-        ,{multi:true}
-        ,(err,raw)=>{
-            if(err){
-                reject(standardError(err,500));
-            }
-            else{
-                resolve(raw);
-            }
-        })
+        visionModel.update({ name: visionName },
+            { $pull: { key_projects: { project_blueprint: blueprint._id } } }
+            , { multi: true }
+            , (err, raw) => {
+                if (err) {
+                    reject(standardError(err, 500));
+                }
+                else {
+                    resolve(raw);
+                }
+            })
 
 
     });
@@ -615,17 +615,17 @@ exports.deleteKeyProject = function (req, res, next) {
 
 exports.RemoveCurrentProject = function (visionName, projectId) {
     return new Promise((resolve, reject) => {
-        visionModel.update({name:visionName},
-        {$pull:{current_projects:{_project:projectId}}}
-        ,{multi:true}
-        ,(err,raw)=>{
-            if(err){
-                reject(standardError(err,500));
-            }
-            else{
-                resolve(raw);
-            }
-        })        
+        visionModel.update({ name: visionName },
+            { $pull: { current_projects: { _project: projectId } } }
+            , { multi: true }
+            , (err, raw) => {
+                if (err) {
+                    reject(standardError(err, 500));
+                }
+                else {
+                    resolve(raw);
+                }
+            })
     });
 }
 exports.deleteCurrentProject = function (req, res, next) {
@@ -646,9 +646,39 @@ exports.deleteCurrentProject = function (req, res, next) {
             res.status(err.status).json(err);
         });
 }
-exports.deleteKeydeleteProjectScheduleProject = function (req, res, next) {
+exports.RemoveProjectSchedule = function (vision, blueprint) {
+    return new Promise((resolve, reject) => {
+        //does not check the validation of vision and blueprint. Please take care it before this function
+        projectBlueprintModel.findOne({name:blueprint})
+            .exec((err,blueprint)=>{
+                visionModel.update({ name: vision },
+                    { $pull: { project_schedule: { project_blueprint: blueprint._id } } }
+                    , { multi: true }
+                    , (err, raw) => {
+                        if (err) {
+                            reject(standardError(err, 500));
+                        }
+                        else {
+                            resolve(raw);
+                        }
+                    })                
+            })
+    });
+}
+exports.deleteProjectSchedule = function (req, res, next) {
     checkVisionNameValid(req.params.vision_name)
-        .then()
+        .then(() => {
+            //check if project id is valid
+            return blueprintControl.isBlueprintValid(req.params.blueprint)
+        })
+        .then(() => {
+            //remove project schedule
+            return exports.RemoveProjectSchedule(req.params.vision_name, req.params.blueprint);
+        })
+        .then((raw) => {
+            //delete successfully
+            res.json(raw);
+        })
         .catch((err) => {
             res.status(err.status).json(err);
         });
@@ -668,59 +698,59 @@ exports.deleteNextBlueprintFromSchedule = function (req, res, next) {
         });
 }
 
-exports.putNextTask=function(req,res,next){
+exports.putNextTask = function (req, res, next) {
     checkVisionNameValid(req.params.vision_name)
-        .then(()=>{
-            return projectControl.isProjectValid(req.params.project_id)            
+        .then(() => {
+            return projectControl.isProjectValid(req.params.project_id)
         })
-        .then(()=>{
+        .then(() => {
             return projectControl.GotoNextTaskInProject(req.params.project_id)
         })
-        .then(()=>{
+        .then(() => {
             res.json();
         })
         .catch((err) => {
             res.status(err.status).json(err);
-        });    
+        });
 }
-exports.putProjectHost=function(req,res,next){
+exports.putProjectHost = function (req, res, next) {
     //validate visio nname
     checkVisionNameValid(req.params.vision_name)
-        .then(()=>{
+        .then(() => {
             //validate project id
-            return projectControl.isProjectValid(req.params.project_id)            
+            return projectControl.isProjectValid(req.params.project_id)
         })
-        .then(()=>{
+        .then(() => {
             //validate host name
             return dormControl.IsDormValid(req.params.hostName)
         })
-        .then(()=>{
+        .then(() => {
             //update the dorm information in the project
-            return projectControl.UpdateHostInProject(req.params.project_id,req.params.hostName)
+            return projectControl.UpdateHostInProject(req.params.project_id, req.params.hostName)
         })
-        .then(()=>{
+        .then(() => {
             res.json();
         })
         .catch((err) => {
             res.status(err.status).json(err);
-        });          
+        });
 
 }
-exports.putProjectStatus=function(req,res,next){
+exports.putProjectStatus = function (req, res, next) {
     //validate visio nname
     checkVisionNameValid(req.params.vision_name)
-        .then(()=>{
+        .then(() => {
             //validate project id
-            return projectControl.isProjectValid(req.params.project_id)            
+            return projectControl.isProjectValid(req.params.project_id)
         })
-        .then(()=>{
+        .then(() => {
             //update the project status
-            return projectControl.UpdateProjectStatus(req.params.project_id,req.params.status)
+            return projectControl.UpdateProjectStatus(req.params.project_id, req.params.status)
         })
-        .then(()=>{
+        .then(() => {
             res.json();
         })
         .catch((err) => {
             res.status(err.status).json(err);
-        });     
+        });
 }

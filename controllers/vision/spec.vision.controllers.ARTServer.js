@@ -1106,7 +1106,50 @@ describe('/delete',()=>{
 
     })
 
-    it('shall delete blueprint schedule /vision/:vision_name/project_schedule/:blueprint')
+    it('shall delete blueprint schedule /vision/:vision_name/project_schedule/:blueprint',done=>{
+        taskSupport.postTaskAPMNewMediaDetection()
+            .then(taskSupport.posttaskAPMInstall)
+            .then(projectSupport.postProjectBlueprintAPMPrestaging)
+            .then(visionSupport.PostVisionAPMChef)
+            .then(()=>{
+                return visionSupport.postNewProject(visionSupport.visionAPMChef.name,projectSupport.projectAPMPrestaging.name)
+            })            
+            .then((projectRes)=>{
+                //initialize blueprint schedule
+                return visionSupport.PutBlueprintSchedule(visionSupport.visionAPMChef.name,projectSupport.projectAPMPrestaging.name);
+            })
+            .then(()=>{
+                return visionSupport.deleteProjectSchedule(visionSupport.visionAPMChef.name,projectSupport.projectAPMPrestaging.name);
+            })
+            .then((result)=>{
+                visionModel.findOne({name:visionSupport.visionAPMChef.name})
+                    .populate([{
+                            path:'current_projects._project',
+                            model:'Project',
+                            populate:{
+                                path:'pending_tasks.task',
+                                model:'Task'
+                            }
+                        }])
+                    .exec((err,vision)=>{
+                        if(err){
+                            assert(false,err);
+                            done();
+                        }
+                        else{
+                            assert.equal(vision.project_schedule.length,0);
+                            //assert.equal(vision.current_projects[0]._project.pending_tasks[0].task.name,taskSupport.taskAPMInstall.name);
+                            done();
+                        }
+                    });
+            })
+            .catch(()=>{
+                assert(false,'it shall not throw error');
+                done();
+            });
+
+    })
+
     it('shall throw 400 error when blueprint is invalid /vision/:vision_name/project_schedule/:blueprint')
     it('shall throw 400 error if vision is invalid /vision/:vision_name/project_schedule/:blueprint')
 

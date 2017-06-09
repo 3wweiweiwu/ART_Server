@@ -290,6 +290,25 @@ exports.deleteCurrentProject=function(visionName,project_id,cb=()=>{}){
 }
 
 
+exports.deleteProjectSchedule=function(visionName,blueprint,cb=()=>{}){
+     return new Promise((resolve,reject)=>{
+        chai
+        .request(app)
+        .del(`/api/vision/${visionName}/project_schedule/${blueprint}`)
+        .end((err,res)=>{
+            if(err){
+                let result={err:err,res:res}
+                reject(result);
+                return cb(result);
+            }
+            else{
+                resolve(res);
+                return cb(null,res);
+            }
+        });
+    });   
+}
+
 exports.visionAPMChef={
     name:'APM_Chef',
     note:'Prepare daily APM image',
