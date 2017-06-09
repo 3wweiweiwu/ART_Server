@@ -54,22 +54,32 @@ exports.CreateNewProject=function(projectBlueprint,cb=()=>{}){
 
 exports.GetProjectById=function(id,cb=()=>{}){
     return new Promise((resolve,reject)=>{
+
         projectModel
-        .findOne({_id:id})
-        .populate('_bluePrint')
-        .populate('pending_tasks.task')
-        .populate('current_task.task')
-        .populate('host')        
-        .exec((err,project)=>{
-            if(err){
-                reject(err);
-                return cb(CreateStandardError(err,500));
-            }
-            else{
-                resolve(project);
-                return cb(null,project);
-            }
-        });
+            .findOne({_id:id})
+            .populate('_bluePrint')
+            .populate('pending_tasks.task')
+            .populate('current_task.task')
+            .populate('host')        
+            .exec((err,project)=>{
+                if(err){
+                    if(err.name!='CastError'){
+                        reject(CreateStandardError(err,500));
+                        return cb(CreateStandardError(err,500));
+                    }
+                    else{
+                        //cast error is introduced because it cannot find specified id or the id is invalid
+                        reject(CreateStandardError(err,400));
+                        return cb(CreateStandardError(err,400));                        
+                    }
+
+                }
+                else{
+                    resolve(project);
+                    return cb(null,project);
+                }
+            });            
+
 
     });
 }

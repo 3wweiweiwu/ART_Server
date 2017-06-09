@@ -578,9 +578,16 @@ describe('put /vision', () => {
             .then((projectRes)=>{
                 return visionSupport.putNextTask(visionSupport.visionAPMChef.name,projectRes.body.projectId)
             })
-            .then(()=>{
+            .then((result)=>{
                 visionModel.findOne({name:visionSupport.visionAPMChef.name})
-                    .populate('current_projects._project')                    
+                    .populate({
+                            path:'current_projects._project',
+                            model:'Project',
+                            populate:{
+                                path:'pending_tasks.task',
+                                model:'Task'
+                            }
+                        })
                     .exec((err,vision)=>{
                         if(err){
                             assert(false,err);
@@ -588,13 +595,14 @@ describe('put /vision', () => {
                         }
                         else{
                             assert.equal(vision.current_projects[0]._project.pending_tasks.length,1);
-                            assert.equal(vision.current_projects[0]._project.pending_tasks[0].name,taskSupport.taskAPMInstall.name);
+                            assert.equal(vision.current_projects[0]._project.pending_tasks[0].task.name,taskSupport.taskAPMInstall.name);
                             done();
                         }
                     });
             })
             .catch(()=>{
                 assert(false,'it shall not throw error');
+                done();
             });
     });
     it('shall not throw error when there is 0 task in the list /vision/:vision_name/current_projects/:project_id/next_task',done=>{
@@ -606,28 +614,76 @@ describe('put /vision', () => {
                 return visionSupport.postNewProject(visionSupport.visionAPMChef.name,projectSupport.projectAPMPrestaging.name)
             })            
             .then((projectRes)=>{
-                return visionSupport.putNextTask(visionSupport.visionAPMChef.name,projectRes.body.projectId)
+                visionSupport.putNextTask(visionSupport.visionAPMChef.name,projectRes.body.projectId)
+                .then(()=>{
+                    return visionSupport.putNextTask(visionSupport.visionAPMChef.name,projectRes.body.projectId)
+                })
+                .then(()=>{
+                    return visionSupport.putNextTask(visionSupport.visionAPMChef.name,projectRes.body.projectId)
+                })
+                .then(()=>{
+                    return visionSupport.putNextTask(visionSupport.visionAPMChef.name,projectRes.body.projectId)
+                })                                
+                .then(()=>{
+                    visionModel.findOne({name:visionSupport.visionAPMChef.name})
+                        .populate('current_projects._project')
+                        .exec((err,vision)=>{
+                            if(err){
+                                assert(false,err);
+                                done();
+                            }
+                            else{
+                                assert.equal(vision.current_projects[0]._project.pending_tasks.length,0);
+                                done();
+                            }
+                        });
+                })
+                .catch((done)=>{
+                    assert(false,'it shall not throw error');
+                    done();
+                });                
             })
+                                             
+
+    });
+    it('shall throw 400 error when vision is invalid /vision/:vision_name/current_projects/:project_id/next_task',done=>{
+        taskSupport.postTaskAPMNewMediaDetection()
+            .then(taskSupport.posttaskAPMInstall)
+            .then(projectSupport.postProjectBlueprintAPMPrestaging)
+            .then(visionSupport.PostVisionAPMChef)
             .then(()=>{
-                visionModel.findOne({name:visionSupport.visionAPMChef.name})
-                    .populate('current_projects._project')
-                    .exec((err,vision)=>{
-                        if(err){
-                            assert(false,err);
-                            done();
-                        }
-                        else{
-                            assert.equal(vision.current_projects[0]._project.pending_tasks.length,1);
-                            done();
-                        }
-                    });
+                return visionSupport.postNewProject(visionSupport.visionAPMChef.name,projectSupport.projectAPMPrestaging.name)
+            })            
+            .then((projectRes)=>{
+                return visionSupport.putNextTask('invalid vision',projectRes.body.projectId)
             })
-            .catch(()=>{
-                assert(false,'it shall not throw error');
+            .then((result)=>{
+                assert(false,'it shall throw error');
+            })
+            .catch((res)=>{
+                assert.equal(res.res.status,400);
+                done();
             });
     });
-    it('shall throw 400 error when vision is invalid /vision/:vision_name/current_projects/:project_id/next_task')
-    it('shall throw 400 error when project id is invalid /vision/:vision_name/current_projects/:project_id/next_task')
+    it('shall throw 400 error when project id is invalid /vision/:vision_name/current_projects/:project_id/next_task',done=>{
+        taskSupport.postTaskAPMNewMediaDetection()
+            .then(taskSupport.posttaskAPMInstall)
+            .then(projectSupport.postProjectBlueprintAPMPrestaging)
+            .then(visionSupport.PostVisionAPMChef)
+            .then(()=>{
+                return visionSupport.postNewProject(visionSupport.visionAPMChef.name,projectSupport.projectAPMPrestaging.name)
+            })            
+            .then((projectRes)=>{
+                return visionSupport.putNextTask(visionSupport.visionAPMChef.name,'invalid id')
+            })
+            .then((result)=>{
+                assert(false,'it shall throw error');
+            })
+            .catch((res)=>{
+                assert.equal(res.res.status,400);
+                done();
+            });
+    });
 
     it('shall update host name /vision/:vision_name/current_projects/:project_id/host/:hostName')
     it('shall throw 400 error when vision name is invalid /vision/:vision_name/current_projects/:project_id/host/:hostName')
