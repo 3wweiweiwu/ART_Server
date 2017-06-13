@@ -1150,8 +1150,98 @@ describe('/delete',()=>{
 
     })
 
-    it('shall throw 400 error when blueprint is invalid /vision/:vision_name/project_schedule/:blueprint')
-    it('shall throw 400 error if vision is invalid /vision/:vision_name/project_schedule/:blueprint')
+    it('shall throw 400 error when blueprint is invalid /vision/:vision_name/project_schedule/:blueprint',done=>{
+        taskSupport.postTaskAPMNewMediaDetection()
+            .then(taskSupport.posttaskAPMInstall)
+            .then(projectSupport.postProjectBlueprintAPMPrestaging)
+            .then(visionSupport.PostVisionAPMChef)
+            .then(()=>{
+                return visionSupport.postNewProject(visionSupport.visionAPMChef.name,projectSupport.projectAPMPrestaging.name)
+            })            
+            .then((projectRes)=>{
+                //initialize blueprint schedule
+                return visionSupport.PutBlueprintSchedule(visionSupport.visionAPMChef.name,projectSupport.projectAPMPrestaging.name);
+            })
+            .then(()=>{
+                return visionSupport.deleteProjectSchedule(visionSupport.visionAPMChef.name,'projectSupport.projectAPMPrestaging.name');
+            })
+            .then((result)=>{
+                assert(false,'it shall throw error');
+                done();
+            })
+            .catch((err)=>{
+                assert.equal(err.err.status,400);
+                visionModel.findOne({name:visionSupport.visionAPMChef.name})
+                    .populate([{
+                            path:'current_projects._project',
+                            model:'Project',
+                            populate:{
+                                path:'pending_tasks.task',
+                                model:'Task'
+                            }
+                        }])
+                    .exec((err,vision)=>{
+                        if(err){
+                            assert(false,err);
+                            done();
+                        }
+                        else{
+                            assert.equal(vision.project_schedule.length,1);
+                            //assert.equal(vision.current_projects[0]._project.pending_tasks[0].task.name,taskSupport.taskAPMInstall.name);
+                            done();
+                        }
+                    });                
+                
+
+            });
+
+    })
+    it('shall throw 400 error if vision is invalid /vision/:vision_name/project_schedule/:blueprint',done=>{
+        taskSupport.postTaskAPMNewMediaDetection()
+            .then(taskSupport.posttaskAPMInstall)
+            .then(projectSupport.postProjectBlueprintAPMPrestaging)
+            .then(visionSupport.PostVisionAPMChef)
+            .then(()=>{
+                return visionSupport.postNewProject(visionSupport.visionAPMChef.name,projectSupport.projectAPMPrestaging.name)
+            })            
+            .then((projectRes)=>{
+                //initialize blueprint schedule
+                return visionSupport.PutBlueprintSchedule(visionSupport.visionAPMChef.name,projectSupport.projectAPMPrestaging.name);
+            })
+            .then(()=>{
+                return visionSupport.deleteProjectSchedule('visionSupport.visionAPMChef.name',projectSupport.projectAPMPrestaging.name);
+            })
+            .then((result)=>{
+                assert(false,'it shall throw error');
+                done();
+            })
+            .catch((err)=>{
+                assert.equal(err.err.status,400);
+                visionModel.findOne({name:visionSupport.visionAPMChef.name})
+                    .populate([{
+                            path:'current_projects._project',
+                            model:'Project',
+                            populate:{
+                                path:'pending_tasks.task',
+                                model:'Task'
+                            }
+                        }])
+                    .exec((err,vision)=>{
+                        if(err){
+                            assert(false,err);
+                            done();
+                        }
+                        else{
+                            assert.equal(vision.project_schedule.length,1);
+                            //assert.equal(vision.current_projects[0]._project.pending_tasks[0].task.name,taskSupport.taskAPMInstall.name);
+                            done();
+                        }
+                    });                
+                
+
+            });
+
+    })
 
     it('shall delete dorm  /vision/:vision_name/project_schedule/:blueprint')
     it('shall return 400 error when blueprint is invalid /vision/:vision_name/project_schedule/:blueprint')
