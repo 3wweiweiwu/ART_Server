@@ -690,16 +690,26 @@ exports.RemoveDormFromSchedule=function(vision,blueprint,dorm){
         visionModel.findOne({name:vision})
             .populate('project_schedule.project_blueprint')
             .populate('project_schedule.machine_demand.dorm')
-            // .where('project_schedule.project_blueprint.name').equals(blueprint)
-            // .where('project_schedule.machine_demand.dorm.name').equals(dorm)
             .exec((err,vision)=>{
                 if(err)
                 {
                     reject(standardError(err));
                 }
                 else if(vision!=null){
-                    blueprintSchedule=vision.project_schedule.find(item=>{return item.project_blueprint});
+                    let blueprintSchedule=null;
+                    let machineDemand=null;
+                    blueprintSchedule=vision.project_schedule.find(item=>{return item.project_blueprint.name==blueprint});
+                    if(blueprintSchedule==null){
+                        reject(standardError(`unable to find blueprint ${blueprint}`, 400));
+                        return;
+                    }
+
                     machineDemand=blueprintSchedule.machine_demand.find(item=>{return item.dorm.name==dorm});
+                    if(machineDemand==null){
+                        reject(standardError(`unable to find dorm ${dorm}`, 400));
+                        return;
+                    }
+
                     blueprintSchedule.machine_demand.id(machineDemand._id).remove();
                     vision.save((err)=>{
                         if(err){
@@ -740,9 +750,63 @@ exports.deleteDormInProjectSchedule = function (req, res, next) {
             res.status(err.status).json(err);
         });
 }
+
+exports.RemoveNextBlueprintFromSchedule=function(vision,blueprint,next){
+    return new Promise((resolve, reject) => {
+        
+        visionModel.findOne({name:vision})
+            .populate('project_schedule.project_blueprint')
+            .populate('project_schedule.next_project.blueprint')
+            .exec((err,vision)=>{
+                if(err)
+                {
+                    reject(standardError(err));
+                }
+                else if(vision!=null){
+                    let blueprintSchedule=null;                    
+                    blueprintSchedule=vision.project_schedule.find(item=>{return item.project_blueprint.name==blueprint});
+                    if(blueprintSchedule==null){
+                        reject(standardError(`unable to find blueprint ${blueprint}`, 400));
+                        return;
+                    }
+
+                    blueprintSchedule.next_project=blueprintSchedule.next_project.filter(item=>{return item.blueprint.name!=next});
+                    
+                    
+                    vision.save((err)=>{
+                        if(err){
+                            reject(standardError(err, 500));
+                        }
+                        else{
+                            resolve();
+                        }
+                    })
+
+                }
+            });
+        
+        
+
+    });  
+}
 exports.deleteNextBlueprintFromSchedule = function (req, res, next) {
     checkVisionNameValid(req.params.vision_name)
-        .then()
+        .then(() => {
+            //check if project schedule blueprint is valid
+            return blueprintControl.isBlueprintValid(req.params.blueprint)
+        })
+        .then(()=>{
+            //check if project schedule blueprint is valid
+            return blueprintControl.isBlueprintValid(req.params.nextBlueprint)
+        })
+        .then(() => {
+            //remove project schedule
+            return exports.RemoveNextBlueprintFromSchedule(req.params.vision_name, req.params.blueprint,req.params.nextBlueprint);
+        })
+        .then((raw) => {
+            //delete successfully
+            res.json(raw);
+        })
         .catch((err) => {
             res.status(err.status).json(err);
         });

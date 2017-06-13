@@ -326,6 +326,25 @@ exports.deleteDormInProjectSchedule=function(visionName,blueprint,dorm,cb=()=>{}
         });
     });   
 }
+
+exports.deleteNextBlueprintInProjectSchedule=function(visionName,blueprint,nextBlueprint,cb=()=>{}){
+     return new Promise((resolve,reject)=>{
+        chai
+        .request(app)
+        .del(`/api/vision/${visionName}/project_schedule/${blueprint}/next/${nextBlueprint}`)
+        .end((err,res)=>{
+            if(err){
+                let result={err:err,res:res}
+                reject(result);
+                return cb(result);
+            }
+            else{
+                resolve(res);
+                return cb(null,res);
+            }
+        });
+    });   
+}
 exports.visionAPMChef={
     name:'APM_Chef',
     note:'Prepare daily APM image',
