@@ -661,7 +661,7 @@ exports.RemoveProjectSchedule = function (vision, blueprint) {
                         else {
                             resolve(raw);
                         }
-                    })                
+                    })
             })
     });
 }
@@ -683,9 +683,59 @@ exports.deleteProjectSchedule = function (req, res, next) {
             res.status(err.status).json(err);
         });
 }
+
+exports.RemoveDormFromSchedule=function(vision,blueprint,dorm){
+    return new Promise((resolve, reject) => {
+        
+        visionModel.findOne({name:vision})
+            .populate('project_schedule.project_blueprint')
+            .populate('project_schedule.machine_demand.dorm')
+            // .where('project_schedule.project_blueprint.name').equals(blueprint)
+            // .where('project_schedule.machine_demand.dorm.name').equals(dorm)
+            .exec((err,vision)=>{
+                if(err)
+                {
+                    reject(standardError(err));
+                }
+                else if(vision!=null){
+                    blueprintSchedule=vision.project_schedule.find(item=>{return item.project_blueprint});
+                    machineDemand=blueprintSchedule.machine_demand.find(item=>{return item.dorm.name==dorm});
+                    blueprintSchedule.machine_demand.id(machineDemand._id).remove();
+                    vision.save((err)=>{
+                        if(err){
+                            reject(standardError(err, 500));
+                        }
+                        else{
+                            resolve();
+                        }
+                    })
+
+                }
+            });
+        
+        
+
+    });    
+}
+
 exports.deleteDormInProjectSchedule = function (req, res, next) {
     checkVisionNameValid(req.params.vision_name)
-        .then()
+        .then(() => {
+            //check if project id is valid
+            return blueprintControl.isBlueprintValid(req.params.blueprint)
+        })
+        .then(()=>{
+            //check if dorm is valid
+            return dormControl.IsDormValid(req.params.dorm);
+        })
+        .then(() => {
+            //remove project schedule
+            return exports.RemoveDormFromSchedule(req.params.vision_name, req.params.blueprint,req.params.dorm);
+        })
+        .then((raw) => {
+            //delete successfully
+            res.json(raw);
+        })
         .catch((err) => {
             res.status(err.status).json(err);
         });

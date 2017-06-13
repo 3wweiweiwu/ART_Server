@@ -1243,10 +1243,123 @@ describe('/delete',()=>{
 
     })
 
-    it('shall delete dorm  /vision/:vision_name/project_schedule/:blueprint')
-    it('shall return 400 error when blueprint is invalid /vision/:vision_name/project_schedule/:blueprint')
-    it('shall return 400 error when dorm is invalid /vision/:vision_name/project_schedule/:blueprint')
-    it('shall return 400 error when vision is invalid')
+    it('shall delete dorm  /vision/:vision_name/project_schedule/:blueprint/machine_demand/:dorm',done=>{
+        taskSupport.postTaskAPMNewMediaDetection()
+            .then(taskSupport.posttaskAPMInstall)
+            .then(projectSupport.postProjectBlueprintAPMPrestaging)
+            .then(visionSupport.PostVisionAPMChef)
+            .then(() => {
+                return dormSupport.PostDorm(dormSupport.dorm1)
+            })
+            .then(() => {
+                return visionSupport.putBlueprintMachineInstance(visionSupport.visionAPMChef.name, projectSupport.projectAPMPrestaging.name, dormSupport.dorm1.name, 5);
+            })
+            .then(()=>{
+                return visionSupport.deleteDormInProjectSchedule(visionSupport.visionAPMChef.name, projectSupport.projectAPMPrestaging.name, dormSupport.dorm1.name)
+            })
+            .then(()=>{
+                visionModel.find({name:visionSupport.visionAPMChef.name})
+                    .exec((err,vision)=>{
+                        assert.equal(vision[0].project_schedule[0].machine_demand.length,0);
+                        done();
+                    });
+            })
+            .catch(err=>{
+                assert(false,`it shall not return error ${err}`)
+                done();
+
+            });
+    })
+    it('shall return 400 error when blueprint is invalid /vision/:vision_name/project_schedule/:blueprint/machine_demand/:dorm',done=>{
+        taskSupport.postTaskAPMNewMediaDetection()
+            .then(taskSupport.posttaskAPMInstall)
+            .then(projectSupport.postProjectBlueprintAPMPrestaging)
+            .then(visionSupport.PostVisionAPMChef)
+            .then(() => {
+                return dormSupport.PostDorm(dormSupport.dorm1)
+            })
+            .then(() => {
+                return visionSupport.putBlueprintMachineInstance(visionSupport.visionAPMChef.name, projectSupport.projectAPMPrestaging.name, dormSupport.dorm1.name, 5);
+            })
+            .then(()=>{
+                return visionSupport.deleteDormInProjectSchedule('visionSupport.visionAPMChef.name', projectSupport.projectAPMPrestaging.name, dormSupport.dorm1.name)
+            })
+            .then(()=>{
+                assert(false,`it shall return error 400`)
+                done();
+
+            })
+            .catch(err=>{
+                
+                assert(err.err.status,400);
+                visionModel.find({name:visionSupport.visionAPMChef.name})
+                    .exec((err,vision)=>{
+                        assert.equal(vision[0].project_schedule[0].machine_demand.length,1);
+                        done();
+                    });
+
+            });
+    })
+    it('shall return 400 error when dorm is invalid /vision/:vision_name/project_schedule/:blueprint/machine_demand/:dorm',done=>{
+        taskSupport.postTaskAPMNewMediaDetection()
+            .then(taskSupport.posttaskAPMInstall)
+            .then(projectSupport.postProjectBlueprintAPMPrestaging)
+            .then(visionSupport.PostVisionAPMChef)
+            .then(() => {
+                return dormSupport.PostDorm(dormSupport.dorm1)
+            })
+            .then(() => {
+                return visionSupport.putBlueprintMachineInstance(visionSupport.visionAPMChef.name, projectSupport.projectAPMPrestaging.name, dormSupport.dorm1.name, 5);
+            })
+            .then(()=>{
+                return visionSupport.deleteDormInProjectSchedule(visionSupport.visionAPMChef.name, 'projectSupport.projectAPMPrestaging.name', dormSupport.dorm1.name)
+            })
+            .then(()=>{
+                assert(false,`it shall return error 400`)
+                done();
+
+            })
+            .catch(err=>{
+                
+                assert(err.err.status,400);
+                visionModel.find({name:visionSupport.visionAPMChef.name})
+                    .exec((err,vision)=>{
+                        assert.equal(vision[0].project_schedule[0].machine_demand.length,1);
+                        done();
+                    });
+
+            });
+    })
+    it('shall return 400 error when vision is invalid /vision/:vision_name/project_schedule/:blueprint/machine_demand/:dorm',done=>{
+        taskSupport.postTaskAPMNewMediaDetection()
+            .then(taskSupport.posttaskAPMInstall)
+            .then(projectSupport.postProjectBlueprintAPMPrestaging)
+            .then(visionSupport.PostVisionAPMChef)
+            .then(() => {
+                return dormSupport.PostDorm(dormSupport.dorm1)
+            })
+            .then(() => {
+                return visionSupport.putBlueprintMachineInstance(visionSupport.visionAPMChef.name, projectSupport.projectAPMPrestaging.name, dormSupport.dorm1.name, 5);
+            })
+            .then(()=>{
+                return visionSupport.deleteDormInProjectSchedule(visionSupport.visionAPMChef.name, projectSupport.projectAPMPrestaging.name, 'dormSupport.dorm1.name')
+            })
+            .then(()=>{
+                assert(false,`it shall return error 400`)
+                done();
+
+            })
+            .catch(err=>{
+                
+                assert(err.err.status,400);
+                visionModel.find({name:visionSupport.visionAPMChef.name})
+                    .exec((err,vision)=>{
+                        assert.equal(vision[0].project_schedule[0].machine_demand.length,1);
+                        done();
+                    });
+
+            });
+    })
 
     it('shall delete nextBlueprint /vision/:vision_name/project_schedule/:blueprint/next/:nextBlueprint')
     it('shall throw 400 error when  blueprint is invlaid /vision/:vision_name/project_schedule/:blueprint/next/:nextBlueprint')
