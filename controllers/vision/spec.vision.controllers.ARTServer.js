@@ -1389,8 +1389,95 @@ describe('/delete',()=>{
             })
 
     })
-    it('shall throw 400 error when  blueprint is invlaid /vision/:vision_name/project_schedule/:blueprint/next/:nextBlueprint')
-    it('shall throw 400 error when nextblueprint is invalid /vision/:vision_name/project_schedule/:blueprint/next/:nextBlueprint')
-    it('shall throw 400 error when vision name is invalid /vision/:vision_name/project_schedule/:blueprint/next/:nextBlueprint')
+    it('shall throw 400 error when  blueprint is invlaid /vision/:vision_name/project_schedule/:blueprint/next/:nextBlueprint',done=>{
+        taskSupport.postTaskAPMNewMediaDetection()
+            .then(taskSupport.posttaskAPMInstall)
+            .then(projectSupport.postProjectBlueprintAPMPrestaging)
+            .then(projectSupport.postProjectBlueprintAESPrestaging1)
+            .then(visionSupport.PostVisionAPMChef)
+            .then(() => {
+                return dormSupport.PostDorm(dormSupport.dorm1)
+            })
+            .then(() => {
+                return visionSupport.putNextBlueprint(visionSupport.visionAPMChef.name, projectSupport.projectAPMPrestaging.name, projectSupport.projectAPMPrestaging1.name);
+            })
+            .then(()=>{
+                return visionSupport.deleteNextBlueprintInProjectSchedule(visionSupport.visionAPMChef.name, 'projectSupport.projectAPMPrestaging.name', projectSupport.projectAPMPrestaging1.name)
+            })
+            .then(()=>{
+                assert(false,`it shall not return error`)
+                done();
+            })
+            .catch((err)=>{
+                assert.equal(err.err.status,400);
+                visionModel.find({name:visionSupport.visionAPMChef.name})
+                    .exec((err,vision)=>{
+                        assert.equal(vision[0].project_schedule[0].next_project.length,1);
+                        done();
+                    });                
+
+            })
+
+    })
+    it('shall throw 400 error when nextblueprint is invalid /vision/:vision_name/project_schedule/:blueprint/next/:nextBlueprint',done=>{
+        taskSupport.postTaskAPMNewMediaDetection()
+            .then(taskSupport.posttaskAPMInstall)
+            .then(projectSupport.postProjectBlueprintAPMPrestaging)
+            .then(projectSupport.postProjectBlueprintAESPrestaging1)
+            .then(visionSupport.PostVisionAPMChef)
+            .then(() => {
+                return dormSupport.PostDorm(dormSupport.dorm1)
+            })
+            .then(() => {
+                return visionSupport.putNextBlueprint(visionSupport.visionAPMChef.name, projectSupport.projectAPMPrestaging.name, projectSupport.projectAPMPrestaging1.name);
+            })
+            .then(()=>{
+                return visionSupport.deleteNextBlueprintInProjectSchedule(visionSupport.visionAPMChef.name, projectSupport.projectAPMPrestaging.name, 'projectSupport.projectAPMPrestaging1.name')
+            })
+            .then(()=>{
+                assert(false,`it shall not return error`)
+                done();
+            })
+            .catch((err)=>{
+                assert.equal(err.err.status,400);
+                visionModel.find({name:visionSupport.visionAPMChef.name})
+                    .exec((err,vision)=>{
+                        assert.equal(vision[0].project_schedule[0].next_project.length,1);
+                        done();
+                    });                
+
+            })
+
+    })
+    it('shall throw 400 error when vision name is invalid /vision/:vision_name/project_schedule/:blueprint/next/:nextBlueprint',done=>{
+        taskSupport.postTaskAPMNewMediaDetection()
+            .then(taskSupport.posttaskAPMInstall)
+            .then(projectSupport.postProjectBlueprintAPMPrestaging)
+            .then(projectSupport.postProjectBlueprintAESPrestaging1)
+            .then(visionSupport.PostVisionAPMChef)
+            .then(() => {
+                return dormSupport.PostDorm(dormSupport.dorm1)
+            })
+            .then(() => {
+                return visionSupport.putNextBlueprint(visionSupport.visionAPMChef.name, projectSupport.projectAPMPrestaging.name, projectSupport.projectAPMPrestaging1.name);
+            })
+            .then(()=>{
+                return visionSupport.deleteNextBlueprintInProjectSchedule('visionSupport.visionAPMChef.name', projectSupport.projectAPMPrestaging.name, projectSupport.projectAPMPrestaging1.name)
+            })
+            .then(()=>{
+                assert(false,`it shall not return error`)
+                done();
+            })
+            .catch((err)=>{
+                assert.equal(err.err.status,400);
+                visionModel.find({name:visionSupport.visionAPMChef.name})
+                    .exec((err,vision)=>{
+                        assert.equal(vision[0].project_schedule[0].next_project.length,1);
+                        done();
+                    });                
+
+            })
+
+    })
 
 })
