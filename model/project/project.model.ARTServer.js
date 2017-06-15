@@ -8,6 +8,7 @@ let projectModel=new Schema({
         task:{type:Schema.Types.ObjectId,ref:'Task'}
     }],
     host:{type:Schema.Types.ObjectId,ref:'Dorm'},
+    host_id:{type:String},
     last_update:{type:Date},
     status:{type:String}
 });

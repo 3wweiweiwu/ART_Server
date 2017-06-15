@@ -13,7 +13,7 @@ const sPutDormNotFound="put dorm not found";
 function CreateNewDorm(req,res,next)
 {
     
-    var dorm=new dormModel();
+    let dorm=new dormModel();
     try{
         dorm.name=req.body.name;
         dorm.system_resource.CPU=req.body.system_resource.CPU;

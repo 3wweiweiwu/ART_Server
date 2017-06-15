@@ -26,7 +26,7 @@ exports.CreateNewProject=function(projectBlueprint,cb=()=>{}){
             }
             else{                
                 //if blueprint is found successfully
-                project=new projectModel();
+                let project=new projectModel();
                 project._bluePrint=blueprint._id;
                 project.pending_tasks=blueprint.tasks;                
                 project.status=projectStatus.waitingForScheduling.id;

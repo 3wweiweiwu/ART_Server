@@ -55,6 +55,8 @@ const CreateBasicVision = function (req, cb = () => { }) {
             });
     });
 }
+
+
 exports.getVision = function (query, cb = () => { }) {
     return new Promise((resolve, reject) => {
         visionModel
@@ -65,6 +67,7 @@ exports.getVision = function (query, cb = () => { }) {
             .populate({ path: 'current_projects' })
             .populate({ path: 'project_schedule.project_blueprint' })
             .populate({ path: 'project_schedule.machine_demand.dorm' })
+            .populate({path:'project_schedule.next_project.blueprint'})
             .exec((err, res) => {
                 if (err) {
                     reject(err);
@@ -117,6 +120,41 @@ exports.create = function (req, res, next) {
         .catch((err) => {
             res.status(500).json(err);
         });
+}
+
+const IsBlueprintValid=(visionList,blueprint)=>{
+    return (new Promise((resolve,reject)=>{
+            if(visionList.length!=1){
+                reject(standardError('unable to find vision specified'),400);
+                return;
+            }
+            //get the first vision
+            vision=visionList[0];
+
+            let projectSchedule=vision.project_schedule.find(item=>{return item.project_blueprint.name==blueprint})                    
+            //if we cannot find the projectSchedule specified, then quit
+            if(projectSchedule==null){
+                reject(standardError(`unable to find blueprint specified ${blueprint} in the vision`,400));
+                return;
+            }
+            else{
+                resolve(vision);
+            }
+        }));
+}
+exports.IsBlueprintInProjectScheduleValid=function(vision,blueprint){
+    return new Promise((resolve,reject)=>{
+        exports.getVision({name:vision})
+            .then(visionList=>{
+                return IsBlueprintValid(visionList,blueprint)
+            })
+            .then(vision=>{
+                resolve(vision);
+            })
+            .catch(err=>{
+                reject(err);
+            });
+    });
 }
 
 exports.CreateNewProjectAndAddToVision = function (visionName, blueprint) {

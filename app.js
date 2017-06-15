@@ -13,7 +13,7 @@ var project=require('./routes/project.routes.ARTServer')
 var expressValidator = require('express-validator');
 var dorms=require('./routes/dorms.js');
 var vision=require('./routes/vision.routes.ARTServer')
-
+let scheduler=require('./routes/scheduler.routes.ARTServer')
 var app = express();
 
 
@@ -41,6 +41,7 @@ app.use('/api',backgrounds);
 app.use('/api',task);
 app.use('/api',project);
 app.use('/api',vision);
+app.use('/api',scheduler);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
