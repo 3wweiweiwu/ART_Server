@@ -47,7 +47,7 @@ describe('post /schedule/vision/:vision/blueprint/:blueprint',()=>{
     it('shall schedule project to the machines if there is enough resource /schedule/vision/:vision/blueprint/:blueprint',done=>{
         taskSupport.postTaskAPMNewMediaDetection()
             .then(taskSupport.posttaskAPMInstall)
-            .then(projectSupport.postProjectBlueprintAPMPrestaging)
+            .then(projectSupport.postProjectBlueprintAPMPrestaging)            
             .then(visionSupport.PostVisionAPMChef)
             .then(() => {
                 //post dorm
@@ -82,7 +82,151 @@ describe('post /schedule/vision/:vision/blueprint/:blueprint',()=>{
                 assert(false,'it shall not throw error');
                 done();
             });
+    });       
+    it('shall return error when blueprint is invalid /schedule/vision/:vision/blueprint/:blueprint',done=>{
+        taskSupport.postTaskAPMNewMediaDetection()
+            .then(taskSupport.posttaskAPMInstall)
+            .then(projectSupport.postProjectBlueprintAPMPrestaging)
+            .then(visionSupport.PostVisionAPMChef)
+            .then(() => {
+                //post dorm
+                return dormSupport.PostDorm(dormSupport.dorm1)
+            })
+            .then(() => {
+                //update machine ask
+                return visionSupport.putBlueprintMachineInstance(visionSupport.visionAPMChef.name, projectSupport.projectAPMPrestaging.name, dormSupport.dorm1.name, 2);
+            })
+            .then(()=>{
+                
+                return scheduleSupport.postScheduleFromBlueprint(visionSupport.visionAPMChef.name,'projectSupport.projectAPMPrestaging.name');
+            })
+            .then(()=>{
+                assert(false,'it shall not throw error');
+                done();                
+            })
+            .catch(err=>{
+                visionModel.findOne({name:visionSupport.visionAPMChef.name})
+                    .populate('current_projects._project')
+                    .exec((errVision,vision)=>{
+                        if(errVision){
+                            assert(false,'it shall not throw error');
+                            done();                            
+                        }
+                        else{
+                            //there shall be 2 projects
+                            assert.equal(vision.current_projects.length,0);
+                            assert.equal(err.err.status,400);
+                            //2 projects shall have different id
+                            
+                            done();
+                        }
+                    });
+
+            });
+    });   
+    it('shall return error when vision is invalid',done=>{
+        taskSupport.postTaskAPMNewMediaDetection()
+            .then(taskSupport.posttaskAPMInstall)
+            .then(projectSupport.postProjectBlueprintAPMPrestaging)
+            .then(visionSupport.PostVisionAPMChef)
+            .then(() => {
+                //post dorm
+                return dormSupport.PostDorm(dormSupport.dorm1)
+            })
+            .then(() => {
+                //update machine ask
+                return visionSupport.putBlueprintMachineInstance(visionSupport.visionAPMChef.name, projectSupport.projectAPMPrestaging.name, dormSupport.dorm1.name, 2);
+            })
+            .then(()=>{
+                
+                return scheduleSupport.postScheduleFromBlueprint('visionSupport.visionAPMChef.name',projectSupport.projectAPMPrestaging.name);
+            })
+            .then(()=>{
+                assert(false,'it shall not throw error');
+                done();                
+            })
+            .catch(err=>{
+                visionModel.findOne({name:visionSupport.visionAPMChef.name})
+                    .populate('current_projects._project')
+                    .exec((errVision,vision)=>{
+                        if(errVision){
+                            assert(false,'it shall not throw error');
+                            done();                            
+                        }
+                        else{
+                            //there shall be 2 projects
+                            assert.equal(vision.current_projects.length,0);
+                            assert.equal(err.err.status,400);
+                            //2 projects shall have different id
+                            
+                            done();
+                        }
+                    });
+
+            });
+    });   
+});
+describe('post /schedule/vision/:vision/blueprint/:blueprint',()=>{
+    beforeEach((done) => {
+        taskModel.remove({}, (err) => {
+            taskImageDeployment.remove({}, (err) => {
+
+                projectBlueprintModel.remove({}, (err) => {
+                    projectModel.remove({}).exec(() => {
+                        visionModel.remove({}).exec(() => {
+                            dormModel.remove({}).exec(() => {
+                                done();
+                            })
+
+                        })
+
+                    });
+                })
+
+            })
+
+        });
+
     });    
+    it('shall schedule project to the machines if there is enough resource /schedule/vision/:vision/blueprint/:blueprint',done=>{
+        taskSupport.postTaskAPMNewMediaDetection()
+            .then(taskSupport.posttaskAPMInstall)
+            .then(projectSupport.postProjectBlueprintAPMPrestaging)            
+            .then(visionSupport.PostVisionAPMChef)
+            .then(() => {
+                //post dorm
+                return dormSupport.PostDorm(dormSupport.dorm1)
+            })
+            .then(() => {
+                //update machine ask
+                return visionSupport.putBlueprintMachineInstance(visionSupport.visionAPMChef.name, projectSupport.projectAPMPrestaging.name, dormSupport.dorm1.name, 2);
+            })
+            .then(()=>{
+                
+                return scheduleSupport.postScheduleFromBlueprint(visionSupport.visionAPMChef.name,projectSupport.projectAPMPrestaging.name);
+            })
+            .then(()=>{
+                visionModel.findOne({name:visionSupport.visionAPMChef.name})
+                    .populate('current_projects._project')
+                    .exec((err,vision)=>{
+                        if(err){
+                            assert(false,'it shall not throw error');
+                            done();                            
+                        }
+                        else{
+                            //there shall be 2 projects
+                            assert.equal(vision.current_projects.length,2);
+                            //2 projects shall have different id
+                            assert.notEqual(vision.current_projects[0]._id,vision.current_projects[1]._id)
+                            done();
+                        }
+                    });
+            })
+            .catch(err=>{
+                assert(false,'it shall not throw error');
+                done();
+            });
+    });       
     it('shall return error when blueprint is invalid /schedule/vision/:vision/blueprint/:blueprint',done=>{
         taskSupport.postTaskAPMNewMediaDetection()
             .then(taskSupport.posttaskAPMInstall)

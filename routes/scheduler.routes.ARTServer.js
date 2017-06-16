@@ -10,9 +10,9 @@ router.post('/schedule/vision/:vision/blueprint/:blueprint',validate(scheduleVal
     return scheduleControl.postScheduleFromBlueprint(req,res,next);    
 });
 
-router.post('/schedule',function(req,res,next){
-    query={name:req.params.name}
-    return scheduleControl.postScheduleSignal(req,res,next,query);
+router.post('/schedule/:vision',validate(scheduleValidation.getVisionScheduleStatus),function(req,res,next){
+    
+    return scheduleControl.postScheduleSignal(req,res,next);
 })
 
 router.get('/schedule/vision/:vision',validate(scheduleValidation.getVisionScheduleStatus),(req,res,next)=>{

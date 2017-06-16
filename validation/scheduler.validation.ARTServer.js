@@ -11,6 +11,10 @@ module.exports={
         params:{
             vision:Joi.string().required()
         }
-    }
-
+    },
+    postVisionScheduleStatus:{
+        params:{
+            vision:Joi.string().required()
+        }
+    },
 }

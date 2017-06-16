@@ -80,7 +80,7 @@ exports.postScheduleFromBlueprint=function(req,res,next){
     })
 }
 
-exports.ScheduleAllPendingTask=function(vision){
+exports.ScheduleVision=function(vision){
     
 
 }

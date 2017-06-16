@@ -1,7 +1,7 @@
 var mongoose=require('mongoose'),
     Schema=mongoose.Schema
 
-let settings=new Schema
+
 
 let imageDeployTask=new Schema({
     name:{type:String,required:true},
