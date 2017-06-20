@@ -1,7 +1,7 @@
 let lockControl=require('./lock.common.controllers.ARTServer')
 let lockModel=require('../../model/utility/lock.utility.model.ARTServer')
 var assert = require('assert');
-describe('lock aquisition',()=>{
+describe('lock',()=>{
     beforeEach(done=>{
         lockModel.remove({},()=>{
             done();
