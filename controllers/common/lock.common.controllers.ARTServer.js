@@ -54,7 +54,7 @@ const WaitForAquisition=function(lockId,lockName,resolve,reject){
                         else{
                             //update the datetime and then wait for 1s
                             //date the timestamp indicating our lock is still valid
-                            lockModel.findOneAndUpdate({_id:lockId},{$set:{createdAt:Date.now()}},(err)=>{
+                            lockModel.findOneAndUpdate({_id:lockId},{$set:{createdAt:Date.now}},(err)=>{
                                 if(err){
                                     reject(StandardError(err,500));
                                     return;                            
@@ -82,8 +82,7 @@ exports.Aquire=function(lockName){
     return new Promise((resolve,reject)=>{
         //create lock
         let lock=new lockModel({
-            name:lockName,
-            createdAt:Date.now()
+            name:lockName            
         });
         lock.save((err)=>{
             if(err){

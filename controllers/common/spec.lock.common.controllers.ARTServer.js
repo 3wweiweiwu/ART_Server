@@ -1,15 +1,18 @@
 let lockControl=require('./lock.common.controllers.ARTServer')
 let lockModel=require('../../model/utility/lock.utility.model.ARTServer')
 var assert = require('assert');
-describe('lock',()=>{
-    beforeEach(done=>{
-        lockModel.remove({},()=>{
-            done();
-        })
-    })
     const lock1='lock1';
     const lock2='lock2';
     const lock3='lock3';
+describe('lock',()=>{
+    beforeEach(done=>{
+
+        lockModel.remove({},(err)=>{
+            
+            done();
+        })
+    })
+
     it('shall aquire lock',done=>{
         
         lockControl.Aquire(lock1)
@@ -77,7 +80,9 @@ describe('lock',()=>{
         .then(()=>{
             return new Promise((resolve,reject)=>{
                 let lock=new lockModel({name:lock1});
-                lock.save(()=>{resolve();})
+                lock.save(()=>{
+                    resolve();
+                })
             });
         })
         .then(()=>{
@@ -91,7 +96,7 @@ describe('lock',()=>{
                             lockModel.find({name:lock1})
                                 .exec((err,newLockList)=>{
                                     assert.equal(newLockList.length,1);
-                                    assert.equal(secondLock._id,newLockList[0]._id);
+                                    assert.equal(secondLock._id.toString(),newLockList[0]._id.toString());
                                     done();
                                 });
                         })
