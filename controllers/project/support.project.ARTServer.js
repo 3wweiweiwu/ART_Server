@@ -45,7 +45,14 @@ exports.projectAPMPrestaging1={
     tasks:[taskSupport.taskAPM_NewMediaDetection.name,taskSupport.taskAPMInstall.name],
     next:[]
 }
-
+exports.projectAESPrestaging={
+    name:'AES_Prestaging',
+    note:"Install AES media whenever it is posted",
+    memory_usage_mb:10*1024,
+    disk_usage_mb:10*1024,
+    tasks:[taskSupport.taskAPM_NewMediaDetection.name,taskSupport.taskAPMInstall.name],
+    next:[]
+}
 exports.projectAPMPrestaging_Override={
     name:'APM_Prestaging',
     note:"When latest media is posted, install media",
@@ -71,4 +78,7 @@ exports.postProjectBlueprintAPMPrestaging=()=>{
 
 exports.postProjectBlueprintAESPrestaging1=()=>{
     return exports.PostNewBlueprint(exports.projectAPMPrestaging1);
+}
+exports.postProjectBlueprintAESPrestaging=()=>{
+    return exports.PostNewBlueprint(exports.projectAESPrestaging);
 }

@@ -6,5 +6,13 @@ module.exports={
     finishedSuccessfully:{
         id:'2',
         note:'Current task is finished successfully'
+    },
+    onGoing:{
+        id:'3',
+        note:'Current task is going on'
+    },
+    pendingRetire:{
+        id:'4',
+        note:'Current task is pending for retirement'
     }
 }

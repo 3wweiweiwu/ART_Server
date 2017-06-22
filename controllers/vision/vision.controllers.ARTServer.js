@@ -64,7 +64,7 @@ exports.getVision = function (query, cb = () => { }) {
             .populate({
                 path: 'key_projects'
             })
-            .populate({ path: 'current_projects' })
+            .populate({ path: 'current_projects._project',populate:{path:'_bluePrint',model:'Project.Blueprint'} })
             .populate({ path: 'project_schedule.project_blueprint' })
             .populate({ path: 'project_schedule.machine_demand.dorm' })
             .populate({path:'project_schedule.next_project.blueprint'})
