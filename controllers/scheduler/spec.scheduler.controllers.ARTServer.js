@@ -294,6 +294,7 @@ describe('schedule vision',()=>{
                 return scheduleSupport.postScheduleFromBlueprint(visionSupport.visionAPMChef.name,projectSupport.projectAPMPrestaging.name);
             })
             .then(()=>{
+                //schedule the project
                 return scheduleControl.ScheduleVision(visionSupport.visionAPMChef.name);
             })
             .then(()=>{
@@ -326,3 +327,121 @@ describe('schedule vision',()=>{
     it('shall change the status to pending for those machine that does not have enough resource')
 
 });
+//this test is here because it is part of scheduling process, the client will use this command to communicate with server
+describe('put /project/:projectId/status/:statusId',()=>{
+    beforeEach((done) => {
+        taskModel.remove({}, (err) => {
+            taskImageDeployment.remove({}, (err) => {
+
+                projectBlueprintModel.remove({}, (err) => {
+                    projectModel.remove({}).exec(() => {
+                        visionModel.remove({}).exec(() => {
+                            dormModel.remove({}).exec(() => {
+                                done();
+                            })
+
+                        })
+
+                    });
+                })
+
+            })
+
+        });
+
+    });     
+    it('shall change the status id of the given project',done=>{
+        taskSupport.postTaskAPMNewMediaDetection()
+            .then(taskSupport.posttaskAPMInstall)
+            .then(projectSupport.postProjectBlueprintAPMPrestaging)
+            .then(projectSupport.postProjectBlueprintAESPrestaging)                        
+            .then(visionSupport.PostVisionAPMChef)
+            .then(() => {
+                //post dorm
+                return dormSupport.PostDorm(dormSupport.dorm1)
+            })
+            .then(() => {
+                //update machine ask
+                return visionSupport.putBlueprintMachineInstance(visionSupport.visionAPMChef.name, projectSupport.projectAPMPrestaging.name, dormSupport.dorm1.name, 2);
+            })
+            .then(()=>{
+                //post the schedule
+                return scheduleSupport.postScheduleFromBlueprint(visionSupport.visionAPMChef.name,projectSupport.projectAPMPrestaging.name);
+            })
+            .then(()=>{
+                //schedule the project
+                return scheduleControl.ScheduleVision(visionSupport.visionAPMChef.name);
+            })
+            .then(()=>{
+                //update the project status
+                return new Promise((resolve,reject)=>{
+                    visionControl.getVision({name:visionSupport.visionAPMChef.name})
+                        .then(visionList=>{
+                            let vision=visionList[0];
+                            let projectId=vision.current_projects[0]._project._id.toString()
+                            projectSupport.putProjectStatus(projectId,projectStatus.onGoing.id)
+                                .then(()=>{
+                                    resolve(projectId);
+                                })
+                                
+                            
+                        })                    
+                })
+            })
+            .then((projectId)=>{
+                //validate the project status has been changed correctly
+                projectModel.findById(projectId)
+                    .exec((err,project)=>{
+                        assert.equal(project.status,projectStatus.onGoing.id);
+                        done();
+                    })
+            })
+    })
+    it('shall return 400 error when project id is invalid',done=>{
+        taskSupport.postTaskAPMNewMediaDetection()
+            .then(taskSupport.posttaskAPMInstall)
+            .then(projectSupport.postProjectBlueprintAPMPrestaging)
+            .then(projectSupport.postProjectBlueprintAESPrestaging)                        
+            .then(visionSupport.PostVisionAPMChef)
+            .then(() => {
+                //post dorm
+                return dormSupport.PostDorm(dormSupport.dorm1)
+            })
+            .then(() => {
+                //update machine ask
+                return visionSupport.putBlueprintMachineInstance(visionSupport.visionAPMChef.name, projectSupport.projectAPMPrestaging.name, dormSupport.dorm1.name, 2);
+            })
+            .then(()=>{
+                //post the schedule
+                return scheduleSupport.postScheduleFromBlueprint(visionSupport.visionAPMChef.name,projectSupport.projectAPMPrestaging.name);
+            })
+            .then(()=>{
+                //schedule the project
+                return scheduleControl.ScheduleVision(visionSupport.visionAPMChef.name);
+            })
+            .then(()=>{
+                //update the project status
+                return new Promise((resolve,reject)=>{
+                    visionControl.getVision({name:visionSupport.visionAPMChef.name})
+                        .then(visionList=>{
+                            let vision=visionList[0];
+                            let projectId=vision.current_projects[0]._project._id.toString()
+                            projectSupport.putProjectStatus('projectId',projectStatus.onGoing.id)
+                                .then(()=>{
+                                    resolve(projectId);
+                                })
+                                .catch((err)=>{
+                                    reject(err);
+                                })
+                                
+                            
+                        })                    
+                })
+            })
+            .catch((err)=>{
+                //validate the project status has been changed correctly
+                assert.equal(err.status,400);
+                done();
+            })
+    })
+})

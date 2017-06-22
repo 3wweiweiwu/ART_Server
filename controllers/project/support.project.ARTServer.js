@@ -26,7 +26,24 @@ exports.PostNewBlueprint=(query,cb=()=>{})=>{
         });   
     })
 }
-
+exports.putProjectStatus=(projectId,statusId,cb=()=>{})=>{
+    return new Promise((resolve,reject)=>{
+        chai
+        .request(app)
+        .put(`/api/project/${projectId}/status/${statusId}`)        
+        .end((err, res) => {
+            
+            if(err) {
+                reject(err);
+                return cb(err)
+            }
+            else {
+                resolve(res);
+                return cb(null,res)
+            }
+        });   
+    })
+}
 
 exports.projectAPMPrestaging={
     name:'APM_Prestaging',

@@ -94,8 +94,8 @@ exports.isProjectValid=function(id){
                 resolve(project)
             }
             else
-            {   reject(CreateStandardError(`project id:{id} is invalid`,400))
-                
+            {   
+                reject(CreateStandardError(`project id:{id} is invalid`,400))                
             }
         })
         .catch(err=>{
@@ -202,6 +202,27 @@ exports.AddProjectIntoDormPendingList=function(projectId){
 
     });
 }
-exports.putPendingProject=function(req,res,next){
-
+exports.UpdateProjectStatus=function(projectId,statusId){
+    return new Promise((resolve,reject)=>{
+        projectModel.update({_id:projectId},{status:statusId},(err,raw)=>{
+            if(err){
+                reject(CreateStandardError(err,500));
+            }
+            else{
+                resolve();
+            }
+        })        
+    })
+}
+exports.putProjectStatus=function(req,res,next){
+    exports.isProjectValid(req.params.projectId)
+        .then(()=>{
+            return exports.UpdateProjectStatus(req.params.projectId,req.params.statusId)            
+        })
+        .then(()=>{
+            res.status(200).json();
+        })
+        .catch((err)=>{
+            res.status(err.status).json(err);
+        })
 }

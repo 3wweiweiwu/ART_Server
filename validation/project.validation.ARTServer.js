@@ -10,6 +10,12 @@ module.exports={
             tasks:Joi.array().required(),
             next:Joi.array().required()
         }
+    },
+    projectPut:{
+        params:{
+            projectId:Joi.string().required(),
+            statusId:Joi.string().required()
+        }
     }
 
     
