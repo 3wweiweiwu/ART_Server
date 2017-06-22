@@ -15,10 +15,25 @@
                 "--timeout",
                 "999999999",
                 "--colors",
-                "${workspaceRoot}\\**\\spec.scheduler*.js"
+                "${workspaceRoot}\\**\\spec*.js"
             ],
             "internalConsoleOptions": "openOnSessionStart"
         },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Mocha Tests - Run Scheduler",
+            "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
+            "args": [
+                "-u",
+                "tdd",
+                "--timeout",
+                "999999999",
+                "--colors",
+                "${workspaceRoot}\\**\\spec.scheduler*.js"
+            ],
+            "internalConsoleOptions": "openOnSessionStart"
+        },        
         {
             "type": "node",
             "request": "launch",

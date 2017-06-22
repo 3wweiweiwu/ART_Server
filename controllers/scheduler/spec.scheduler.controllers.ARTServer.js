@@ -217,7 +217,7 @@ describe('post KillProjects',()=>{
                 return visionSupport.postNewProject(visionSupport.visionAPMChef.name,projectSupport.projectAESPrestaging.name)
             })               
             .then(()=>{
-                return scheduleControl.MarkProjectDeleted(visionSupport.visionAPMChef.name,projectSupport.projectAPMPrestaging.name)
+                return scheduleControl.MarkProjectPendingRetire(visionSupport.visionAPMChef.name,projectSupport.projectAPMPrestaging.name)
             })
             .then(()=>{
                 visionControl.getVision({name:visionSupport.visionAPMChef.name})
@@ -251,4 +251,78 @@ describe('post KillProjects',()=>{
             });
     });       
   
+});
+
+describe('schedule vision',()=>{
+    beforeEach((done) => {
+        taskModel.remove({}, (err) => {
+            taskImageDeployment.remove({}, (err) => {
+
+                projectBlueprintModel.remove({}, (err) => {
+                    projectModel.remove({}).exec(() => {
+                        visionModel.remove({}).exec(() => {
+                            dormModel.remove({}).exec(() => {
+                                done();
+                            })
+
+                        })
+
+                    });
+                })
+
+            })
+
+        });
+
+    });      
+    it('shall schedule vision to the machine with enough resource',(done)=>{    
+        taskSupport.postTaskAPMNewMediaDetection()
+            .then(taskSupport.posttaskAPMInstall)
+            .then(projectSupport.postProjectBlueprintAPMPrestaging)
+            .then(projectSupport.postProjectBlueprintAESPrestaging)                        
+            .then(visionSupport.PostVisionAPMChef)
+            .then(() => {
+                //post dorm
+                return dormSupport.PostDorm(dormSupport.dorm1)
+            })
+            .then(() => {
+                //update machine ask
+                return visionSupport.putBlueprintMachineInstance(visionSupport.visionAPMChef.name, projectSupport.projectAPMPrestaging.name, dormSupport.dorm1.name, 2);
+            })
+            .then(()=>{
+                //post the schedule
+                return scheduleSupport.postScheduleFromBlueprint(visionSupport.visionAPMChef.name,projectSupport.projectAPMPrestaging.name);
+            })
+            .then(()=>{
+                return scheduleControl.ScheduleVision(visionSupport.visionAPMChef.name);
+            })
+            .then(()=>{
+                //in the dorm, there shall be 2 pending project with different project id
+                return new Promise(function(resolve,reject){
+                    dormModel.findOne({name:dormSupport.dorm1.name})
+                        .exec((err,dorm)=>{
+                            assert.equal(dorm.pending_project.length,2);
+                            assert.notEqual(dorm.pending_project[0].key.toString(),dorm.pending_project[1].key.toString());
+                            resolve();
+                        })
+                });
+                
+                
+            })
+            .then(()=>{
+                //in the vision, the projects status shall be moved to waiting for running
+                visionModel.findOne({name:visionSupport.visionAPMChef.name})
+                    .populate('current_projects._project')
+                    .exec((err,vision)=>{
+                        assert.equal(vision.current_projects[0]._project.status,projectStatus.waitingForRunning.id);
+                        assert.equal(vision.current_projects[1]._project.status,projectStatus.waitingForRunning.id);
+                        done();
+                    })
+            })
+            .catch(err=>{
+                assert(false,err);
+            });
+    })
+    it('shall change the status to pending for those machine that does not have enough resource')
+
 });

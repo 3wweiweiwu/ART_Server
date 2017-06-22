@@ -64,7 +64,18 @@ exports.getVision = function (query, cb = () => { }) {
             .populate({
                 path: 'key_projects'
             })
-            .populate({ path: 'current_projects._project',populate:{path:'_bluePrint',model:'Project.Blueprint'} })
+            .populate({ 
+                path: 'current_projects._project',
+                populate:{
+                    path:'_bluePrint',model:'Project.Blueprint'
+                }
+            })
+            .populate({
+                path:'current_projects._project',
+                populate:{
+                    path:'host',model:'Dorm'
+                }
+            })
             .populate({ path: 'project_schedule.project_blueprint' })
             .populate({ path: 'project_schedule.machine_demand.dorm' })
             .populate({path:'project_schedule.next_project.blueprint'})
@@ -156,24 +167,38 @@ exports.IsBlueprintInProjectScheduleValid=function(vision,blueprint){
             });
     });
 }
+const AddProjectIntoVision=(visionName,projectId)=>{
+    return new Promise((resolve,reject)=>{
+
+        //add projectId into vision
+        visionModel.update(
+            { name: visionName },
+            { $addToSet: { current_projects: { _project: projectId } } },
+            (err, raw) => {
+                if (err) {
+                    reject(standardError(err, 500));
+                }
+                else {
+                    resolve({ projectId: projectId });
+                }
+            }
+        );
+
+    })
+}
+
 
 exports.CreateNewProjectAndAddToVision = function (visionName, blueprint) {
     return new Promise((resolve, reject) => {
         projectControl.CreateNewProject(blueprint)
             .then(projectId => {
-                //add projectId into vision
-                visionModel.update(
-                    { name: visionName },
-                    { $addToSet: { current_projects: { _project: projectId } } },
-                    (err, raw) => {
-                        if (err) {
-                            reject(standardError(err, 500));
-                        }
-                        else {
-                            resolve({ projectId: projectId });
-                        }
-                    }
-                );
+                return AddProjectIntoVision(visionName,projectId)
+            })
+            .then(projectId=>{
+                resolve(projectId);
+            })
+            .catch(err=>{
+                reject(err);
             })
     });
 }
@@ -190,7 +215,7 @@ exports.postNewProject = function (req, res, next) {
             return exports.CreateNewProjectAndAddToVision(req.params.vision, req.params.blueprint);
         })
         .then((raw) => {
-            //delete successfully
+            
             res.json(raw);
         })
         .catch((err) => {

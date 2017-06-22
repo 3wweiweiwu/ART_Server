@@ -27,8 +27,8 @@ exports.dorm1={
     name:"test_dorm1",
     system_resource:{
         CPU:38,
-        total_memory_mb:4096,
-        free_memory_mb:3081,
+        total_memory_mb:99096,
+        free_memory_mb:90000,
         disk_total:[
             {
                 drive_letter:"c",

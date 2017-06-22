@@ -82,7 +82,7 @@ exports.postScheduleFromBlueprint=function(req,res,next){
         res.status(err.status).json(err);
     })
 }
-exports.MarkProjectDeleted=function(vision,blueprint){
+exports.MarkProjectPendingRetire=function(vision,blueprint){
     //kill project in the vision that is constructed based on blueprint
     return new Promise((resolve,reject)=>{
         //remove all projects that has same blueprint 
@@ -131,29 +131,61 @@ exports.MarkProjectDeleted=function(vision,blueprint){
 
 
 exports.ScheduleVision=function(vision){    
-    visionControl.getVision({name:vision})
-        .then((visionList)=>{
-            //if # of vision is invalid ,then return
-            if (visionList.length!=1){
-                return;
-            }
+    return new Promise((resolve,reject)=>{
 
-            let vision=visionList[0];
-            //make sure there is item under current_projects
-            if(vision.current_projects!=undefined&&vision.current_projects!=null&&vision.current_projects.length!=0){
-                for(i=0;i<vision.current_projects.length;i++){
-                    
-                    //for those vision that has been scheduled, just skip them
-                    if(vision.current_projects[i].status!=projectStatus.waitingForScheduling){
-                        continue;
-                    }
-
-                    //if not then check if the machine
-
+        visionControl.getVision({name:vision})
+            .then((visionList)=>{
+                //if # of vision is invalid ,then return
+                if (visionList.length!=1){
+                    return;
                 }
-            }
 
-        })
+                let promiseList=[];
+                let vision=visionList[0];
+                //make sure there is item under current_projects
+                if(vision.current_projects!=undefined&&vision.current_projects!=null&&vision.current_projects.length!=0){
+                    for(i=0;i<vision.current_projects.length;i++){
+                        
+                        //for those vision that has been scheduled, just skip them
+                        if(vision.current_projects[0]._project.status!=projectStatus.waitingForScheduling.id){
+                            continue;
+                        }
+
+                        //check the machine status. If current free memory  lower than what current project expect, then just continue
+                        if(vision.current_projects[i]._project.host.system_resource.free_memory_mb < vision.current_projects[i]._project._bluePrint.memory_usage_mb)
+                        {
+                            continue;
+                        }
+                        //TODO: check the disk usage. if current free disk is lower than what the project expect, then just continue
+                        
+                        //schedule the task
+                        promiseList.push(new Promise((resolve,reject,index=i)=>{
+                            projectControl.UpdateProjectStatus(vision.current_projects[index]._project._id.toString(),projectStatus.waitingForRunning.id)
+                                .then(()=>{
+                                    //add the project into dorm's pending list
+                                    return projectControl.AddProjectIntoDormPendingList(vision.current_projects[index]._project._id.toString());
+                                })
+                                .then(()=>{
+                                    resolve();
+                                })
+                                .catch(err=>{
+                                    reject(standardError(err,500));
+                                });
+                        }));
+
+                    }
+                }
+                Promise.all(promiseList)
+                    .then(()=>{
+                        resolve();
+                    })
+                    .catch(err=>{
+                        reject(err);
+                    })
+
+            })
+
+    });
 
 
 }

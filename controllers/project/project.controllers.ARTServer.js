@@ -3,6 +3,7 @@ var projectBlueprintModel=require('../../model/project/projectBlueprint.model.AR
 var projectStatus=require('./status.project.controllers.ARTServer')
 let CreateStandardError=require('../common/error.controllers.ARTServer')
 let dormModel=require('../../model/organization/dormModel')
+let dormControl=require('../organization/dormControl')
 exports.CreateNewProject=function(projectBlueprint,cb=()=>{}){
     //create new project based on project blueprint
     return new Promise((resolve,reject)=>{
@@ -87,7 +88,7 @@ exports.GetProjectById=function(id,cb=()=>{}){
 
 exports.isProjectValid=function(id){
     return new Promise((resolve,reject)=>{
-        exports.GetProjectById(id)
+        exports.GetProjectById(id)        
         .then(project=>{
             if(project!=null){
                 resolve(project)
@@ -173,5 +174,34 @@ exports.UpdateProjectStatus=function(id,status){
 
 
             
+
+}
+
+exports.AddProjectIntoDormPendingList=function(projectId){
+    return new Promise(function(resolve,reject){
+        //validate if project name is valid
+        exports.isProjectValid(projectId)
+            .then((projectDoc)=>{
+                //validate if host field is unidentified
+                if(projectDoc.host!=undefined && projectBlueprintModel.host!=null){
+                    reject(CreateStandardError('unable to add a project without host into dorm pending list',500));
+                    return;
+                }
+                else{
+                    dormModel.update({_id:projectDoc.host._id.toString()},{$push:{pending_project:{key:projectId}}},(err,res)=>{
+                        resolve();
+                    })
+                        
+                }
+            })
+            .catch(err=>{
+                reject(err);
+            })
+
+        
+
+    });
+}
+exports.putPendingProject=function(req,res,next){
 
 }

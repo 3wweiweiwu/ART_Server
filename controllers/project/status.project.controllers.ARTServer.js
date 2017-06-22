@@ -14,5 +14,9 @@ module.exports={
     pendingRetire:{
         id:'4',
         note:'Current task is pending for retirement'
+    },
+    waitingForRunning:{
+        id:'5',
+        note:'Current task is scheduled, wait for client to pickup'
     }
 }
