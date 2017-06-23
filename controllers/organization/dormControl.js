@@ -40,7 +40,7 @@ function CreateNewDorm(req,res,next)
         {
             res.writeHead(200, {'Content-Type': 'application/json'});
             let result={
-                result:"dorm is created successfully"
+                result:"ok"
             };
 
             let json=JSON.stringify(result);

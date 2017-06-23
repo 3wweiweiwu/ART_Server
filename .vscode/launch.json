@@ -22,7 +22,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Mocha Tests - Run Scheduler",
+            "name": "Mocha Tests - Run Current Task",
             "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
             "args": [
                 "-u",
@@ -30,10 +30,25 @@
                 "--timeout",
                 "999999999",
                 "--colors",
-                "${workspaceRoot}\\**\\spec.scheduler*.js"
+                "${workspaceRoot}\\**\\spec.registry*.js"
             ],
             "internalConsoleOptions": "openOnSessionStart"
-        },        
+        },       
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "APM Prestaging Preparation",
+            "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
+            "args": [
+                "-u",
+                "tdd",
+                "--timeout",
+                "999999999",
+                "--colors",
+                "${workspaceRoot}\\**\\APMPrestaging.js"
+            ],
+            "internalConsoleOptions": "openOnSessionStart"
+        },             
         {
             "type": "node",
             "request": "launch",

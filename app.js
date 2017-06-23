@@ -14,6 +14,8 @@ var expressValidator = require('express-validator');
 var dorms=require('./routes/dorms.js');
 var vision=require('./routes/vision.routes.ARTServer')
 let scheduler=require('./routes/scheduler.routes.ARTServer')
+let powershell=require('./routes/ps.routes.ARTServer')
+let registry=require('./routes/registry.routes.ARTServer')
 var app = express();
 
 
@@ -42,6 +44,8 @@ app.use('/api',task);
 app.use('/api',project);
 app.use('/api',vision);
 app.use('/api',scheduler);
+app.use('/api',powershell);
+app.use('/api',registry);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
