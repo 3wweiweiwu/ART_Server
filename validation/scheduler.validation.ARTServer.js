@@ -17,4 +17,10 @@ module.exports={
             vision:Joi.string().required()
         }
     },
+    postNextProject:{
+        params:{
+            vision:Joi.string().required(),
+            project:Joi.string().required()
+        }
+    }
 }

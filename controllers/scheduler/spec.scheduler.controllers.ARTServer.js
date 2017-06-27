@@ -445,3 +445,272 @@ describe('put /project/:projectId/status/:statusId',()=>{
             })
     })
 })
+
+describe('/schedule/vision/:vision/next/:project',()=>{
+    beforeEach((done) => {
+        taskModel.remove({}, (err) => {
+            taskImageDeployment.remove({}, (err) => {
+
+                projectBlueprintModel.remove({}, (err) => {
+                    projectModel.remove({}).exec(() => {
+                        visionModel.remove({}).exec(() => {
+                            dormModel.remove({}).exec(() => {
+                                done();
+                            })
+
+                        })
+
+                    });
+                })
+
+            })
+
+        });
+
+    });  
+    it('shall remove existing project from current project, look up project_schedule to find out potential next project, if potential next project exist, then schedule it',done=>{
+        taskSupport.postTaskAPMNewMediaDetection()            
+            .then(taskSupport.posttaskAPMInstall)
+            .then(()=>{
+                projectSupport.PostNewBlueprint(projectSupport.blueprintAPMMediaDetection)
+            })
+            .then(()=>{
+                projectSupport.PostNewBlueprint(projectSupport.blueprintAPMMediaDeployment)
+            })            
+            .then(visionSupport.PostVisionAPMChef)
+            .then(()=>{
+                return dormSupport.PostDorm(dormSupport.dorm1);
+            })
+            .then(()=>{
+                return visionSupport.postNewProject(visionSupport.visionAPMChef.name,projectSupport.blueprintAPMMediaDetection.name)
+            })
+            .then((projectRes)=>{
+                return visionSupport.putProjectStatus(visionSupport.visionAPMChef.name,projectRes.body.projectId,projectStatus.waitingForScheduling.id);                
+            })
+            .then(()=>{
+                //update machien ask
+                return visionSupport.putBlueprintMachineInstance(visionSupport.visionAPMChef.name, projectSupport.blueprintAPMMediaDetection.name, dormSupport.dorm1.name, 1);
+            })
+            .then(()=>{
+                //update machine ask
+                return visionSupport.putBlueprintMachineInstance(visionSupport.visionAPMChef.name, projectSupport.blueprintAPMMediaDeployment.name, dormSupport.dorm1.name, 1);
+            })                        
+            .then(()=>{
+                //put project sequence
+                return visionSupport.putNextBlueprint(visionSupport.visionAPMChef.name, projectSupport.blueprintAPMMediaDetection.name, projectSupport.blueprintAPMMediaDeployment.name);                
+            })
+            .then(()=>{
+                return new Promise((resolve,reject)=>{
+                    visionControl.getVision({name:visionSupport.visionAPMChef.name})                                            
+                        .then((visionList)=>{
+                            let vision=visionList[0];
+                            let project1=vision.current_projects.find(item=>{return item._project._bluePrint.name==projectSupport.blueprintAPMMediaDetection.name});
+                            resolve(project1._project._id.toString());
+
+
+                        })                    
+                });
+
+            })
+            .then(projectId=>{
+                return scheduleSupport.postNextProject(visionSupport.visionAPMChef.name,projectId);
+            })
+            .then(()=>{
+                visionControl.getVision({name:visionSupport.visionAPMChef.name})                    
+                    .then((visionList)=>{
+                        let vision=visionList[0];
+                        assert.equal(vision.current_projects.length,1)
+                        assert.equal(vision.current_projects[0]._project._bluePrint.name,projectSupport.blueprintAPMMediaDeployment.name)
+                        assert.equal(vision.current_projects[0]._project._bluePrint.name,projectStatus.waitingForRunning);
+                        done();
+                    });
+            })
+            .catch((err)=>{
+                assert(false,'it shall not return error')
+            })
+
+    });
+    it('shall schedule task based on the instance specified',done=>{
+        taskSupport.postTaskAPMNewMediaDetection()            
+            .then(taskSupport.posttaskAPMInstall)
+            .then(()=>{
+                projectSupport.PostNewBlueprint(projectSupport.blueprintAPMMediaDetection)
+            })
+            .then(()=>{
+                projectSupport.PostNewBlueprint(projectSupport.blueprintAPMMediaDeployment)
+            })            
+            .then(visionSupport.PostVisionAPMChef)
+            .then(()=>{
+                return dormSupport.PostDorm(dormSupport.dorm1);
+            })
+            .then(()=>{
+                return visionSupport.postNewProject(visionSupport.visionAPMChef.name,projectSupport.blueprintAPMMediaDetection.name)
+            })
+            .then((projectRes)=>{
+                return visionSupport.putProjectStatus(visionSupport.visionAPMChef.name,projectRes.body.projectId,projectStatus.waitingForScheduling.id);                
+            })
+            .then(()=>{
+                //update machien ask
+                return visionSupport.putBlueprintMachineInstance(visionSupport.visionAPMChef.name, projectSupport.blueprintAPMMediaDetection.name, dormSupport.dorm1.name, 1);
+            })
+            .then(()=>{
+                //update machine ask
+                return visionSupport.putBlueprintMachineInstance(visionSupport.visionAPMChef.name, projectSupport.blueprintAPMMediaDeployment.name, dormSupport.dorm1.name, 3);
+            })                        
+            .then(()=>{
+                //put project sequence
+                return visionSupport.putNextBlueprint(visionSupport.visionAPMChef.name, projectSupport.blueprintAPMMediaDetection.name, projectSupport.blueprintAPMMediaDeployment.name);                
+            })
+            .then(()=>{
+                return new Promise((resolve,reject)=>{
+                    visionControl.getVision({name:visionSupport.visionAPMChef.name})                                            
+                        .then((visionList)=>{
+                            let vision=visionList[0];
+                            let project1=vision.current_projects.find(item=>{return item._project._bluePrint.name==projectSupport.blueprintAPMMediaDetection.name});
+                            resolve(project1._project._id.toString());
+
+
+                        })                    
+                });
+
+            })
+            .then(projectId=>{
+                return scheduleSupport.postNextProject(visionSupport.visionAPMChef.name,projectId);
+            })
+            .then(()=>{
+                visionControl.getVision({name:visionSupport.visionAPMChef.name})                    
+                    .then((visionList)=>{
+                        let vision=visionList[0];
+                        assert.equal(vision.current_projects.length,3)
+                        vision.current_projects.forEach(item=>{
+                            assert.equal(item._project._bluePrint.name,projectSupport.blueprintAPMMediaDeployment.name)
+                            assert.equal(item._project._bluePrint.name,projectStatus.waitingForRunning);
+                        })
+                        
+                        
+                        done();
+                    });
+            })
+            .catch((err)=>{
+                assert(false,'it shall not return error')
+            })
+
+    });
+    it('shall return 400 error when vision name is invalid',done=>{
+        taskSupport.postTaskAPMNewMediaDetection()            
+            .then(taskSupport.posttaskAPMInstall)
+            .then(()=>{
+                projectSupport.PostNewBlueprint(projectSupport.blueprintAPMMediaDetection)
+            })
+            .then(()=>{
+                projectSupport.PostNewBlueprint(projectSupport.blueprintAPMMediaDeployment)
+            })            
+            .then(visionSupport.PostVisionAPMChef)
+            .then(()=>{
+                return dormSupport.PostDorm(dormSupport.dorm1);
+            })
+            .then(()=>{
+                return visionSupport.postNewProject(visionSupport.visionAPMChef.name,projectSupport.blueprintAPMMediaDetection.name)
+            })
+            .then((projectRes)=>{
+                return visionSupport.putProjectStatus(visionSupport.visionAPMChef.name,projectRes.body.projectId,projectStatus.waitingForScheduling.id);                
+            })
+            .then(()=>{
+                //update machien ask
+                return visionSupport.putBlueprintMachineInstance(visionSupport.visionAPMChef.name, projectSupport.blueprintAPMMediaDetection.name, dormSupport.dorm1.name, 1);
+            })
+            .then(()=>{
+                //update machine ask
+                return visionSupport.putBlueprintMachineInstance(visionSupport.visionAPMChef.name, projectSupport.blueprintAPMMediaDeployment.name, dormSupport.dorm1.name, 1);
+            })                        
+            .then(()=>{
+                //put project sequence
+                return visionSupport.putNextBlueprint(visionSupport.visionAPMChef.name, projectSupport.blueprintAPMMediaDetection.name, projectSupport.blueprintAPMMediaDeployment.name);                
+            })
+            .then(()=>{
+                return new Promise((resolve,reject)=>{
+                    visionControl.getVision({name:visionSupport.visionAPMChef.name})                                            
+                        .then((visionList)=>{
+                            let vision=visionList[0];
+                            let project1=vision.current_projects.find(item=>{return item._project._bluePrint.name==projectSupport.blueprintAPMMediaDetection.name});
+                            resolve(project1._project._id.toString());
+
+
+                        })                    
+                });
+
+            })
+            .then(projectId=>{
+                return scheduleSupport.postNextProject('visionSupport.visionAPMChef.name',projectId);
+            })
+            .then(()=>{
+                assert(false,'it shall not return error')
+                done();
+            })
+            .catch((err)=>{
+                assert.equal(err.err.status,400)
+                done();
+            })
+
+    });
+    it('shall return 400 error when project name is invalid',done=>{
+        taskSupport.postTaskAPMNewMediaDetection()            
+            .then(taskSupport.posttaskAPMInstall)
+            .then(()=>{
+                projectSupport.PostNewBlueprint(projectSupport.blueprintAPMMediaDetection)
+            })
+            .then(()=>{
+                projectSupport.PostNewBlueprint(projectSupport.blueprintAPMMediaDeployment)
+            })            
+            .then(visionSupport.PostVisionAPMChef)
+            .then(()=>{
+                return dormSupport.PostDorm(dormSupport.dorm1);
+            })
+            .then(()=>{
+                return visionSupport.postNewProject(visionSupport.visionAPMChef.name,projectSupport.blueprintAPMMediaDetection.name)
+            })
+            .then((projectRes)=>{
+                return visionSupport.putProjectStatus(visionSupport.visionAPMChef.name,projectRes.body.projectId,projectStatus.waitingForScheduling.id);                
+            })
+            .then(()=>{
+                //update machien ask
+                return visionSupport.putBlueprintMachineInstance(visionSupport.visionAPMChef.name, projectSupport.blueprintAPMMediaDetection.name, dormSupport.dorm1.name, 1);
+            })
+            .then(()=>{
+                //update machine ask
+                return visionSupport.putBlueprintMachineInstance(visionSupport.visionAPMChef.name, projectSupport.blueprintAPMMediaDeployment.name, dormSupport.dorm1.name, 1);
+            })                        
+            .then(()=>{
+                //put project sequence
+                return visionSupport.putNextBlueprint(visionSupport.visionAPMChef.name, projectSupport.blueprintAPMMediaDetection.name, projectSupport.blueprintAPMMediaDeployment.name);                
+            })
+            .then(()=>{
+                return new Promise((resolve,reject)=>{
+                    visionControl.getVision({name:visionSupport.visionAPMChef.name})                                            
+                        .then((visionList)=>{
+                            let vision=visionList[0];
+                            let project1=vision.current_projects.find(item=>{return item._project._bluePrint.name==projectSupport.blueprintAPMMediaDetection.name});
+                            resolve(project1._project._id.toString());
+
+
+                        })                    
+                });
+
+            })
+            .then(projectId=>{
+                return scheduleSupport.postNextProject(visionSupport.visionAPMChef.name,'projectId');
+            })
+            .then(()=>{
+                assert(false,'it shall not return error')
+                done();
+            })
+            .catch((err)=>{
+                assert.equal(err.err.status,400)
+                done();
+            })
+
+    });
+
+
+
+})

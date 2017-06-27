@@ -189,6 +189,99 @@ exports.ScheduleVision=function(vision){
 
 
 }
+
+
+exports.ScheduleNextProject=function(visionName,projectId){
+    return new Promise((resolve,reject)=>{
+
+        visionControl.getVision({name:visionName})
+            .then(visionList=>{
+                
+                if(visionList==null){
+                    reject(standardError(`unable to find ${vision}`))
+                    return;
+                }
+                
+                if(visionList.length!=1){
+                    reject(standardError(`unable to find ${visionName} visions in the system`),500);
+                    return;
+                }
+                //get the valid vision doc
+                let visionDoc=visionList[0];
+                
+                //filter out current_projects to find out if we can find projectName
+                let project=visionDoc.current_projects.find(item=>{return item._project._id.toString()==projectId});
+                //test project id
+                if(project==null){
+                    reject(standardError(`unable to find project id specified`,400))
+                    
+                    resolve();
+                    return;
+                }
+                
+                //remove the project from current_project list
+                visionDoc.current_projects=visionDoc.current_projects.filter(item=>{return item._project._id.toString()!=projectId});
+
+                //look up the project schedule and schedule next blueprint if any
+                let projectBlueprintId=project._project._bluePrint._id.toString();
+                
+                
+                let currentSchedule=visionDoc.project_schedule.find(item=>{return item.project_blueprint._id.toString()==projectBlueprintId});
+                //save the vision doc
+                visionDoc.save((err)=>{
+                    //find current schedule
+                    
+                    if(currentSchedule.next_project==null){
+                        console.warn(`unable to find current blueprint ${projectBlueprintId}`);
+                        resolve();
+                        return;
+                    }
+
+                    ///schedule blueprint
+                    let scheduleList=[];
+                    currentSchedule.next_project.forEach(item=>{
+                        scheduleList.push(exports.ScheduleBlueprint(visionName,item.blueprint.name));
+                    });
+
+                    Promise.all(scheduleList)
+                        .then(()=>{
+                            exports.ScheduleVision(visionName);
+                        })
+                        .then(()=>{
+                            resolve();
+                        })
+                        .catch(err=>{
+                            reject(standardError(err,500));
+                        })
+
+
+                });
+
+
+
+
+                
+                
+                
+            });
+
+    });
+}
+
+exports.postNextProject=function(req,res,next){
+    //remove existing project from current project
+    //look up project_schedule to find out potential next project
+    //if potential next project exist, then schedule it
+    exports.ScheduleNextProject(req.params.vision,req.params.project)
+        .then(()=>{
+            res.status(200).json();
+        })
+        .catch((err)=>{
+            res.status(err.status).json(err);
+        })
+}
+
+
 exports.postScheduleSignal=function(req,res,next){
     
 }
@@ -198,3 +291,5 @@ exports.ScheduleAllPendingTask=function(vision){
 exports.getScheduleByVision=function(req,res,next){
     
 }
+
+

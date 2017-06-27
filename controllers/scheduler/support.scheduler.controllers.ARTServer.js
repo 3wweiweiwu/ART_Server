@@ -30,3 +30,22 @@ exports.postScheduleFromBlueprint=function(vision,blueprint,cb=()=>{}){
         });
     });
 }
+
+exports.postNextProject=function(visionName,projectId,cb=()=>{}){
+    return new Promise((resolve,reject)=>{
+        chai
+        .request(app)
+        .post(`/api/schedule/vision/${visionName}/next/${projectId}`)
+        .end((err,res)=>{
+            if(err){
+                let result={err:err,res:res}
+                reject(result);
+                return cb(err);
+            }
+            else{
+                resolve(res);
+                return cb(null,res);
+            }
+        });
+    });
+}

@@ -384,7 +384,9 @@ exports.CreateNewBlueprintSchedule = function (visions, blueprintName, cb = () =
 
                 //find out schedule for specific blueprint
                 vision = visions[0];
-                let result = vision.project_schedule.find(schedule => { return schedule.name === blueprintName });
+                let result = vision.project_schedule.find(schedule => { 
+                    return schedule.project_blueprint.name === blueprintName 
+                });
                 if (result == null) {
                     schedule = {
                         project_blueprint: blueprint._id,

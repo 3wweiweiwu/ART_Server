@@ -44,6 +44,22 @@ exports.putProjectStatus=(projectId,statusId,cb=()=>{})=>{
         });   
     })
 }
+exports.blueprintAPMMediaDetection={
+    name:'APM_Media_Detection',
+    note:"detect apm media",
+    memory_usage_mb:1024,
+    disk_usage_mb:1024,
+    tasks:[taskSupport.taskAPM_NewMediaDetection.name],
+    next:[]    
+}
+exports.blueprintAPMMediaDeployment={
+    name:'APM_Media_Deployment',
+    note:"Install APM media whenever it is posted",
+    memory_usage_mb:6*1024,
+    disk_usage_mb:10*1024,
+    tasks:[taskSupport.taskAPMInstall.name],
+    next:[]    
+}
 
 exports.projectAPMPrestaging={
     name:'APM_Prestaging',

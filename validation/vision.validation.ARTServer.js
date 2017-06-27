@@ -77,6 +77,13 @@ module.exports={
             blueprint:Joi.string().required()
         }
     },
+    putNextProject:{
+        prams:{
+            vision_name:Joi.string().required(),
+            project_id:Joi.string().required()            
+        }
+    },
+    
     putNextTask:{
         params:{
             vision_name:Joi.string().required(),
