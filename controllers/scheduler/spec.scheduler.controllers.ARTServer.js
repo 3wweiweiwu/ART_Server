@@ -295,7 +295,7 @@ describe('schedule vision',()=>{
             })
             .then(()=>{
                 //schedule the project
-                return scheduleControl.ScheduleVision(visionSupport.visionAPMChef.name);
+                return scheduleSupport.postScheduleSignal(visionSupport.visionAPMChef.name);                
             })
             .then(()=>{
                 //in the dorm, there shall be 2 pending project with different project id
@@ -521,7 +521,7 @@ describe('/schedule/vision/:vision/next/:project',()=>{
                         let vision=visionList[0];
                         assert.equal(vision.current_projects.length,1)
                         assert.equal(vision.current_projects[0]._project._bluePrint.name,projectSupport.blueprintAPMMediaDeployment.name)
-                        assert.equal(vision.current_projects[0]._project._bluePrint.name,projectStatus.waitingForRunning);
+                        assert.equal(vision.current_projects[0]._project.status,projectStatus.waitingForRunning.id);
                         done();
                     });
             })
@@ -584,7 +584,7 @@ describe('/schedule/vision/:vision/next/:project',()=>{
                         assert.equal(vision.current_projects.length,3)
                         vision.current_projects.forEach(item=>{
                             assert.equal(item._project._bluePrint.name,projectSupport.blueprintAPMMediaDeployment.name)
-                            assert.equal(item._project._bluePrint.name,projectStatus.waitingForRunning);
+                            assert.equal(item._project.status,projectStatus.waitingForRunning.id);
                         })
                         
                         

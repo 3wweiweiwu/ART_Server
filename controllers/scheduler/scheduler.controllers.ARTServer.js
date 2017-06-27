@@ -49,17 +49,13 @@ exports.ScheduleBlueprint=function(vision,blueprint){
     
     return new Promise((resolve,reject)=>{
         visionControl.IsBlueprintInProjectScheduleValid(vision,blueprint)
-            .then(vision=>{
-                //kill the projects to clean the road
-                
-            })
             .then(()=>{
                 return visionControl.IsBlueprintInProjectScheduleValid(vision,blueprint);
             })
             .then(vision=>{
                 return ScheduleBlueprintByLookupMachineDemand(vision,blueprint)
             })
-            .then(()=>{
+            .then((result)=>{
                 resolve();
             })
             .catch(err=>{
@@ -245,7 +241,7 @@ exports.ScheduleNextProject=function(visionName,projectId){
 
                     Promise.all(scheduleList)
                         .then(()=>{
-                            exports.ScheduleVision(visionName);
+                            return exports.ScheduleVision(visionName);
                         })
                         .then(()=>{
                             resolve();
@@ -283,7 +279,14 @@ exports.postNextProject=function(req,res,next){
 
 
 exports.postScheduleSignal=function(req,res,next){
-    
+    //schedule all projects in the selected vision
+    exports.ScheduleVision(req.params.vision)
+        .then(()=>{
+            res.status(200).json();
+        })
+        .catch((err)=>{
+            res.status(err.status).json(err);
+        })    
 }
 exports.ScheduleAllPendingTask=function(vision){
     

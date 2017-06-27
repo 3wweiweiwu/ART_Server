@@ -49,3 +49,22 @@ exports.postNextProject=function(visionName,projectId,cb=()=>{}){
         });
     });
 }
+
+exports.postScheduleSignal=function(visionName,cb=()=>{}){
+    return new Promise((resolve,reject)=>{
+        chai
+        .request(app)
+        .post(`/api/schedule/${visionName}`)
+        .end((err,res)=>{
+            if(err){
+                let result={err:err,res:res}
+                reject(result);
+                return cb(err);
+            }
+            else{
+                resolve(res);
+                return cb(null,res);
+            }
+        });
+    });    
+}
