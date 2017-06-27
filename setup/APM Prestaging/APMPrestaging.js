@@ -21,12 +21,35 @@ let chaiHttp = require('chai-http');
 let should = chai.should();
 let visionSupport = require('../../controllers/vision/support.vision.controllers.ARTServer')
 chai.use(chaiHttp);
-
+var registryControl = require('../../controllers/registry/registry.controllers.ARTServer')
+var registrySupport = require('../../controllers/registry/support.registry.controllers.ARTServer')
 describe('Add new vision APM Prestaging',()=>{
+    before((done) => {
+        taskModel.remove({}, (err) => {
+            taskImageDeployment.remove({}, (err) => {
 
+                projectBlueprintModel.remove({}, (err) => {
+                    projectModel.remove({}).exec(() => {
+                        visionModel.remove({}).exec(() => {
+                            dormModel.remove({}).exec(() => {
+                                done();
+                            })
+
+                        })
+
+                    });
+                })
+
+            })
+
+        });
+
+    }); 
     it('shall Add APM prestaging into the project',done=>{
-        taskSupport.postTaskAPMNewMediaDetection()            
-            .then(taskSupport.posttaskAPMInstall)
+        taskSupport.PostTask(taskSupport.taskMediaDetection)
+            .then(()=>{
+                taskSupport.PostTask(taskSupport.taskMediaInstallation)
+            })            
             .then(()=>{
                 projectSupport.PostNewBlueprint(projectSupport.blueprintAPMMediaDetection);
             })
@@ -35,24 +58,51 @@ describe('Add new vision APM Prestaging',()=>{
             })            
             .then(visionSupport.PostVisionAPMChef)
             .then(()=>{
+                //add machine MVF1 into server
                 return dormSupport.PostDorm(dormSupport.MVF1);
             })
             .then(()=>{
-                //update machien ask
+                //update machien ask for media detection
                 return visionSupport.putBlueprintMachineInstance(visionSupport.visionAPMChef.name, projectSupport.blueprintAPMMediaDetection.name, dormSupport.MVF1.name, 1);
             })
             .then(()=>{
-                //update machine ask
+                //update machine ask for media deployment
                 return visionSupport.putBlueprintMachineInstance(visionSupport.visionAPMChef.name, projectSupport.blueprintAPMMediaDeployment.name, dormSupport.MVF1.name, 1);
             })
+            .then(()=>{
+                //update the project sequence execute deployment after media detection
+                return visionSupport.putNextBlueprint(visionSupport.visionAPMChef.name,projectSupport.blueprintAPMMediaDetection.name,projectSupport.blueprintAPMMediaDeployment.name)                    
+            })
+            .then(()=>{
+                return visionSupport.putNextBlueprint(visionSupport.visionAPMChef.name,projectSupport.blueprintAPMMediaDetection.name,projectSupport.blueprintAPMMediaDetection.name)                    
+            })
             .then(()=>{                
+                //initialize media detection project
                 return scheduleSupport.postScheduleFromBlueprint(visionSupport.visionAPMChef.name,projectSupport.blueprintAPMMediaDetection.name);
+            })
+            .then(()=>{
+                //schedule project into machine
+                return scheduleSupport.postScheduleSignal(visionSupport.visionAPMChef.name);
+            })
+            .then(()=>{
+                return new Promise((resolve,reject)=>{
+                    //add template setting for task Media_Detection
+                    registrySupport.postRegistry(registrySupport.Keys.Template,projectSupport.blueprintAPMMediaDetection.name,taskSupport.taskMediaDetection.name,'family','analytics')
+                        .then(()=>{
+                            registrySupport.postRegistry(registrySupport.Keys.Template,projectSupport.blueprintAPMMediaDetection.name,taskSupport.taskMediaDetection.name,'media_path','\\\\hqfiler\\upload$\\aspenONEV10.0\\APM')
+                        })
+                        .then(()=>{
+                            resolve();
+                        })
+                })
             })
             .then(()=>{
                 done()
             })
             .catch((err)=>{
-                assert(false,'it shall not return error')
+                
+                assert(false,err)
+                done();
             })
 
     });       

@@ -1,12 +1,12 @@
 ﻿$sARTServerUri='http://mvf1:3000'
 
-#iex ((New-Object System.Net.WebClient).DownloadString("$sARTServerUri/api/ps/Library.ps1"))
+
 #as a client, it shall register current machine
 function Add-NewServerToArt($sARTServerUri='http://mvf1:3000'){
     
     $CPU=(Get-WmiObject Win32_Processor).NumberOfCores
-    $totalMemory=(Get-WmiObject Win32_ComputerSystem  ).TotalPhysicalMemory/1024/1024
-    $freeMemory=(Get-WmiObject Win32_OperatingSystem).FreePhysicalMemory/1024
+    $totalMemory=(gwmi Win32_ComputerSystem  ).TotalPhysicalMemory/1024/1024
+    $freeMemory=(gwmi Win32_OperatingSystem).FreePhysicalMemory/1024
     $dormStatus=@{
         name=$env:COMPUTERNAME
         system_resource=@{

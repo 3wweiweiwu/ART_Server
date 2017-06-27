@@ -11,7 +11,9 @@ let chai = require('chai');
 let chaiHttp = require('chai-http');
 let should = chai.should();
 chai.use(chaiHttp);
-
+exports.Keys={
+    Template:'Template'
+}
 exports.postRegistry=function(vision,project,task,key,value,cb=()=>{}){
     return new Promise((resolve,reject)=>{
         chai

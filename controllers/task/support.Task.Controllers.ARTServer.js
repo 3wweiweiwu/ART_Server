@@ -11,6 +11,18 @@ let chaiHttp = require('chai-http');
 let should = chai.should();
 chai.use(chaiHttp);
 
+exports.taskMediaDetection={
+    name:"Media_Detection",
+    note:'Detect Media',
+    task_script_path:'\\\\nhqa-w81-q10\\v7\\Manager\\manager.main.ps1',
+    setting_type:"NULL"    
+}
+exports.taskMediaInstallation={
+    name:"Media_Installation",
+    note:'Install Media',
+    task_script_path:'\\\\nhqa-w81-q10\\v7\\Manager\\manager.main.ps1',
+    setting_type:"NULL"    
+}
 exports.taskAPMInstall={
     name:"APM_Install",
     note:'Install APM',

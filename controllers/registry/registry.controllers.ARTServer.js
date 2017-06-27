@@ -23,7 +23,7 @@ exports.getRegistry=function(req,res,next){
             res.status(200).json({result:value});
         })
         .catch(err=>{
-            res.status(err.status).json(err);
+            res.status(err.status).json({err});
         })    
 }
 exports.updateRegistry=function(vision,project,task,key,value){

@@ -49,7 +49,7 @@ exports.blueprintAPMMediaDetection={
     note:"detect apm media",
     memory_usage_mb:1024,
     disk_usage_mb:1024,
-    tasks:[taskSupport.taskAPM_NewMediaDetection.name],
+    tasks:[taskSupport.taskMediaDetection.name],
     next:[]    
 }
 exports.blueprintAPMMediaDeployment={
@@ -57,7 +57,7 @@ exports.blueprintAPMMediaDeployment={
     note:"Install APM media whenever it is posted",
     memory_usage_mb:6*1024,
     disk_usage_mb:10*1024,
-    tasks:[taskSupport.taskAPMInstall.name],
+    tasks:[taskSupport.taskMediaInstallation.name],
     next:[]    
 }
 

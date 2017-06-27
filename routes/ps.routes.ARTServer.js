@@ -19,4 +19,17 @@ router.get('/ps/Library.ps1',(req,res,next)=>{
 
 })
 
+router.get('/ps/ARTLibrary.ps1',(req,res,next)=>{
+    fs.readFile( 'C:\\Users\\Administrator\\ARTServer\\Powershell\\ARTLibrary.ps1', function (err, data) {
+        if (err) {
+            res.status(500).send(err);
+        }
+        else{
+            res.status(200).send(data);
+        }
+
+    });
+
+})
+
 module.exports = router;
