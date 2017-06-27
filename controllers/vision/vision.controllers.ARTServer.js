@@ -578,8 +578,12 @@ exports.UpdateNextBlueprint = function (vision_name, baseBlueprint, nextBlueprin
             .getBlueprints({ $or: [{ name: baseBlueprint }, { name: nextBlueprint }] })
             .then(blueprints => {
                 //check if baseblueprint and nextblueprint are valid
-                return new Promise((resolve, reject) => {
-                    if (blueprints.length != 2) {
+                return new Promise((resolve, reject) => {                    
+                    if(blueprints.length==1 && baseBlueprint==nextBlueprint){
+                        blueprints.push(blueprints[0])
+                        resolve(blueprints);
+                    }                    
+                    else if (blueprints.length != 2) {
                         //if the blueprint count is not 2, then there is error
                         let visionErr = CreateVisionError('unable to find 2 blueprint specified', 400)
                         reject(visionErr);
