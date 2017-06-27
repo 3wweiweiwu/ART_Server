@@ -65,7 +65,9 @@ const newBlueprint=(req,res,next)=>{
                 let currentTaskname=req.body.tasks[i];
                 taskModel.findOne({name:currentTaskname})
                 .exec((err,task)=>{
-                    if(task==null) reject("Unable to find Task "+currentTaskname)
+                    if(task==null){
+                        reject("Unable to find Task "+currentTaskname)
+                    } 
                     else{
                         projectBlueprint.tasks.push({task:task._id});
                         bluePrintEvent.emit('projectBlueprintPush')

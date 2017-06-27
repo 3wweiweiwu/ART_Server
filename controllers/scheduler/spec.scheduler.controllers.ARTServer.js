@@ -469,8 +469,11 @@ describe('/schedule/vision/:vision/next/:project',()=>{
 
     });  
     it('shall remove existing project from current project, look up project_schedule to find out potential next project, if potential next project exist, then schedule it',done=>{
-        taskSupport.postTaskAPMNewMediaDetection()            
-            .then(taskSupport.posttaskAPMInstall)
+        
+        taskSupport.PostTask(taskSupport.taskMediaDetection)
+            .then(()=>{
+                return taskSupport.PostTask(taskSupport.taskMediaInstallation)
+            })            
             .then(()=>{
                 projectSupport.PostNewBlueprint(projectSupport.blueprintAPMMediaDetection)
             })
@@ -531,8 +534,10 @@ describe('/schedule/vision/:vision/next/:project',()=>{
 
     });
     it('shall schedule task based on the instance specified',done=>{
-        taskSupport.postTaskAPMNewMediaDetection()            
-            .then(taskSupport.posttaskAPMInstall)
+        taskSupport.PostTask(taskSupport.taskMediaDetection)
+            .then(()=>{
+                return taskSupport.PostTask(taskSupport.taskMediaInstallation)
+            })  
             .then(()=>{
                 projectSupport.PostNewBlueprint(projectSupport.blueprintAPMMediaDetection)
             })
@@ -597,8 +602,10 @@ describe('/schedule/vision/:vision/next/:project',()=>{
 
     });
     it('shall return 400 error when vision name is invalid',done=>{
-        taskSupport.postTaskAPMNewMediaDetection()            
-            .then(taskSupport.posttaskAPMInstall)
+        taskSupport.PostTask(taskSupport.taskMediaDetection)
+            .then(()=>{
+                return taskSupport.PostTask(taskSupport.taskMediaInstallation)
+            })  
             .then(()=>{
                 projectSupport.PostNewBlueprint(projectSupport.blueprintAPMMediaDetection)
             })
@@ -654,8 +661,10 @@ describe('/schedule/vision/:vision/next/:project',()=>{
 
     });
     it('shall return 400 error when project name is invalid',done=>{
-        taskSupport.postTaskAPMNewMediaDetection()            
-            .then(taskSupport.posttaskAPMInstall)
+        taskSupport.PostTask(taskSupport.taskMediaDetection)
+            .then(()=>{
+                return taskSupport.PostTask(taskSupport.taskMediaInstallation)
+            })  
             .then(()=>{
                 projectSupport.PostNewBlueprint(projectSupport.blueprintAPMMediaDetection)
             })
