@@ -68,3 +68,22 @@ exports.postScheduleSignal=function(visionName,cb=()=>{}){
         });
     });    
 }
+
+exports.getMachineProject=function(machineName,cb=()=>{}){
+    return new Promise((resolve,reject)=>{
+        chai
+        .request(app)
+        .get(`/api/schedule/machine/${machineName}/projects`)
+        .end((err,res)=>{
+            if(err){
+                let result={err:err,res:res}
+                reject(result);
+                return cb(err);
+            }
+            else{
+                resolve(res);
+                return cb(null,res);
+            }
+        });
+    });    
+}

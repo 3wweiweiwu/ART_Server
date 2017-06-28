@@ -12,6 +12,11 @@ module.exports={
             vision:Joi.string().required()
         }
     },
+    getMachineProject:{
+        params:{
+            machine:Joi.string().required()
+        }
+    },    
     postVisionScheduleStatus:{
         params:{
             vision:Joi.string().required()

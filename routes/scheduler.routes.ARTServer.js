@@ -23,5 +23,8 @@ router.post('/schedule/vision/:vision/next/:project',validate(scheduleValidation
     return scheduleControl.postNextProject(req,res,next,{});
 })
 
+router.get('/schedule/machine/:machine/projects',validate(scheduleValidation.getMachineProject),(req,res,next)=>{
+    return scheduleControl.getMachineProject(req,res,next,{});
+});
 
 module.exports = router;

@@ -159,7 +159,7 @@ exports.ScheduleVision=function(vision){
                             projectControl.UpdateProjectStatus(vision.current_projects[index]._project._id.toString(),projectStatus.waitingForRunning.id)
                                 .then(()=>{
                                     //add the project into dorm's pending list
-                                    return projectControl.AddProjectIntoDormPendingList(vision.current_projects[index]._project._id.toString());
+                                    //return projectControl.AddProjectIntoDormPendingList(vision.current_projects[index]._project._id.toString());
                                 })
                                 .then(()=>{
                                     resolve();
@@ -288,11 +288,46 @@ exports.postScheduleSignal=function(req,res,next){
             res.status(err.status).json(err);
         })    
 }
-exports.ScheduleAllPendingTask=function(vision){
-    
-}
-exports.getScheduleByVision=function(req,res,next){
-    
-}
 
+exports.GetProjectsInMachine=function(machineName){
+    return new Promise((resolve,reject)=>{
+        visionModel.find({})
+            .populate({
+                path:'current_projects._project',
+                populate:{
+                    path:'host'
+                }
+            })
+            .exec((err,visionList)=>{
+                //filter through the vision to find out project that is associated with machine
+                if(err){
+                    reject(standardError(err,500));
+                    return;
+                }
+                let result=[];
+                visionList.forEach(vision=>{
+                    vision.current_projects.filter(project=>{
+                        return project._project.host.name==machineName
+                    }).forEach(item=>{
+                        result.push(item);
+                    });
+                })
+               resolve(result) ;
+            })        
+    });
+        
+}
+exports.getMachineProject=function(req,res,next){
+    //get the projects that associate with specific machine
+    dormControl.IsDormValid(req.params.machine)
+        .then(()=>{
+            return exports.GetProjectsInMachine(req.params.machine);
+        })    
+        .then((result)=>{
+            res.status(200).json({result:result});
+        })
+        .catch((err)=>{
+            res.status(err.status).json(err);
+        })      
+}
 
