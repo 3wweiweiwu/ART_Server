@@ -16,7 +16,12 @@ module.exports={
             projectId:Joi.string().required(),
             statusId:Joi.string().required()
         }
+    },
+    putDormIdToProject:{
+        params:{
+            projectId:Joi.string().required(),
+            dormId:Joi.string().required()
+        }
     }
-
     
 }

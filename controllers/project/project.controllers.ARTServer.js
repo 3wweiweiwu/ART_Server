@@ -123,6 +123,35 @@ exports.GotoNextTaskInProject=function(id){
     });
 }
 
+exports.UpdatePIDInProject=function(projectId,processId){
+    return new Promise((resolve,reject)=>{
+        projectModel.findOne({_id:projectId})
+            .then(project=>{
+                if(project==null){
+                    reject(CreateStandardError(`unable to find ${projectId}`,400));
+                }
+                else{
+                    project.pid=processId;
+                    project.save(err=>{
+                        resolve();
+                    })
+                }
+            })
+            .catch(err=>{
+                reject(CreateStandardError(err,500));
+            });
+    });
+}
+exports.putPIDToProject=function(req,res,next){
+    exports.UpdatePIDInProject(req.params.projectId,req.params.dormId)
+        .then(()=>{
+            res.status(200).json();
+        })
+        .catch(err=>{
+          res.status(err.status).json(err);
+        })
+}
+
 exports.UpdateHostInProject=function(id,host){
     //this function does not validate the existence of the id and host, please valid these 2 field before using it!
     return new Promise((resolve,reject)=>{

@@ -19,8 +19,8 @@ router.get('/ps/Library.ps1',(req,res,next)=>{
 
 })
 
-router.get('/ps/ARTLibrary.ps1',(req,res,next)=>{
-    fs.readFile( 'C:\\Users\\Administrator\\ARTServer\\Powershell\\ARTLibrary.ps1', function (err, data) {
+router.get('/ps/:psname',(req,res,next)=>{
+    fs.readFile(`C:\\Users\\Administrator\\ARTServer\\Powershell\\${req.params.psname}`, function (err, data) {
         if (err) {
             res.status(500).send(err);
         }

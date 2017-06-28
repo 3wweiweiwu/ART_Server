@@ -44,6 +44,43 @@ exports.putProjectStatus=(projectId,statusId,cb=()=>{})=>{
         });   
     })
 }
+
+exports.putPIDToProject=(projectId,PID,cb=()=>{})=>{
+    return new Promise((resolve,reject)=>{
+        chai
+        .request(app)
+        .put(`/api/project/${projectId}/PID/${PID}`)        
+        .end((err, res) => {
+            
+            if(err) {
+                reject(err);
+                return cb(err)
+            }
+            else {
+                resolve(res);
+                return cb(null,res)
+            }
+        });   
+    })
+}
+exports.putVIDToProject=(projectId,VID,cb=()=>{})=>{
+    return new Promise((resolve,reject)=>{
+        chai
+        .request(app)
+        .put(`/api/project/${projectId}/VID/${VID}`)        
+        .end((err, res) => {
+            
+            if(err) {
+                reject(err);
+                return cb(err)
+            }
+            else {
+                resolve(res);
+                return cb(null,res)
+            }
+        });   
+    })
+}
 exports.blueprintAPMMediaDetection={
     name:'APM_Media_Detection',
     note:"detect apm media",

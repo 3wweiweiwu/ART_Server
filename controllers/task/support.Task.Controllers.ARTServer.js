@@ -14,7 +14,7 @@ chai.use(chaiHttp);
 exports.taskMediaDetection={
     name:"Media_Detection",
     note:'Detect Media',
-    task_script_path:'\\\\nhqa-w81-q10\\v7\\Manager\\manager.main.ps1',
+    task_script_path:'http://mvf1:3000/api/ps/MediaDetector.ps1',
     setting_type:"NULL"    
 }
 exports.taskMediaInstallation={

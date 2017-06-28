@@ -23,5 +23,12 @@ router.put('/project/:projectId/status/:statusId',validate(projectValidation.pro
     return projectControl.putProjectStatus(req,res,next);
 });
 
+router.put('/project/:projectId/PID/:dormId',validate(projectValidation.putDormIdToProject),function(req,res,next){
+    return projectControl.putPIDToProject(req,res,next);
+});
+
+router.put('/project/:projectId/VID/:dormId',validate(projectValidation.putDormIdToProject),function(req,res,next){
+    return projectControl.putDormIdToProject(req,res,next);
+});
 
 module.exports = router;

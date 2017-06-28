@@ -298,6 +298,18 @@ exports.GetProjectsInMachine=function(machineName){
                     path:'host'
                 }
             })
+            .populate({
+                path:'current_projects._project',
+                populate:{
+                    path:'pending_tasks.task'
+                }
+            })
+            .populate({
+                path:'current_projects._project',
+                populate:{
+                    path:'_bluePrint'
+                }
+            })            
             .exec((err,visionList)=>{
                 //filter through the vision to find out project that is associated with machine
                 if(err){
@@ -309,7 +321,11 @@ exports.GetProjectsInMachine=function(machineName){
                     vision.current_projects.filter(project=>{
                         return project._project.host.name==machineName
                     }).forEach(item=>{
-                        result.push(item);
+                        //clone the object by parsing it to json and then parse it back
+                        let jsonItem=JSON.stringify(item);
+                        let newItem=JSON.parse(jsonItem);
+                        newItem['vision']=vision;
+                        result.push(newItem);
                     });
                 })
                resolve(result) ;
