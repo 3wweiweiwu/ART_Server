@@ -3,7 +3,7 @@ $sParentFolder=[System.IO.Path]::GetDirectoryName($myInvocation.MyCommand.Defini
 $sARTUri='http://mvf1:3000'
 
 $ProcessSetting=@{
-    PendingKey="pending"
+    InitializationKey='Initialization'    
     DoneKey='done'
 }
 
@@ -48,6 +48,7 @@ function Write-Setting($sARTServerUri,$vision="Template",$project="Template",$ta
     }
     $valueJson=$value|ConvertTo-Json -Depth 99
     $response=Invoke-RestMethod -Uri "$sARTServerUri/api/registry/vision/$vision/project/$project/task/$task/key/$key" -Method Post -Body $valueJson -ContentType 'application/json'
+    Write-Host -Message "$sARTServerUri,$vision,$project,$task,$key,$value"
 }
 
 function Load-Setting($sARTServerUri,$vision="Template",$project="Template",$task="Template",$key){
@@ -63,17 +64,24 @@ function Load-Setting($sARTServerUri,$vision="Template",$project="Template",$tas
             catch{
                 $result=$response.result
             }
-            
+            Write-Debug "value for $key is $result"
             return $result
         }
         catch{
             Start-Sleep -Seconds 1
-            Write-Host "unable to load-setting $sARTServerUri | $vision | $project | $task | $key |"
+            Write-Warning "unable to load-setting $sARTServerUri | $vision | $project | $task | $key |"
         }
     }
 
     
 }
+
+
+
+function Set-ProjectStatus($sARTServerUri,$projectId,$statusId){
+    $response=Invoke-RestMethod -Uri "$sARTServerUri/api/project/$projectId/status/$statusId" -Method Put -ContentType 'application/json'
+}
+
 function Set-NextProject($sARTServerUri,$vision,$project){
     #current project is done, move to next project    
     $response=Invoke-RestMethod -Uri "$sARTServerUri/api/schedule/vision/$vision/next/$project" -Method Post -ContentType 'application/json'
@@ -103,7 +111,7 @@ function Write-SettingForProcess($sARTUri,$key,$value,$processId,$dorm){
 }
 
 function Get-SettingForProcess($sARTUri,$key,$processId,$dorm){
-    return Load-Setting -sARTServerUri $sARTUri -project "Dorm_$dorm" -task $processId -key
+    return Load-Setting -sARTServerUri $sARTUri -project "Dorm_$dorm" -task $processId -key $key
 }
 
 function Get-CurrentProcessSetting($sARTUri,$key){
@@ -117,12 +125,45 @@ function Invoke-NewPowershellConsole($sArtUri,$script){
     $app=Start-Process -FilePath powershell.exe -ArgumentList "-NoProfile -ExecutionPolicy Bypass -Command `"iex ((New-Object System.Net.WebClient).DownloadString('$sArtUri/api/ps/$script'))`"" -PassThru
     return $app.Id
 }
-function Get-FreshSetting($sARTUri,$key){
-    $value=$ProcessSetting.PendingKey
-    while($value -eq $ProcessSetting.PendingKey){
+
+function Invoke-NewPowershellConsoleFromUri($uri,[switch]$ise){
+    if($ise.IsPresent)
+    {
+        $app=Start-Process -FilePath powershell_ise.exe -ArgumentList "-NoProfile -ExecutionPolicy Bypass -Command `"iex ((New-Object System.Net.WebClient).DownloadString('$uri'))`"" -PassThru
+    }
+    else
+    {
+        $app=Start-Process -FilePath powershell.exe -ArgumentList "-NoProfile -ExecutionPolicy Bypass -Command `"iex ((New-Object System.Net.WebClient).DownloadString('$uri'))`"" -PassThru
+    }
+    
+    return $app.Id
+}
+
+function Write-NewSettingToProcess($sARTUri,$processId,$key,$value){
+    
+    #This function is used by the machine manager to write setting for the project
+    #it is intended to use with Get-FreshSettingForCurrentProcess
+    
+    $value=$ProcessSetting.InitializationKey
+    while($value -eq $ProcessSetting.InitializationKey){
+        Start-Sleep -Seconds 0.5
+        $value=Get-SettingForProcess -sARTUri $sARTUri -key $key -processId $processId
+    }
+    Write-SettingForProcess -sARTUri $sARTUri -processId $processId -dorm $env:COMPUTERNAME -key $key -value
+
+
+}
+function Get-FreshSettingForCurrentProcess($sARTUri,$key){
+    #This function is used to get the setting from machine manager for the specific process
+    #it is intended to use with Write-NewSettingToProcess
+    
+    $value=$ProcessSetting.InitializationKey
+    Write-SettingForCurrentProcess -sARTUri $sARTUri -key $key $ProcessSetting.InitializationKey
+    while($value -ne $ProcessSetting.InitializationKey){
         try
         {
             $value=Get-CurrentProcessSetting -sARTUri $sARTUri -key $key
+            Start-Sleep -Seconds 0.5
         }
         catch
         {
@@ -133,11 +174,20 @@ function Get-FreshSetting($sARTUri,$key){
         
     }
     
-    Write-SettingForCurrentProcess -sARTUri $sARTUri -key $key -value $ProcessSetting.PendingKey
+    Write-SettingForCurrentProcess -sARTUri $sARTUri -key $key -value $ProcessSetting.DoneKey
     return $value
 
 }
 
+function Resolve-Error ($ErrorRecord=$Error[0])
+{
+   $ErrorRecord | Format-List * -Force
+   $ErrorRecord.InvocationInfo |Format-List *
+   $Exception = $ErrorRecord.Exception
+   for ($i = 0; $Exception; $i++, ($Exception = $Exception.InnerException))
+   {   "$i" * 80
+       $Exception |Format-List * -Force
+   }
+}
 
-
-Write-Host "ART Library is loaded"
+Write-Host "ART Library is loaded. V2"
