@@ -138,7 +138,7 @@ describe('put /project/:projectId/PID/:dormId',()=>{
             return projectSupport.putPIDToProject('projectId','500')
         })
         .catch(err=>{
-            assert(err.err.status,500);
+            assert(err.status,500);
             done();
         })
     });

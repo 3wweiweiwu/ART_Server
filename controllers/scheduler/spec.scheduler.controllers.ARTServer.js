@@ -84,7 +84,62 @@ describe('post /schedule/vision/:vision/blueprint/:blueprint',()=>{
                 assert(false,'it shall not throw error');
                 done();
             });
-    });       
+    });
+    it('shall schedule project and mark existing project that come form same blueprint ready to retire /schedule/vision/:vision/blueprint/:blueprint',done=>{
+        taskSupport.postTaskAPMNewMediaDetection()
+            .then(taskSupport.posttaskAPMInstall)
+            .then(projectSupport.postProjectBlueprintAPMPrestaging)            
+            .then(visionSupport.PostVisionAPMChef)
+            .then(() => {
+                //post dorm
+                return dormSupport.PostDorm(dormSupport.dorm1)
+            })
+            .then(() => {
+                //update machine ask
+                return visionSupport.putBlueprintMachineInstance(visionSupport.visionAPMChef.name, projectSupport.projectAPMPrestaging.name, dormSupport.dorm1.name, 2);
+            })
+            .then(()=>{
+                
+                return scheduleSupport.postScheduleFromBlueprint(visionSupport.visionAPMChef.name,projectSupport.projectAPMPrestaging.name);
+            })
+            .then(()=>{
+                
+                return scheduleSupport.postScheduleFromBlueprint(visionSupport.visionAPMChef.name,projectSupport.projectAPMPrestaging.name);
+            })
+            .then(()=>{
+                visionModel.findOne({name:visionSupport.visionAPMChef.name})
+                    .populate('current_projects._project')
+                    .exec((err,vision)=>{
+                        if(err){
+                            assert(false,'it shall not throw error');
+                            done();                            
+                        }
+                        else{
+                            //there shall be 2 projects
+                            assert.equal(vision.current_projects.length,4);
+                            //2 project shall have status 5 while 2 project's status is 3
+                            let status3=0;
+                            let status5=0;
+                            vision.current_projects.forEach(project=>{
+                                if(project._project.status==projectStatus.pendingRetire.id){
+                                    status5++;
+                                }
+                                else{
+                                    status3++;
+                                }
+                            });
+
+                            assert.equal(status5,2);
+                            assert.equal(status3,2);
+                            done();
+                        }
+                    });
+            })
+            .catch(err=>{
+                assert(false,'it shall not throw error');
+                done();
+            });
+    });    
     it('shall return error when blueprint is invalid /schedule/vision/:vision/blueprint/:blueprint',done=>{
         taskSupport.postTaskAPMNewMediaDetection()
             .then(taskSupport.posttaskAPMInstall)

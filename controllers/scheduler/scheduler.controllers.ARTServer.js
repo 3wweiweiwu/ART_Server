@@ -42,18 +42,23 @@ const ScheduleBlueprintByLookupMachineDemand=function(visionDoc,blueprint){
 exports.ScheduleBlueprint=function(vision,blueprint){
     //procedure
     //look up project schedule for specific blueprint, if not in there, then return
+    //mark all project that is made based on blueprint pending retire
     //create project based on blueprint schedules
     //Add project to vision
     //atomically schedule each individual project
     //if dorm is scheduled correctly, then change project status to scheduled, otherwise change staus to waiting   
     
     return new Promise((resolve,reject)=>{
-        visionControl.IsBlueprintInProjectScheduleValid(vision,blueprint)
-            .then(()=>{
-                return visionControl.IsBlueprintInProjectScheduleValid(vision,blueprint);
-            })
+        visionControl.IsBlueprintInProjectScheduleValid(vision,blueprint)            
             .then(vision=>{
-                return ScheduleBlueprintByLookupMachineDemand(vision,blueprint)
+                
+                //mark all project that is made based on blueprint pending retire
+                //create project based on blueprint schedules
+                
+                return exports.MarkProjectPendingRetire(vision.name,blueprint).
+                    then(()=>{
+                        return ScheduleBlueprintByLookupMachineDemand(vision,blueprint);
+                    })
             })
             .then((result)=>{
                 resolve();
