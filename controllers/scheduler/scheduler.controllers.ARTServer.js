@@ -55,10 +55,8 @@ exports.ScheduleBlueprint=function(vision,blueprint){
                 //mark all project that is made based on blueprint pending retire
                 //create project based on blueprint schedules
                 
-                return exports.MarkProjectPendingRetire(vision.name,blueprint).
-                    then(()=>{
-                        return ScheduleBlueprintByLookupMachineDemand(vision,blueprint);
-                    })
+                return ScheduleBlueprintByLookupMachineDemand(vision,blueprint);
+                    
             })
             .then((result)=>{
                 resolve();
@@ -100,7 +98,7 @@ exports.MarkProjectPendingRetire=function(vision,blueprint){
                     return;
                 }
                 
-                projectModel.update({})
+                
                 let updates=[];
                 visionList[0].current_projects
                     .filter(item=>{
@@ -214,7 +212,7 @@ exports.ScheduleNextProject=function(visionName,projectId){
                 let project=visionDoc.current_projects.find(item=>{return item._project._id.toString()==projectId});
                 //test project id
                 if(project==null){
-                    reject(standardError(`unable to find project id specified`,400))
+                    reject(standardError(`unable to find project id ${projectId} specified`,400))
                     
                     resolve();
                     return;

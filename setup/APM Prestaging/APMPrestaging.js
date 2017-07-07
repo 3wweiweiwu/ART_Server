@@ -89,8 +89,18 @@ describe('Add new vision APM Prestaging',()=>{
                     //add template setting for task Media_Detection
                     registrySupport.postRegistry(registrySupport.Keys.Template,projectSupport.blueprintAPMMediaDetection.name,taskSupport.taskMediaDetection.name,'family','analytics')
                         .then(()=>{
-                            registrySupport.postRegistry(registrySupport.Keys.Template,projectSupport.blueprintAPMMediaDetection.name,taskSupport.taskMediaDetection.name,'media_path','\\\\hqfiler\\upload$\\aspenONEV10.0\\APM')
+                            //registrySupport.postRegistry(registrySupport.Keys.Template,projectSupport.blueprintAPMMediaDetection.name,taskSupport.taskMediaDetection.name,'media_path','\\\\hqfiler\\upload$\\aspenONEV10.0\\APM')
+                            registrySupport.postRegistry(registrySupport.Keys.Template,projectSupport.blueprintAPMMediaDetection.name,taskSupport.taskMediaDetection.name,'media_path','e:\\temp\\')
                         })
+                        .then(()=>{
+                            registrySupport.postRegistry(registrySupport.Keys.Template,projectSupport.blueprintAPMMediaDetection.name,taskSupport.taskMediaDetection.name,'Media_Folder_Snapshot','Run')
+                        })
+                        .then(()=>{
+                            registrySupport.postRegistry(registrySupport.Keys.Template,projectSupport.blueprintAPMMediaDetection.name,taskSupport.taskMediaDetection.name,'schedule_mode','EveryNewMedia')
+                        })
+                        .then(()=>{
+                            registrySupport.postRegistry(registrySupport.Keys.Template,projectSupport.blueprintAPMMediaDetection.name,taskSupport.taskMediaDetection.name,'current_schedule',' ')
+                        })                        
                         .then(()=>{
                             resolve();
                         })
