@@ -48,7 +48,7 @@ function Write-Setting($sARTServerUri,$vision="Template",$project="Template",$ta
     }
     $valueJson=$value|ConvertTo-Json -Depth 99
     $response=Invoke-RestMethod -Uri "$sARTServerUri/api/registry/vision/$vision/project/$project/task/$task/key/$key" -Method Post -Body $valueJson -ContentType 'application/json'
-    Write-Host -Message "$sARTServerUri,$vision,$project,$task,$key,$value"
+    Write-Debug -Message "$sARTServerUri,$vision,$project,$task,$key,$value"
 }
 
 function Load-Setting($sARTServerUri,$vision="Template",$project="Template",$task="Template",$key){
@@ -76,7 +76,9 @@ function Load-Setting($sARTServerUri,$vision="Template",$project="Template",$tas
     
 }
 
-
+function Set-ProcessIdInProject($sARTServerUri,$projectId,$processId){
+    Invoke-RestMethod -Uri "$sARTServerUri/api/project/$projectId/PID/$processId" -Method Put 
+}
 
 function Set-ProjectStatus($sARTServerUri,$projectId,$statusId){
     $response=Invoke-RestMethod -Uri "$sARTServerUri/api/project/$projectId/status/$statusId" -Method Put -ContentType 'application/json'
@@ -176,6 +178,13 @@ function Get-FreshSettingForCurrentProcess($sARTUri,$key){
     
     Write-SettingForCurrentProcess -sARTUri $sARTUri -key $key -value $ProcessSetting.DoneKey
     return $value
+
+}
+
+
+function Remove-ProjectFromProjectCurrentProject($sARTUri,$visionName,$projectId){
+    #delete project from current project list
+    $response=Invoke-RestMethod -Uri "$sARTUri/api/vision/$visionName/current_projects/$projectId" -Method Delete -ContentType 'application/json'
 
 }
 

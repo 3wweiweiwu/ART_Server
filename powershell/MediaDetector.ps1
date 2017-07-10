@@ -29,7 +29,7 @@ $blueprint=$projectFeed.blueprint
 $projectId=$projectFeed.projectId
 
 #create ui identifier
-$Host.UI.RawUI.WindowTitle ="$blueprint $projectId $debugPID"
+$Host.UI.RawUI.WindowTitle ="$blueprint==$projectId==$debugPID"
 
 
 $sMediaPath=Load-Setting -sARTServerUri $sARTServerUri -project $blueprint -task $taskMediaDetection -key media_path
@@ -60,7 +60,7 @@ Write-Setting -project $blueprint -task $taskMediaDetection -key "Media_Folder_S
 #keep pulling the server to find out if new media is posted
 while($true){
     Start-Sleep -Seconds 10
-
+    Write-Host -Object "$((Get-Date).ToString()) Waiting for new media"
     #start of media detection
         #if new file is found, then test it
         $lsFiles=(Get-ChildItem -Path $sMediaPath -File).Name
@@ -89,7 +89,7 @@ while($true){
                 #if the new file proved to be a media, then add that into schedule
                 if($result[0] -eq $true){
                     #based on the schedule mode, decide how to invoke application
-
+                    Write-Host -Object "$((Get-Date).ToString()) New Media is detected: $file"
                     if($sScheduleMode -eq $ScheduleMode.EveryNewMedia){
                         $sCurrentMediaPath=Join-Path -Path $sMediaPath -ChildPath $file
                     
