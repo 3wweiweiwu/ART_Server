@@ -720,9 +720,11 @@ describe('/schedule/vision/:vision/next/:project',()=>{
                 visionControl.getVision({name:visionSupport.visionAPMChef.name})                    
                     .then((visionList)=>{
                         let vision=visionList[0];
-                        assert.equal(vision.current_projects.length,1)
-                        assert.equal(vision.current_projects[0]._project._bluePrint.name,projectSupport.blueprintAPMMediaDeployment.name)
-                        assert.equal(vision.current_projects[0]._project.status,projectStatus.waitingForRunning.id);
+                        assert.equal(vision.current_projects.length,2)
+                        assert.equal(vision.current_projects[0]._project._bluePrint.name,projectSupport.blueprintAPMMediaDetection.name)
+                        assert.equal(vision.current_projects[0]._project.status,projectStatus.pendingRetire.id);
+                        assert.equal(vision.current_projects[1]._project._bluePrint.name,projectSupport.blueprintAPMMediaDeployment.name)
+                        assert.equal(vision.current_projects[1]._project.status,projectStatus.waitingForRunning.id);
                         done();
                     });
             })
@@ -784,10 +786,19 @@ describe('/schedule/vision/:vision/next/:project',()=>{
                 visionControl.getVision({name:visionSupport.visionAPMChef.name})                    
                     .then((visionList)=>{
                         let vision=visionList[0];
-                        assert.equal(vision.current_projects.length,3)
+                        assert.equal(vision.current_projects.length,4)
+                        let i=0;
                         vision.current_projects.forEach(item=>{
-                            assert.equal(item._project._bluePrint.name,projectSupport.blueprintAPMMediaDeployment.name)
-                            assert.equal(item._project.status,projectStatus.waitingForRunning.id);
+                            if(i==0){
+                                assert.equal(item._project._bluePrint.name,projectSupport.blueprintAPMMediaDetection.name)
+                                assert.equal(item._project.status,projectStatus.pendingRetire.id);                                   
+                            }
+                            else{
+                                assert.equal(item._project._bluePrint.name,projectSupport.blueprintAPMMediaDeployment.name)
+                                assert.equal(item._project.status,projectStatus.waitingForRunning.id);                                
+                            }
+
+                            i++;
                         })
                         
                         

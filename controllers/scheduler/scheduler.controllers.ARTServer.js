@@ -146,7 +146,7 @@ exports.ScheduleVision=function(vision){
                     for(i=0;i<vision.current_projects.length;i++){
                         
                         //for those vision that has been scheduled, just skip them
-                        if(vision.current_projects[0]._project.status!=projectStatus.waitingForScheduling.id){
+                        if(vision.current_projects[i]._project.status!=projectStatus.waitingForScheduling.id){
                             continue;
                         }
 
@@ -218,16 +218,16 @@ exports.ScheduleNextProject=function(visionName,projectId){
                     return;
                 }
                 
-                //remove the project from current_project list
-                visionDoc.current_projects=visionDoc.current_projects.filter(item=>{return item._project._id.toString()!=projectId});
+                
+                
 
                 //look up the project schedule and schedule next blueprint if any
                 let projectBlueprintId=project._project._bluePrint._id.toString();
-                
-                
                 let currentSchedule=visionDoc.project_schedule.find(item=>{return item.project_blueprint._id.toString()==projectBlueprintId});
-                //save the vision doc
-                visionDoc.save((err)=>{
+                
+                //mark current project as pending retire
+                projectControl.UpdateProjectStatus(projectId,projectStatus.pendingRetire.id)
+                .then(()=>{
                     //find current schedule
                     
                     if(currentSchedule.next_project==null){
@@ -252,8 +252,6 @@ exports.ScheduleNextProject=function(visionName,projectId){
                         .catch(err=>{
                             reject(standardError(err,500));
                         })
-
-
                 });
 
 
@@ -322,7 +320,14 @@ exports.GetProjectsInMachine=function(machineName){
                 let result=[];
                 visionList.forEach(vision=>{
                     vision.current_projects.filter(project=>{
-                        return project._project.host.name==machineName
+                        if(project._project.host==undefined){
+                            console.warn(`unable to find project host for ${project._project._bluePrint.name}`)
+                            return false;
+                        }
+                        else{
+                            return project._project.host.name==machineName    
+                        }
+                        
                     }).forEach(item=>{
                         //clone the object by parsing it to json and then parse it back
                         let jsonItem=JSON.stringify(item);
