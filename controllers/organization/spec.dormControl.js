@@ -298,3 +298,123 @@ describe('dorm',()=>{
 });
 
 
+describe('/dorm/DiskInitializationSignal/:dormName',()=>{
+    beforeEach((done)=>{
+        dormModel.remove({},(err)=>{done()});
+    });      
+    it('shall specify the dorm disk space',done=>{
+        dormSupport.PostDorm(dormSupport.MVF1)
+            .then(()=>{
+                return dormSupport.PutDiskInitializationSignal(dormSupport.MVF1.name,dormSupport.Disk1);
+            })
+            .then(()=>{
+                dormModel.findOne({name:dormSupport.MVF1.name})
+                    .then((dormDoc)=>{
+                        assert.equal(dormDoc.system_resource.disk_total[0].drive_letter,dormSupport.Disk1.diskProfile[0].DriveLetter);
+                        assert.equal(dormDoc.system_resource.disk_total[0].total_disk_space_mb,dormSupport.Disk1.diskProfile[0].Size/1024/1024);
+                        assert.equal(dormDoc.system_resource.disk_total[0].free_disk_space_mb,dormSupport.Disk1.diskProfile[0].SizeRemaining/1024/1024);
+
+                        assert.equal(dormDoc.system_resource.disk_total[1].drive_letter,dormSupport.Disk1.diskProfile[1].DriveLetter);
+                        assert.equal(dormDoc.system_resource.disk_total[1].total_disk_space_mb,dormSupport.Disk1.diskProfile[1].Size/1024/1024);
+                        assert.equal(dormDoc.system_resource.disk_total[1].free_disk_space_mb,dormSupport.Disk1.diskProfile[1].SizeRemaining/1024/1024);                        
+                        done();
+                    })
+            })
+            .catch(err=>{
+                assert(false,err);
+                done();
+            })
+    })
+    it('shall return error while dorm name is incorrect',done=>{
+        dormSupport.PostDorm(dormSupport.MVF1)
+            .then(()=>{
+                return dormSupport.PutDiskInitializationSignal('dormSupport.MVF1.name',dormSupport.Disk1);
+            })
+            .then(()=>{
+                assert(false,'it shall return error');
+                done();
+            })
+            .catch(err=>{
+                assert(err.status,500)
+                done();
+            })        
+    })
+})
+
+describe('put /dorm/:dormName/vm/:size_mb',()=>{
+    beforeEach((done)=>{
+        dormModel.remove({},(err)=>{done()});
+    });       
+    it('shall return true and get disk with enough space',done=>{
+        dormSupport.PostDorm(dormSupport.MVF1)
+            .then(()=>{
+                return dormSupport.PutDiskInitializationSignal(dormSupport.MVF1.name,dormSupport.Disk1);
+            })
+            .then(()=>{
+                return dormSupport.PutVMToDorm(dormSupport.MVF1.name,5)
+            })
+            .then(result=>{
+                assert.equal(result.body.result,true);
+                done();
+            })
+            .catch(err=>{
+                assert(false,'it shall not fail')
+            })
+            
+    })
+    it('shall return false when there is no enough space in disk',done=>{
+        dormSupport.PostDorm(dormSupport.MVF1)
+            .then(()=>{
+                return dormSupport.PutDiskInitializationSignal(dormSupport.MVF1.name,dormSupport.Disk1);
+            })
+            .then(()=>{
+                return dormSupport.PutVMToDorm(dormSupport.MVF1.name,5096*1024*1024)
+            })
+            .then(result=>{
+                assert.equal(result.body.result,false);
+                done();
+            })
+            .catch(err=>{
+                assert(false,'it shall not fail')
+            })        
+    })
+    it('shall return error 400 when dormname is invalid',done=>{
+        dormSupport.PostDorm(dormSupport.MVF1)
+            .then(()=>{
+                return dormSupport.PutDiskInitializationSignal(dormSupport.MVF1.name,dormSupport.Disk1);
+            })
+            .then(()=>{
+                return dormSupport.PutVMToDorm('dormSupport.MVF1.name',5096*1024*1024)
+            })
+            .then(result=>{
+                //assert.equal(result.body.result,false);
+                assert(false,'it shall pass')
+                done();
+            })
+            .catch(err=>{
+                
+                assert.equal(err.status,400)
+                done();
+            })           
+    })
+    it('shall return error 400 when size_mb is not number',done=>{
+        dormSupport.PostDorm(dormSupport.MVF1)
+            .then(()=>{
+                return dormSupport.PutDiskInitializationSignal(dormSupport.MVF1.name,dormSupport.Disk1);
+            })
+            .then(()=>{
+                return dormSupport.PutVMToDorm(dormSupport.MVF1.name,'5096*1024*1024')
+            })
+            .then(result=>{
+                //assert.equal(result.body.result,false);
+                assert(false,'it shall pass')
+                done();
+            })
+            .catch(err=>{
+                
+                assert.equal(err.status,400)
+                done();
+            })          
+    })
+})
+

@@ -18,5 +18,18 @@ module.exports={
     waitingForRunning:{
         id:'5',
         note:'Current task is scheduled, wait for client to pickup'
-    }
+    },
+    waitingCheckpointCreation:{
+        id:'6',
+        note:''
+    },
+    waitingCheckpointRevert:{
+        id:'7',
+        note:''
+    },
+    waitingMachineDeployment:{
+        id:'8',
+        note:''
+    },    
+
 }

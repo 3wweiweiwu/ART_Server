@@ -41,6 +41,7 @@ router.put('/vision/:vision_name/registry',validate(visionValidation.putKeyProje
 
 
 router.put('/vision/:vision_name/project_schedule/blueprint/:blueprint/machine/:machine/ask/:ask',validate(visionValidation.putBlueprintMachineInstance),function(req,res,next){
+    //For specific blueprint, specify # of machine needed to run the instance
     return visionControl.putBlueprintMachineInstance(req,res,next);
 });
 

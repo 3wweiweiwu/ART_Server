@@ -58,6 +58,9 @@ module.exports={
             blueprint:Joi.string().required(),
             machine:Joi.string().required(),
             ask:Joi.number().required()
+        },
+        body:{
+            vid_list:Joi.array().required()
         }
     },
     putEmptyBlueprintSchedule:{

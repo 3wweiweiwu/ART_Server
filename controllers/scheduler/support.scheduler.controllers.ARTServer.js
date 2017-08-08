@@ -87,3 +87,22 @@ exports.getMachineProject=function(machineName,cb=()=>{}){
         });
     });    
 }
+
+exports.postTaskForVM=function(vision,vm,task,cb=()=>{}){
+    return new Promise((resolve,reject)=>{
+        chai
+        .request(app)
+        .post(`/api/schedule/vision/${vision}/vm/${vm}/task/${task}`)
+        .end((err,res)=>{
+            if(err){
+                let result={err:err,res:res}
+                reject(result);
+                return cb(err);
+            }
+            else{
+                resolve(res);
+                return cb(null,res);
+            }
+        });
+    });    
+}

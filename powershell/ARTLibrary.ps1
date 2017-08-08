@@ -75,6 +75,30 @@ function Load-Setting($sARTServerUri,$vision="Template",$project="Template",$tas
 
     
 }
+function Get-CurrentDiskProfile(){
+    $profile=Get-Volume|where{[int]($_.DriveLetter) -ne 0}|where{$_.DriveType -eq "Fixed"}
+    $ARTProfile=[array]($profile|select *,'ART_Space')
+    foreach($item in $ARTProfile){
+        $item.ART_Space=$item.SizeRemaining
+    } 
+    return $ARTProfile
+}
+function Set-DormDiskSpace($sARTServerUri,$dormName){
+    $profile=([array](Get-CurrentDiskProfile))
+    
+    $lsDisk=@()
+    foreach($item in $profile){
+        $disk=@{
+            DriveLetter=$item.DriveLetter;
+            Size=$item.Size;
+            SizeRemaining=$item.SizeRemaining;
+        }
+        $lsDisk+=@($disk)
+
+    }
+    $diskJson=@{diskProfile=$lsDisk}|ConvertTo-Json
+    Invoke-RestMethod -Uri "$sARTServerUri/api/dorm/DiskInitializationSignal/$dormName" -Method Put -Body $diskJson -ContentType 'application/json'
+}
 
 function Set-ProcessIdInProject($sARTServerUri,$projectId,$processId){
     Invoke-RestMethod -Uri "$sARTServerUri/api/project/$projectId/PID/$processId" -Method Put 
@@ -104,7 +128,7 @@ function Get-ProjectsInMachine($sARTServerUri,$sMachineName=$env:COMPUTERNAME){
     }
     catch{
         Start-Sleep -Seconds 1
-        Write-Host "unable to find $sARTServerUri | $vision | $project | $task | $key |"
+        Write-Host "unable to find project for $sMachineName from $sARTServerUri"
     }    
 }
 
@@ -186,6 +210,20 @@ function Remove-ProjectFromProjectCurrentProject($sARTUri,$visionName,$projectId
     #delete project from current project list
     $response=Invoke-RestMethod -Uri "$sARTUri/api/vision/$visionName/current_projects/$projectId" -Method Delete -ContentType 'application/json'
 
+}
+
+
+function Get-VolumeforVHD($sARTUri,$machine,$disk_size_in_mb){
+    $response=Invoke-RestMethod -Method Put -Uri "$sARTUri/api/dorm/$machine/vm/$disk_size_in_mb/drive/*"
+    return $response
+}
+
+function Return-VHDSpace($sARTUri,$machine,$vhd_Path){
+    $VHD=Get-VHD -Path $vhd_Path
+    $sDriveLetter=$VHD.Path[0]
+    $disk_size_in_mb=$VHD.Size/1024/1024*-1
+    $response=Invoke-RestMethod -Method Put -Uri "$sARTUri/api/dorm/$machine/vm/$disk_size_in_mb/drive/$sDriveLetter"
+    return $response.result
 }
 
 function Resolve-Error ($ErrorRecord=$Error[0])

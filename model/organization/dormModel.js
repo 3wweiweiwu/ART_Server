@@ -27,7 +27,8 @@ var dormModel=new Schema({
     vision:[{type:mType.ObjectId,ref:'Vision'}],
     registry:[{key:{type:String},value:{type:String}}],
     running_project:[{key:{type:Schema.Types.ObjectId,ref:'Project'}}],
-    pending_project:[{key:{type:Schema.Types.ObjectId,ref:'Project'}}]
+    pending_project:[{key:{type:Schema.Types.ObjectId,ref:'Project'}}],
+    current_task:{type:Schema.Types.ObjectId,ref:'Task'}
 });
 
 dormModel.pre('save',(next)=>{

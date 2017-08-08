@@ -6,6 +6,7 @@ let projectBlueprintModel = require('../../model/project/projectBlueprint.model.
 let blueprintControl = require('../project/projectBlueprint.controllers.ARTServer')
 let dormModel = require('../../model/organization/dormModel')
 let dormControl = require('../../controllers/organization/dormControl')
+let taskControl=require('../../controllers/task/task.controllers.ARTServer')
 let standardError = require('../common/error.controllers.ARTServer')
 let lock=require('../common/lock.common.controllers.ARTServer')
 let projectStatus=require('../project/status.project.controllers.ARTServer')
@@ -19,13 +20,19 @@ const ScheduleBlueprintByLookupMachineDemand=function(visionDoc,blueprint){
 
    schedule.machine_demand.forEach(demand=>{
        //one-by-one add machine and its demanded project into current_project
-       for(i=0;i<demand.instance;i++){
+       
+       for(let i=0;i<demand.instance;i++){
 
-            
+            //currently, only add vid that is specified in the vid list to the machine
+            //TODO: automatically generate vid for those un-assigned vid
             taskList.push(visionControl.CreateNewProjectAndAddToVision(visionDoc.name,blueprint)
                 .then(projectId=>{
-                    return projectControl.UpdateHostInProject(projectId.projectId,demand.dorm.name)                
-                })
+                    let vid="";
+                    if(demand.vid_list!=undefined && demand.vid_list!=null && i<demand.vid_list.length){
+                        vid=demand.vid_list[i].vid;
+                    }
+                    return projectControl.UpdateHostAndVIDInProject(projectId.projectId,demand.dorm.name,vid)
+                })                
             );
        }
    });
@@ -143,7 +150,7 @@ exports.ScheduleVision=function(vision){
                 let vision=visionList[0];
                 //make sure there is item under current_projects
                 if(vision.current_projects!=undefined&&vision.current_projects!=null&&vision.current_projects.length!=0){
-                    for(i=0;i<vision.current_projects.length;i++){
+                    for(let i=0;i<vision.current_projects.length;i++){
                         
                         //for those vision that has been scheduled, just skip them
                         if(vision.current_projects[i]._project.status!=projectStatus.waitingForScheduling.id){
@@ -219,9 +226,23 @@ exports.ScheduleNextProject=function(visionName,projectId){
                 }
                 
                 
+                //if there is pending project under task, then go to next task
+                if (project._project.pending_tasks.length>=1){
+                    projectControl.GotoNextTaskInProject(projectId)
+                        .then(()=>{
+                            resolve();
+                            
+                        })
+                        .catch(err=>{
+                            reject(standardError(err,500));
+                            
+                        });
+                    return;
+                                            
+                }
                 
 
-                //look up the project schedule and schedule next blueprint if any
+                //if there is no pending task under the task, look up the project schedule and schedule next blueprint if any
                 let projectBlueprintId=project._project._bluePrint._id.toString();
                 let currentSchedule=visionDoc.project_schedule.find(item=>{return item.project_blueprint._id.toString()==projectBlueprintId});
                 
@@ -321,7 +342,7 @@ exports.GetProjectsInMachine=function(machineName){
                 visionList.forEach(vision=>{
                     vision.current_projects.filter(project=>{
                         if(project._project.host==undefined){
-                            console.warn(`unable to find project host for ${project._project._bluePrint.name}`)
+                            console.warn(`No host is specified for project ${project._project._bluePrint.name}`)
                             return false;
                         }
                         else{
@@ -354,4 +375,80 @@ exports.getMachineProject=function(req,res,next){
             res.status(err.status).json(err);
         })      
 }
+exports.AddTaskForVM=function(dormObj,visionObj,taskObj){
+    return new Promise((resolve,reject)=>{
+        if(dormObj==undefined){
+            reject(standardError('unable to find dormObj specified',500));
+            return;
+        }
+        if(visionObj==undefined){
+            reject(standardError('unable to find visionObj specified',500));
+            return;
+        }
+        if(taskObj==undefined){
+            reject(standardError('unable to find taskObj specified',500));
+            return;
+        }                
+        let projectObj=new projectModel({
+            pending_tasks:[{task:taskObj._id}],
+            host:dormObj._id,
+            status:projectStatus.waitingForRunning.id,
+            pid:'',
+            vid:''
+        });
+        projectObj.save(err=>{
+            if(err){
+                reject(standardError(err,500));
+                return;
+            }
+            else{
+                //delete other project in current_project with similar vm name
+                visionObj.current_projects=visionObj.current_projects.filter(item=>{
+                    return item._project.host.name!=dormObj.name;
+                })
+                
+                //add the new project to the current_schedule uner the vision specified
+                visionObj.current_projects.push({_project:projectObj._id});
+                visionObj.save(err=>{
+                    if(err){
+                        reject(standardError(err,500));
+                        return;
+                    }                    
+                    else{
+                        resolve(projectObj._id);
+                    }
+                })
+                
+            }
+        })
+    });
 
+}
+exports.postTaskForVM=function(req,res,next){
+    //this function will post task for the VM
+    let promiseChain=[];
+    promiseChain.push(dormControl.IsDormValid(req.params.vm));
+    promiseChain.push(visionControl.getVision({name:req.params.vision}));
+    promiseChain.push(taskControl.isTaskValid(req.params.task));
+    Promise.all(promiseChain)
+        .then(results=>{
+            //add a project based on the task specified
+            let dormObj=results[0];
+            let visionObj=results[1][0];
+            
+            let taskObj=results[2];
+            return exports.AddTaskForVM(dormObj,visionObj,taskObj);
+        })        
+        .then(()=>{
+            res.status(200).json();
+        })
+        .catch(err=>{
+            res.status(err.status).json(err);
+        })
+    
+
+    
+
+    
+    
+}

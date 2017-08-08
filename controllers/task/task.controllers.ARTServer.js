@@ -1,6 +1,6 @@
 var taskModel=require('../../model/task/task.model.ARTServer.js');
 var taskImageDeploy=require('../../model/task/imageDeploy.model.ARTServer.js');
-
+let StandardError=require('../common/error.controllers.ARTServer')
 
 const CreateNewTask=(req,res,next)=>{
     
@@ -70,6 +70,26 @@ exports.create=function(req,res,next){
         
         
     });
+}
+
+exports.isTaskValid=function(taskName){
+    return new Promise((resolve,reject)=>{
+        taskModel.findOne({name:taskName})
+            .then(task=>{
+                if(task==null){
+                    reject(StandardError('unable to find task specified',500))
+                    return
+                }
+                else{
+                    resolve(task);
+                }
+                
+            })
+            .catch(err=>{
+                reject(err);
+            })
+    });
+
 }
 
 exports.get=function(req,res,next,searchCriteria){

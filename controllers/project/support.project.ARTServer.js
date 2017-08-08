@@ -89,6 +89,14 @@ exports.blueprintAPMMediaDetection={
     tasks:[taskSupport.taskMediaDetection.name],
     next:[]    
 }
+exports.setupAPMMediaDetection={
+    name:'APM_Media_Detection',
+    note:"detect apm media",
+    memory_usage_mb:1024,
+    disk_usage_mb:1024,
+    tasks:[taskSupport.taskMediaDetection.name],
+    next:[]      
+}
 exports.blueprintAPMMediaDeployment={
     name:'APM_Media_Deployment',
     note:"Install APM media whenever it is posted",
@@ -97,7 +105,14 @@ exports.blueprintAPMMediaDeployment={
     tasks:[taskSupport.taskMediaInstallation.name],
     next:[]    
 }
-
+exports.APMMediaDeployment={
+    name:'APM_Media_Deployment',
+    note:"Install APM media whenever it is posted",
+    memory_usage_mb:6*1024,
+    disk_usage_mb:10*1024,
+    tasks:[taskSupport.taskVMDeployment.name,taskSupport.taskMediaInstallation.name],
+    next:[]    
+}
 exports.projectAPMPrestaging={
     name:'APM_Prestaging',
     note:"Install APM media whenever it is posted",

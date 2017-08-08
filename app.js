@@ -16,6 +16,7 @@ var vision=require('./routes/vision.routes.ARTServer')
 let scheduler=require('./routes/scheduler.routes.ARTServer')
 let powershell=require('./routes/ps.routes.ARTServer')
 let registry=require('./routes/registry.routes.ARTServer')
+
 var app = express();
 
 

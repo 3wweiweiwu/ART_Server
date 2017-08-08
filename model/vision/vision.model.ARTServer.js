@@ -24,7 +24,8 @@ var visionModel=new Schema({
         server_ask:{type:Number},
         machine_demand:[{
             dorm:{type:Schema.Types.ObjectId,ref:'Dorm'},
-            instance:{type:Number}
+            instance:{type:Number},
+            vid_list:[{vid:String}]
         }],
         next_project:[
             {blueprint:{type:Schema.Types.ObjectId,ref:'Project.Blueprint'}}

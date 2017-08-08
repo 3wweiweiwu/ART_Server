@@ -1,6 +1,7 @@
 var dormModel=require('../../model/organization/dormModel');
 var dormValidation=require(('../../validation/dorm.validation.ARTServer'))
 let CreateStandardError=require('../common/error.controllers.ARTServer')
+let lockControl=require('../common/lock.common.controllers.ARTServer')
 const EventEmitter=require('events');
 
 class dormControlEmitterClass extends EventEmitter{};
@@ -220,8 +221,48 @@ function UpdateDorm(req,res,next,query)
 
 
 }
+exports.InitializeDiskUsage=function(dormName,diskProfile){
+    return new Promise((resolve,reject)=>{
+        //initialize current dorm's disk usage with disk profile
+        
+        exports.IsDormValid(dormName)
+            .then(dormDoc=>{
+                let disk_total=[];
+                //construct new disk_total based on disk profile
+                diskProfile.forEach(item=>{
+                    let disk={
+                        drive_letter:item.DriveLetter,
+                        total_disk_space_mb:item.Size/1024/1024,
+                        free_disk_space_mb:item.SizeRemaining/1024/1024
+                    };
+                    disk_total.push(disk);
+                });
 
-
+                dormDoc.system_resource.disk_total=disk_total;
+                dormDoc.save(err=>{
+                    if(err){
+                        reject(CreateStandardError(err,500));
+                    }
+                    else{
+                        resolve();
+                    }
+                })
+            })
+            .catch(err=>{
+                reject(CreateStandardError(err,500));
+            })
+    });
+}
+exports.PutDiskInitializationSignal=function(req,res,next){
+    //initialize machine's disk usage
+    exports.InitializeDiskUsage(req.params.dormName,req.body.diskProfile)
+        .then(()=>{
+            res.status(200).json();
+        })
+        .catch(err=>{
+            res.status(err.status).json(err);
+        })
+}
 exports.putDorm=function(req,res,next){
     
     //if we find the record, then we are going to update the dorm
@@ -252,5 +293,73 @@ exports.putDorm=function(req,res,next){
 
 
 
+}
+
+exports.AllocateVMSpaceFromDorm=function(dormDoc,vmSizeMb,driveLetter){
+    return new Promise((resolve,reject)=>{
+        //aquire the lock for vm
+        
+        let diskIndex=-1
+        if(driveLetter=='*'){
+            diskIndex=dormDoc.system_resource.disk_total.findIndex(item=>{return item.free_disk_space_mb>vmSizeMb});
+        }
+        else{
+            diskIndex=dormDoc.system_resource.disk_total.findIndex(item=>{return (item.free_disk_space_mb>vmSizeMb)&&(item.drive_letter==driveLetter)});
+        }
+        
+        if(diskIndex==-1){
+            result={result:false}
+            resolve(result);
+            return;
+        }
+        else{
+            dormDoc.system_resource.disk_total[diskIndex].free_disk_space_mb-=vmSizeMb;
+            result={
+                result:true,
+                disk:dormDoc.system_resource.disk_total[diskIndex]
+            }
+        }
+        
+        dormDoc.save(err=>{
+            //rleease the lock
+            
+            if(err){
+                reject(CreateStandardError(err,500));
+                return;
+
+                
+            }
+            else{
+                resolve(result);                
+            }
+        })
+
+        
+    });
+}
+exports.PutVMToDorm=function(req,res,next){
+    //allocate space for the vm in the dorm specified
+    let lockName=`Allocate VM in ${req.params.dormName}`;
+    lockControl.Aquire(lockName)
+        .then(()=>{
+            return exports.IsDormValid(req.params.dormName)
+        })        
+        .then((dormDoc)=>{
+            return exports.AllocateVMSpaceFromDorm(dormDoc,req.params.size_mb,req.params.driveLetter);
+        })
+        .then((diskItem)=>{
+            return lockControl.Release(lockName)
+                .then(()=>{
+                    res.status(200).json(diskItem);
+                })
+            
+        })
+        .catch(err=>{
+            lockControl.Release(lockName)
+                .then(()=>{
+                    res.status(err.status).json(err);
+                })
+            
+        })    
 }
 

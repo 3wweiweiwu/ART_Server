@@ -176,11 +176,15 @@ exports.putBlueprintServerAsk=function(visionName,blueprintName,serverAsk,cb=()=
         });
     });   
 }
-exports.putBlueprintMachineInstance=function(visionName,blueprintName,machine,ask,cb=()=>{}){
+exports.putBlueprintMachineInstance=function(visionName,blueprintName,machine,ask,vidList=[],cb=()=>{}){
      return new Promise((resolve,reject)=>{
+        
         chai
         .request(app)
         .put(`/api/vision/${visionName}/project_schedule/blueprint/${blueprintName}/machine/${machine}/ask/${ask}`)
+        .send({
+            vid_list:vidList
+        })
         .end((err,res)=>{
             if(err){
                 let result={err:err,res:res}

@@ -17,6 +17,12 @@ exports.taskMediaDetection={
     task_script_path:'http://mvf1:3000/api/ps/MediaDetector.ps1',
     setting_type:"NULL"    
 }
+exports.taskVMDeployment={
+    name:"VM_Deployment",
+    note:'Deploy VHD to local hyper-v Host',
+    task_script_path:'http://mvf1:3000/api/ps/VMDeployment.ps1',
+    setting_type:"NULL"    
+}
 exports.taskMediaInstallation={
     name:"Media_Installation",
     note:'Install Media',

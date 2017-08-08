@@ -23,7 +23,61 @@ exports.PostDorm=function(dormObj,cb=()=>{}){
     });
 
 }
+exports.PutVMToDorm=function(dormName,size_mb,drive_letter="*",cb=()=>{}){
+    return new Promise((resolve,reject)=>{
+        chai.request(app)
+        .put(`/api/dorm/${dormName}/vm/${size_mb}/drive/${drive_letter}`)        
+        .end((err,res)=>{
+            if(err){
+                reject(err);
+                return cb(err,null);
+            }
+                
+            else{
+                resolve(res);
+                cb(null,res)
+            }
+                
+        });
+    });
 
+}
+
+exports.PutDiskInitializationSignal=function(dormName,diskObj,cb=()=>{}){
+    return new Promise((resolve,reject)=>{
+        chai.request(app)
+        .put(`/api/dorm/DiskInitializationSignal/${dormName}`)
+        .send(diskObj)
+        .end((err,res)=>{
+            if(err){
+                reject(err);
+                return cb(err,null);
+            }
+                
+            else{
+                resolve(res);
+                cb(null,res)
+            }
+                
+        });
+    });
+
+}
+
+exports.Disk1={
+    diskProfile:[
+        {
+            DriveLetter:'e',
+            Size:4096*1024*1024,
+            SizeRemaining:1024*1024*1024
+        },
+        {
+            DriveLetter:'c',
+            Size:1096*1024*1024,
+            SizeRemaining:24*1024*1024
+        }
+    ]
+}
 exports.MVF1={
     name:'MVF1',
     system_resource:{

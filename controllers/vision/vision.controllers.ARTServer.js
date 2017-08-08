@@ -304,7 +304,7 @@ exports.PutKeyProject = function (req, res, next) {
                         vision[0].save((err) => {
                             if (err) {
                                 //if error is found, then return error
-                                rs.status(500).json({
+                                res.status(500).json({
                                     result: 'error',
                                     note: err
                                 })
@@ -492,7 +492,7 @@ exports.putBlueprintServerAsk = function (req, res, next) {
         .catch(err => { res.status(err.status).json(err); });
 }
 
-exports.UpdateBlueprintMachineInstance = function (vision, blueprint, machine, ask) {
+exports.UpdateBlueprintMachineInstance = function (vision, blueprint, machine, ask,listVid) {
     return new Promise((resolve, reject) => {
         dormControl.GetDorm(machine)
             .then((machineInfo) => {
@@ -526,15 +526,17 @@ exports.UpdateBlueprintMachineInstance = function (vision, blueprint, machine, a
                                 //if it is a new machine, then we push the machine into array
                                 let machine_demand = {
                                     dorm: machineInfo._id,
-                                    instance: ask
+                                    instance: ask,
+                                    vid_list:listVid
                                 }
                                 vision.project_schedule[scheduleIndex].machine_demand.push(machine_demand);
                             }
                             else {
                                 //if machine found, then update the machine info
                                 vision.project_schedule[scheduleIndex].machine_demand[machineIndex].instance = ask;
+                                vision.project_schedule[scheduleIndex].machine_demand[machineIndex].vid_list = listVid;
                             }
-
+                            
                             vision.save((err) => {
                                 if (err) {
                                     //server error is detected in save
@@ -564,7 +566,8 @@ exports.putBlueprintMachineInstance = function (req, res, next) {
         })
         .then(() => {
             //update machine instance
-            return exports.UpdateBlueprintMachineInstance(req.params.vision_name, req.params.blueprint, req.params.machine, req.params.ask)
+
+            return exports.UpdateBlueprintMachineInstance(req.params.vision_name, req.params.blueprint, req.params.machine, req.params.ask, req.body.vid_list)
         })
         .then(() => {
             //return succss indicator
@@ -909,7 +912,7 @@ exports.putProjectHost = function (req, res, next) {
         })
         .then(() => {
             //update the dorm information in the project
-            return projectControl.UpdateHostInProject(req.params.project_id, req.params.hostName)
+            return projectControl.UpdateHostAndVIDInProject(req.params.project_id, req.params.hostName)
         })
         .then(() => {
             res.json();

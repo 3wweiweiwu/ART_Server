@@ -60,7 +60,7 @@ const newBlueprint=(req,res,next)=>{
         {
             //look up task list and link task to memory usage
 
-            for(i=0;i<req.body.tasks.length;i++){
+            for(let i=0;i<req.body.tasks.length;i++){
                 
                 let currentTaskname=req.body.tasks[i];
                 taskModel.findOne({name:currentTaskname})

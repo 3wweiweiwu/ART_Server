@@ -27,5 +27,12 @@ module.exports={
             vision:Joi.string().required(),
             project:Joi.string().required()
         }
+    },
+    postTaskForVM:{
+        params:{
+            vision:Joi.string().required(),
+            vm:Joi.string().required(),
+            task:Joi.string().required()
+        }
     }
 }

@@ -1,5 +1,10 @@
-﻿iex ((New-Object System.Net.WebClient).DownloadString("$sARTServerUri/api/ps/ARTLibrary.ps1"))
+﻿
+#this script is adaptor we used to run/kill process in the machine
+$sARTUri='http://mvf1:3000'
+$sARTServerUri=$sARTUri
+
 iex ((New-Object System.Net.WebClient).DownloadString("$sARTServerUri/api/ps/Library.ps1"))
+iex ((New-Object System.Net.WebClient).DownloadString("$sARTServerUri/api/ps/ARTLibrary.ps1"))
 iex ((New-Object System.Net.WebClient).DownloadString("$sARTServerUri/api/ps/MachineManagerLibrary.ps1"))
 
 
@@ -8,8 +13,12 @@ $sParentFolder=[System.IO.Path]::GetDirectoryName($myInvocation.MyCommand.Defini
 .(Join-Path -Path $sParentFolder -ChildPath ARTLibrary.ps1)
 .(Join-Path -Path $sParentFolder -ChildPath MachineManagerLibrary.ps1)
 
-$sARTUri='http://mvf1:3000'
-$sARTServerUri=$sARTUri
+
+
+$Global:diskProfile=Get-CurrentDiskProfile
+
+#initialize current disk space for current host
+Set-DormDiskSpace -sARTServerUri $sARTUri -dormName $env:COMPUTERNAME
 
 #keep pulling the project that associate with this machine
 #if there is project that is gone, then try to delete that
@@ -44,8 +53,9 @@ while($true){
         foreach($project in $lsRetiredProject){            
             #KILL process based on process id
             Get-Process -Id $Project._project.pid|Stop-Process -Force
-
+            Start-Sleep -Seconds 10
             #TODO- kill VM based on VID
+            #TODO- release VM Disk Space in registry
 
             #KILL the project in current_projects
 
@@ -62,8 +72,8 @@ while($true){
             Write-Host -Object "We are about to invoke $project"
         
             #if task is found, then start the script in the task
-            $sPID=Invoke-LocalProject -Project $project -sARTUri $sARTServerUri        
-            
+            $sPID=Invoke-LocalProject -Project $project -sARTUri $sARTServerUri -diskProfile $diskProfile
+            Start-Sleep -Seconds 5
 
         }
 

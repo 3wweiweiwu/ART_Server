@@ -3,7 +3,7 @@
     Running=3;
     Retired=4;
 }
-
+$sTaskVmDeployment="VM_Deployment"
 function Get-ProjectsWatingForRunning($lsCurrentMachineProjects){
     
     #filter out waiting for running project in the machine
@@ -40,7 +40,7 @@ function Get-RetiredProject($lsCurrentMachineProjects){
 }
 
 
-function Invoke-LocalProject($sARTUri,$Project){
+function Invoke-LocalProject($sARTUri,$Project,$diskProfile){
     #this function will launch local project, and then will keep waiting until projectId beging set to loadded
     
     #invoke the provided project
@@ -56,6 +56,7 @@ function Invoke-LocalProject($sARTUri,$Project){
         vision=$Project.vision.name
         blueprint=$Project._project._bluePrint.name
         projectId=$Project._project._id
+        vmId=$Project._project.vid
     }
     Write-SettingForProcess -sARTUri $sARTUri -processId $processId -key ProjectFeed -value $ProjectFeed -dorm $env:COMPUTERNAME
     #change tht project status to 3, current task is ongoing
@@ -64,6 +65,66 @@ function Invoke-LocalProject($sARTUri,$Project){
     #update the PID in the project
     Set-ProcessIdInProject -sARTServerUri $sARTUri -projectId $Project._project._id -processId $processId
 
-    
+    #exmine the task we launched, if it is VM_Deployment, then we will need to find space for it
+        if($task.task.name -eq $sTaskVmDeployment){
+            #load remote vhd path
+            $sRemoteVmPath=Load-Setting -sARTServerUri $sARTUri -project $Project._project._bluePrint.name -task $sTaskVmDeployment
+            $result=Get-CompatibleDriveForVM -sRemoteVmPath $sRemoteVmPath
+            if($result.Result -eq $true){
+                Write-SettingForProcess -sARTUri $sARTUri -key "Local_VHD_Path" -value $result.VHD_Path -processId $processId
+            }
+            else{
+                Write-Error -Message "Does not have enough space for $Project._project._bluePrint.name"
+            }
+        }
     return $processId
+}
+
+
+
+
+
+function Get-CompatibleDriveForVM([string]$sRemoteVmPath)
+{
+    #[OutputType([String])]
+    
+    #Initialize ARTProfile
+    if($Global:diskProfile -eq $null){
+       $Global:diskProfile=Get-CurrentDiskProfile
+    }
+    
+    
+    #calculate required size for VM
+    $vhd=Get-VHD -Path $sRemoteVmPath
+    $iVmMaxSizeInByte=$vhd.Size
+    $iVmFileSizeInByte=$vhd.FileSize
+    $iVmStorageSize=($iVmMaxSizeInByte)
+
+    #sort out the drive with enough space
+    $sResult=$null
+    $drive=([array]($Global:diskProfile|where{$_.ART_Space -gt $iVmStorageSize}|Sort-Object -Property ART_Space))[0]
+    if($drive -ne $null)
+    {
+        $bResult=$true
+
+        $drive.ART_Space-=$iVmStorageSize
+
+        $sResult=$drive.DriveLetter+":"
+        $sResult=Join-Path -Path $sResult -ChildPath "VM_Image"
+        if((Test-Path -Path $sResult) -eq $false)
+        {
+            New-Item -ItemType Directory -Path $sResult|Out-Null
+        }
+    }
+    else{
+        $bResult=$false
+    }
+
+    $result=@{
+        Result=$bResult;
+        ARTProfile=$Global:diskProfile;
+        VHD_Path=$sResult;
+    }
+    Write-Debug -Message "$result"
+    return $result
 }

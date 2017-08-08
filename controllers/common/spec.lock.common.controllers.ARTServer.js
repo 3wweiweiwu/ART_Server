@@ -1,10 +1,17 @@
+process.env.NODE_ENV='test';
 let lockControl=require('./lock.common.controllers.ARTServer')
 let lockModel=require('../../model/utility/lock.utility.model.ARTServer')
+let dormModel=require('../../model/organization/dormModel')
 var assert = require('assert');
-    const lock1='lock1';
-    const lock2='lock2';
-    const lock3='lock3';
+const lock1='lock1';
+const lock2='lock2';
+const lock3='lock3';
 describe('lock',()=>{
+    before(done=>{
+        var mongoose=require('mongoose');
+        mongoose.connect("mongodb://admin:Aspen100@ds149481.mlab.com:49481/art_azpn");
+        done();
+    })
     beforeEach(done=>{
 
         lockModel.remove({},(err)=>{
@@ -12,6 +19,7 @@ describe('lock',()=>{
             done();
         })
     })
+
 
     it('shall aquire lock',done=>{
         

@@ -415,7 +415,7 @@ describe('put /vision', () => {
                 done();
             })
     });
-
+    
     it('shall update specified machine ask with /vision/:vision_name/project_schedule/blueprint/:blueprint/machine/:machine/ask/:ask', done => {
         taskSupport.postTaskAPMNewMediaDetection()
             .then(taskSupport.posttaskAPMInstall)
