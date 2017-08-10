@@ -28,7 +28,7 @@ describe('add sample apm deployment again',()=>{
     it('shall do a quick test',done=>{
         taskSupport.PostTask(taskSupport.sampleUninstallProduct)
             .then(()=>{
-                return projectSupport.PostNewBlueprint(projectSupport.sampleAPMDeployment)
+                return registrySupport.postRegistry(visionSupport.visionAPMChef.name,projectSupport.APMMediaDeployment.name,taskSupport.sampleUninstallProduct.name,'Product_Uninstall_List',JSON.stringify(['all','all']))
             })    
             .then(()=>{
                 done();

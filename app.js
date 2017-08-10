@@ -22,7 +22,7 @@ var app = express();
 
 //mongoose ODM
 var mongoose=require('mongoose');
-mongoose.connect(config.testdbAddress);
+mongoose.connect(config.dbAddress);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

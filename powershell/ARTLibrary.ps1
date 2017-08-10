@@ -231,9 +231,9 @@ function Get-Project($sARTUri,$projectId){
     return $response
 }
 
-function New-ClientSideProjectBasedOnTask($sARTUri,$visionName,$vmName,$taskName)
+function New-ClientSideProjectBasedOnTask($sARTUri,$visionName,$vmName,$blueprintName,$taskName)
 {
-    $response=Invoke-RestMethod -Method Post -Uri "$sARTUri/api/schedule/vision/$visionName/vm/$vmName/task/$taskName"
+    $response=Invoke-RestMethod -Method Post -Uri "$sARTUri/api/schedule/vision/$visionName/vm/$vmName/blueprint/$blueprintName/task/$taskName"
     return $response    
 }
 

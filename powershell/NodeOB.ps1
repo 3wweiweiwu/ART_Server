@@ -79,8 +79,8 @@ while($true){
         }
         else{
             #the current task is client side task
-            New-ClientSideProjectBasedOnTask -sARTUri $sARTUri -visionName $vision -vmName $sVMClientId.ToUpper() -taskName $lsTasks[0]
-
+            New-ClientSideProjectBasedOnTask -sARTUri $sARTUri -visionName $vision -vmName $sVMClientId.ToUpper() -taskName $lsTasks[0] -blueprintName $blueprint
+            
             #validate if this is a new task
 
         

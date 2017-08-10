@@ -119,6 +119,12 @@ describe('Add new vision APM Prestaging',()=>{
                 })
             })
             .then(()=>{
+                //setting for the uninstall media
+                return new Promise((resolve,reject)=>{
+                    registrySupport.postRegistry(visionSupport.visionAPMChef.name,projectSupport.sampleUninstallProduct.name,taskSupport.sampleUninstallProduct.name,'Product_Uninstall_List',JSON.stringify(['all','all']))
+                })
+            })
+            .then(()=>{
                 //setting for the vm deployment
                 return new Promise((resolve,reject)=>{
                     registrySupport.postRegistry(registrySupport.Keys.Template,projectSupport.sampleAPMDeployment.name,taskSupport.taskVMDeployment.name,'base_vhd_path','\\\\wuwei1\\temp\\en_w2k16_dc_r2_x64_127gb.vhd')

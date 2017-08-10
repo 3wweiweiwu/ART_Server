@@ -32,6 +32,7 @@ while($true){
     #Check _project that are in ready to run state, schedule them if we have enough resource
     #pull the project every 5 second
     Start-Sleep -Seconds 5
+    Write-Host -Object "Waiting for task from server"
     $lsCurrentMachineProjects=[array](Get-ProjectsInMachine -sARTServerUri $sARTUri)
     
     #check existing project in the machine to ensure they are up and running
