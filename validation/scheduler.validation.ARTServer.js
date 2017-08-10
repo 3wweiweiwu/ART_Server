@@ -22,6 +22,12 @@ module.exports={
             vision:Joi.string().required()
         }
     },
+    getNextProject:{
+        params:{
+            vision:Joi.string().required(),
+            project:Joi.string().required()
+        }
+    },
     postNextProject:{
         params:{
             vision:Joi.string().required(),
@@ -32,7 +38,8 @@ module.exports={
         params:{
             vision:Joi.string().required(),
             vm:Joi.string().required(),
-            task:Joi.string().required()
+            task:Joi.string().required(),
+            blueprint:Joi.string().required()
         }
     }
 }

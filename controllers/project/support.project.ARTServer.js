@@ -105,6 +105,14 @@ exports.blueprintAPMMediaDeployment={
     tasks:[taskSupport.taskMediaInstallation.name],
     next:[]    
 }
+exports.sampleAPMDeployment={
+    name:'sample_APM_Media_Deployment',
+    note:"Install APM media whenever it is posted",
+    memory_usage_mb:6*1024,
+    disk_usage_mb:10*1024,
+    tasks:[taskSupport.taskVMDeployment.name,taskSupport.sampleUninstallProduct.name,taskSupport.taskMediaInstallation.name],
+    next:[]       
+}
 exports.APMMediaDeployment={
     name:'APM_Media_Deployment',
     note:"Install APM media whenever it is posted",

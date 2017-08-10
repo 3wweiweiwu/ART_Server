@@ -18,6 +18,7 @@ $sParentFolder=[System.IO.Path]::GetDirectoryName($myInvocation.MyCommand.Defini
 $Global:diskProfile=Get-CurrentDiskProfile
 
 #initialize current disk space for current host
+Add-NewServerToArt -sARTServerUri $sARTUri
 Set-DormDiskSpace -sARTServerUri $sARTUri -dormName $env:COMPUTERNAME
 
 #keep pulling the project that associate with this machine

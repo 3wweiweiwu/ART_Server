@@ -23,6 +23,8 @@ let visionSupport = require('../../controllers/vision/support.vision.controllers
 chai.use(chaiHttp);
 var registryControl = require('../../controllers/registry/registry.controllers.ARTServer')
 var registrySupport = require('../../controllers/registry/support.registry.controllers.ARTServer')
+
+
 describe('Add new vision APM Prestaging',()=>{
     before((done) => {
         taskModel.remove({}, (err) => {
@@ -54,10 +56,16 @@ describe('Add new vision APM Prestaging',()=>{
                 return taskSupport.PostTask(taskSupport.taskVMDeployment);
             })
             .then(()=>{
+                return taskSupport.PostTask(taskSupport.sampleUninstallProduct);
+            })            
+            .then(()=>{
+                return taskSupport.PostTask(taskSupport.taskDeployStandardVHDImage)
+            })
+            .then(()=>{
                 return projectSupport.PostNewBlueprint(projectSupport.blueprintAPMMediaDetection);
             })
             .then(()=>{
-                return projectSupport.PostNewBlueprint(projectSupport.APMMediaDeployment);
+                return projectSupport.PostNewBlueprint(projectSupport.sampleAPMDeployment);
             })            
             .then(visionSupport.PostVisionAPMChef)
             .then(()=>{
@@ -70,11 +78,11 @@ describe('Add new vision APM Prestaging',()=>{
             })
             .then(()=>{
                 //update machine ask for media deployment
-                return visionSupport.putBlueprintMachineInstance(visionSupport.visionAPMChef.name, projectSupport.APMMediaDeployment.name, dormSupport.MVF1.name, 1,[{vid:'mvt-1'}]);
+                return visionSupport.putBlueprintMachineInstance(visionSupport.visionAPMChef.name, projectSupport.sampleAPMDeployment.name, dormSupport.MVF1.name, 1,[{vid:'mvt-1'}]);
             })
             .then(()=>{
                 //update the project sequence execute deployment after media detection
-                return visionSupport.putNextBlueprint(visionSupport.visionAPMChef.name,projectSupport.blueprintAPMMediaDetection.name,projectSupport.APMMediaDeployment.name)                    
+                return visionSupport.putNextBlueprint(visionSupport.visionAPMChef.name,projectSupport.blueprintAPMMediaDetection.name,projectSupport.sampleAPMDeployment.name)                    
             })
             .then(()=>{
                 return visionSupport.putNextBlueprint(visionSupport.visionAPMChef.name,projectSupport.blueprintAPMMediaDetection.name,projectSupport.blueprintAPMMediaDetection.name)                    
@@ -113,27 +121,27 @@ describe('Add new vision APM Prestaging',()=>{
             .then(()=>{
                 //setting for the vm deployment
                 return new Promise((resolve,reject)=>{
-                    registrySupport.postRegistry(registrySupport.Keys.Template,projectSupport.APMMediaDeployment.name,taskSupport.taskVMDeployment.name,'base_vhd_path','\\\\wuwei1\\temp\\en_w2k16_dc_r2_x64_127gb.vhd')
+                    registrySupport.postRegistry(registrySupport.Keys.Template,projectSupport.sampleAPMDeployment.name,taskSupport.taskVMDeployment.name,'base_vhd_path','\\\\wuwei1\\temp\\en_w2k16_dc_r2_x64_127gb.vhd')
                         .then(()=>{
-                            return registrySupport.postRegistry(registrySupport.Keys.Template,projectSupport.APMMediaDeployment.name,taskSupport.taskVMDeployment.name,'memory_size',6*1024*1024*1024)
+                            return registrySupport.postRegistry(registrySupport.Keys.Template,projectSupport.sampleAPMDeployment.name,taskSupport.taskVMDeployment.name,'memory_size',6*1024*1024*1024)
                         })
                         .then(()=>{
-                            return registrySupport.postRegistry(registrySupport.Keys.Template,projectSupport.APMMediaDeployment.name,taskSupport.taskVMDeployment.name,'cpu_cores',4)
+                            return registrySupport.postRegistry(registrySupport.Keys.Template,projectSupport.sampleAPMDeployment.name,taskSupport.taskVMDeployment.name,'cpu_cores',4)
                         })
                         .then(()=>{
-                            return registrySupport.postRegistry(registrySupport.Keys.Template,projectSupport.APMMediaDeployment.name,taskSupport.taskVMDeployment.name,'PRODUCT_LIST',"/Aspen Asset Analytics;/Aspen Fidelis Reliability;/Aspen ProMV;/Aspen Mtell;/Aspen Mtell/Aspen Mtell Suite;/Aspen Mtell/Aspen Mtell Suite/Core Applications and Services (64bit);/Aspen Mtell/Aspen Mtell Suite/Desktop Applications (64bit);/Aspen Mtell/Aspen Mtell Suite/Agent Service (64bit);/Aspen Mtell/Aspen Mtell Suite/Training Service (64bit);/Aspen Mtell/Aspen Mtell Suite/HMI Maintenance Gateway (64bit);/Aspen Mtell/Aspen Mtell Suite/HMI Maintenance Gateway (32bit);/Aspen Mtell/Aspen Mtell Suite/Gateway Server (32bit);/Aspen Mtell/Aspen Mtell EAM Adapters;/Aspen Mtell/Aspen Mtell EAM Adapters/Avantis EAM Adapter (64bit);/Aspen Mtell/Aspen Mtell EAM Adapters/Cityworks EAM Adapter (64bit);/Aspen Mtell/Aspen Mtell EAM Adapters/Empac EAM Adapter (64bit);/Aspen Mtell/Aspen Mtell EAM Adapters/Hansen EAM Adapter (64bit);/Aspen Mtell/Aspen Mtell EAM Adapters/Infor EAM Adapter (64bit);/Aspen Mtell/Aspen Mtell EAM Adapters/Oracle JD Edwards EAM Adapter (64bit);/Aspen Mtell/Aspen Mtell EAM Adapters/Mainsaver EAM Adapter (64bit);/Aspen Mtell/Aspen Mtell EAM Adapters/Maintenance Connection EAM Adapter (64bit);/Aspen Mtell/Aspen Mtell EAM Adapters/IBM Maximo EAM Adapter (64bit);/Aspen Mtell/Aspen Mtell EAM Adapters/MP2 EAM Adapter (64bit);/Aspen Mtell/Aspen Mtell EAM Adapters/Tabware EAM Adapter (64bit);/Aspen Mtell/Aspen Mtell Sensor Adapters;/Aspen Mtell/Aspen Mtell Sensor Adapters/Honeywell PHD Sensor Adapter (64bit);/Aspen Mtell/Aspen Mtell Sensor Adapters/OpenTSDB Sensor Adapter (64bit);/Aspen Mtell/Aspen Mtell Sensor Adapters/OSIsoft PI Sensor Adapter (64bit);/Aspen Mtell/Aspen Mtell Sensor Adapters/Aptitude Observer Sensor Adapter (64bit);/Aspen Mtell/Aspen Mtell Log Manager;/Aspen Mtell/Aspen Mtell Log Manager/Log Manager (64bit)")
+                            return registrySupport.postRegistry(registrySupport.Keys.Template,projectSupport.sampleAPMDeployment.name,taskSupport.taskVMDeployment.name,'PRODUCT_LIST',"/Aspen Asset Analytics;/Aspen Fidelis Reliability;/Aspen ProMV;/Aspen Mtell;/Aspen Mtell/Aspen Mtell Suite;/Aspen Mtell/Aspen Mtell Suite/Core Applications and Services (64bit);/Aspen Mtell/Aspen Mtell Suite/Desktop Applications (64bit);/Aspen Mtell/Aspen Mtell Suite/Agent Service (64bit);/Aspen Mtell/Aspen Mtell Suite/Training Service (64bit);/Aspen Mtell/Aspen Mtell Suite/HMI Maintenance Gateway (64bit);/Aspen Mtell/Aspen Mtell Suite/HMI Maintenance Gateway (32bit);/Aspen Mtell/Aspen Mtell Suite/Gateway Server (32bit);/Aspen Mtell/Aspen Mtell EAM Adapters;/Aspen Mtell/Aspen Mtell EAM Adapters/Avantis EAM Adapter (64bit);/Aspen Mtell/Aspen Mtell EAM Adapters/Cityworks EAM Adapter (64bit);/Aspen Mtell/Aspen Mtell EAM Adapters/Empac EAM Adapter (64bit);/Aspen Mtell/Aspen Mtell EAM Adapters/Hansen EAM Adapter (64bit);/Aspen Mtell/Aspen Mtell EAM Adapters/Infor EAM Adapter (64bit);/Aspen Mtell/Aspen Mtell EAM Adapters/Oracle JD Edwards EAM Adapter (64bit);/Aspen Mtell/Aspen Mtell EAM Adapters/Mainsaver EAM Adapter (64bit);/Aspen Mtell/Aspen Mtell EAM Adapters/Maintenance Connection EAM Adapter (64bit);/Aspen Mtell/Aspen Mtell EAM Adapters/IBM Maximo EAM Adapter (64bit);/Aspen Mtell/Aspen Mtell EAM Adapters/MP2 EAM Adapter (64bit);/Aspen Mtell/Aspen Mtell EAM Adapters/Tabware EAM Adapter (64bit);/Aspen Mtell/Aspen Mtell Sensor Adapters;/Aspen Mtell/Aspen Mtell Sensor Adapters/Honeywell PHD Sensor Adapter (64bit);/Aspen Mtell/Aspen Mtell Sensor Adapters/OpenTSDB Sensor Adapter (64bit);/Aspen Mtell/Aspen Mtell Sensor Adapters/OSIsoft PI Sensor Adapter (64bit);/Aspen Mtell/Aspen Mtell Sensor Adapters/Aptitude Observer Sensor Adapter (64bit);/Aspen Mtell/Aspen Mtell Log Manager;/Aspen Mtell/Aspen Mtell Log Manager/Log Manager (64bit)")
                         })
                         .then(()=>{
-                            return registrySupport.postRegistry(registrySupport.Keys.Template,projectSupport.APMMediaDeployment.name,taskSupport.taskVMDeployment.name,'Product_Folder_In_Installation_Package',"aspenONE_V10_APM")
+                            return registrySupport.postRegistry(registrySupport.Keys.Template,projectSupport.sampleAPMDeployment.name,taskSupport.taskVMDeployment.name,'Product_Folder_In_Installation_Package',"aspenONE_V10_APM")
                         })
                         .then(()=>{
-                            return registrySupport.postRegistry(registrySupport.Keys.Template,projectSupport.APMMediaDeployment.name,taskSupport.taskVMDeployment.name,'VM_Username',"administrator")
+                            return registrySupport.postRegistry(registrySupport.Keys.Template,projectSupport.sampleAPMDeployment.name,taskSupport.taskVMDeployment.name,'VM_Username',"administrator")
                         })
                         .then(()=>{
-                            return registrySupport.postRegistry(registrySupport.Keys.Template,projectSupport.APMMediaDeployment.name,taskSupport.taskVMDeployment.name,'VM_Pass',"Aspen100")
+                            return registrySupport.postRegistry(registrySupport.Keys.Template,projectSupport.sampleAPMDeployment.name,taskSupport.taskVMDeployment.name,'VM_Pass',"Aspen100")
                         })
                         .then(()=>{
-                            return registrySupport.postRegistry(registrySupport.Keys.Template,projectSupport.APMMediaDeployment.name,taskSupport.taskVMDeployment.name,'sProduct_Verification',"Mtell,Analytics,ProMV")
+                            return registrySupport.postRegistry(registrySupport.Keys.Template,projectSupport.sampleAPMDeployment.name,taskSupport.taskVMDeployment.name,'sProduct_Verification',"Mtell,Analytics,ProMV")
                         })
                         .then(()=>{
                             resolve();

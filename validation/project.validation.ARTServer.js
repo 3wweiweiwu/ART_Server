@@ -22,6 +22,11 @@ module.exports={
             projectId:Joi.string().required(),
             dormId:Joi.string().required()
         }
+    },
+    getNextTaskInProject:{
+        params:{
+            projectId:Joi.string().required()            
+        }
     }
     
 }

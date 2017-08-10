@@ -23,7 +23,7 @@ let chaiHttp = require('chai-http');
 let should = chai.should();
 let visionSupport = require('../vision/support.vision.controllers.ARTServer')
 chai.use(chaiHttp);
-describe('post /schedule/vision/:vision/vm/:vm/task/:task',()=>{
+describe('post /schedule/vision/:vision/vm/:vm/blueprint/:blueprint/task/:task',()=>{
     beforeEach((done) => {
         taskModel.remove({}, (err) => {
             taskImageDeployment.remove({}, (err) => {
@@ -61,7 +61,7 @@ describe('post /schedule/vision/:vision/vm/:vm/task/:task',()=>{
             })            
             .then(visionSupport.PostVisionAPMChef)
             .then(()=>{
-                return scheduleSupport.postTaskForVM(visionSupport.visionAPMChef.name,dormSupport.dorm1.name,taskSupport.taskMediaInstallation.name)
+                return scheduleSupport.postTaskForVM(visionSupport.visionAPMChef.name,dormSupport.dorm1.name,projectSupport.blueprintAPMMediaDeployment.name,taskSupport.taskMediaInstallation.name)
             })
             .then(()=>{
                 visionControl.getVision({name:visionSupport.visionAPMChef.name})
@@ -96,9 +96,10 @@ describe('post /schedule/vision/:vision/vm/:vm/task/:task',()=>{
             })            
             .then(visionSupport.PostVisionAPMChef)
             .then(()=>{
-                return scheduleSupport.postTaskForVM(visionSupport.visionAPMChef.name,dormSupport.dorm1.name,taskSupport.taskMediaInstallation.name)
+                
+                return scheduleSupport.postTaskForVM(visionSupport.visionAPMChef.name,dormSupport.dorm1.name,projectSupport.blueprintAPMMediaDeployment.name,taskSupport.taskMediaInstallation.name)
                                         .then(()=>{
-                                            return scheduleSupport.postTaskForVM(visionSupport.visionAPMChef.name,dormSupport.dorm1.name,taskSupport.taskMediaDetection.name)
+                                            return scheduleSupport.postTaskForVM(visionSupport.visionAPMChef.name,dormSupport.dorm1.name,projectSupport.blueprintAPMMediaDeployment.name,taskSupport.taskMediaDetection.name)
                                         })
             })
             .then(()=>{
@@ -140,7 +141,7 @@ describe('post /schedule/vision/:vision/vm/:vm/task/:task',()=>{
             })            
             .then(visionSupport.PostVisionAPMChef)
             .then(()=>{
-                return scheduleSupport.postTaskForVM('visionSupport.visionAPMChef.name',dormSupport.dorm1.name,taskSupport.taskMediaInstallation.name)
+                return scheduleSupport.postTaskForVM('visionSupport.visionAPMChef.name',dormSupport.dorm1.name,projectSupport.blueprintAPMMediaDeployment.name,taskSupport.taskMediaInstallation.name)
             })
             .then(()=>{
                 assert(false,'shall throw error')
@@ -168,7 +169,7 @@ describe('post /schedule/vision/:vision/vm/:vm/task/:task',()=>{
             })            
             .then(visionSupport.PostVisionAPMChef)
             .then(()=>{
-                return scheduleSupport.postTaskForVM(visionSupport.visionAPMChef.name,dormSupport.dorm1.name,'taskSupport.taskMediaInstallation.name')
+                return scheduleSupport.postTaskForVM(visionSupport.visionAPMChef.name,dormSupport.dorm1.name,projectSupport.blueprintAPMMediaDeployment.name,'taskSupport.taskMediaInstallation.name')
             })
             .then(()=>{
                 assert(false,'shall throw error')
@@ -196,7 +197,7 @@ describe('post /schedule/vision/:vision/vm/:vm/task/:task',()=>{
             })            
             .then(visionSupport.PostVisionAPMChef)
             .then(()=>{
-                return scheduleSupport.postTaskForVM(visionSupport.visionAPMChef.name,'dormSupport.dorm1.name',taskSupport.taskMediaInstallation.name)
+                return scheduleSupport.postTaskForVM(visionSupport.visionAPMChef.name,'dormSupport.dorm1.name',projectSupport.blueprintAPMMediaDeployment.name,taskSupport.taskMediaInstallation.name)
             })
             .then(()=>{
                 assert(false,'shall throw error')
@@ -208,6 +209,35 @@ describe('post /schedule/vision/:vision/vm/:vm/task/:task',()=>{
                 done();
             })     
     });
+
+    it('shall return error when blueprint is incorrect',done=>{
+        taskSupport.PostTask(taskSupport.taskMediaDetection)
+            .then(()=>{
+                return taskSupport.PostTask(taskSupport.taskMediaInstallation)
+            })            
+            .then(()=>{
+                projectSupport.PostNewBlueprint(projectSupport.blueprintAPMMediaDetection)
+            })
+            .then(()=>{
+                projectSupport.PostNewBlueprint(projectSupport.blueprintAPMMediaDeployment)
+            })            
+            .then(()=>{
+                return dormSupport.PostDorm(dormSupport.dorm1);
+            })            
+            .then(visionSupport.PostVisionAPMChef)
+            .then(()=>{
+                return scheduleSupport.postTaskForVM(visionSupport.visionAPMChef.name,dormSupport.dorm1.name,'projectSupport.blueprintAPMMediaDeployment.name',taskSupport.taskMediaInstallation.name)
+            })
+            .then(()=>{
+                assert(false,'shall throw error')
+                done();
+
+            })
+            .catch((err)=>{
+                assert(err.err.status,500)
+                done();
+            })     
+    });    
 })
 describe('post /schedule/vision/:vision/blueprint/:blueprint',()=>{
     beforeEach((done) => {
@@ -736,10 +766,7 @@ describe('get /schedule/machine/:machine/projects',()=>{
 
             })
             .then(projectId=>{
-                return scheduleSupport.postNextProject(visionSupport.visionAPMChef.name,projectId)
-                            .then(()=>{
-                                return scheduleSupport.postNextProject(visionSupport.visionAPMChef.name,projectId);
-                            });
+                return scheduleSupport.postNextProject(visionSupport.visionAPMChef.name,projectId);
             })
             .then(()=>{
                 return scheduleSupport.getMachineProject(dormSupport.dorm1.name);
@@ -911,9 +938,6 @@ describe('/schedule/vision/:vision/next/:project',()=>{
 
 
                             })
-                            .then(()=>{
-                                return scheduleSupport.postNextProject(visionSupport.visionAPMChef.name,projectId);
-                            });
             })                       
             .then(()=>{
                 visionControl.getVision({name:visionSupport.visionAPMChef.name})                    
@@ -980,9 +1004,6 @@ describe('/schedule/vision/:vision/next/:project',()=>{
             })
             .then(projectId=>{
                 return scheduleSupport.postNextProject(visionSupport.visionAPMChef.name,projectId)
-                            .then(()=>{
-                                return scheduleSupport.postNextProject(visionSupport.visionAPMChef.name,projectId);
-                            });
             })
             .then(()=>{
                 visionControl.getVision({name:visionSupport.visionAPMChef.name})                    

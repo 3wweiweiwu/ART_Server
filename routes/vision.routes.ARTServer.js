@@ -7,16 +7,19 @@ var visionValidation=require('../validation/vision.validation.ArtServer.js')
 
 
 router.post('/vision/:vision/NewProject/:blueprint',validate(visionValidation.postNewProject),function(req, res, next) {
+    //it shall print create a new project based on the blueprint in the vision specified
     return visionControl.postNewProject(req,res,next);    
 });
 
 router.post('/vision',validate(visionValidation.post),function(req, res, next) {
+    //it shall create a blank vision
     return visionControl.create(req,res,next);    
 });
 
 
 
 router.get('/vision/:vision_name',validate(visionValidation.getSpecificVision),function(req,res,next){
+    //get the vision based on vision name
     query={name:req.params.vision_name}
     return visionControl.get(req,res,next,query);
 })
@@ -24,15 +27,18 @@ router.get('/vision/:vision_name',validate(visionValidation.getSpecificVision),f
 
 
 router.get('/vision/:vision_name/registry/:key',validate(visionValidation.getRegistry),(req,res,next)=>{
+    //discontinued...
     return visionControl.GetRegistry(req,res,next);
 });
 
 
 router.get('/vision',(req,res,next)=>{
+    //get all visions
     return visionControl.get(req,res,next,{});
 })
 
 router.put('/vision/:vision_name/key_projects/:projectBlueprint',validate(visionValidation.putKeyProject),function(req,res,next){
+    //add blueprint to the key project
     return visionControl.PutKeyProject(req,res,next);
 });
 router.put('/vision/:vision_name/registry',validate(visionValidation.putKeyProject),function(req,res,next){
@@ -41,21 +47,24 @@ router.put('/vision/:vision_name/registry',validate(visionValidation.putKeyProje
 
 
 router.put('/vision/:vision_name/project_schedule/blueprint/:blueprint/machine/:machine/ask/:ask',validate(visionValidation.putBlueprintMachineInstance),function(req,res,next){
-    //For specific blueprint, specify # of machine needed to run the instance
+    
     return visionControl.putBlueprintMachineInstance(req,res,next);
 });
 
 router.put('/vision/:vision_name/project_schedule/blueprint/:blueprint/server_ask/:ask',validate(visionValidation.putBlueprintServerAsk),function(req,res,next){
+    
     return visionControl.putBlueprintServerAsk(req,res,next);
 });
 
 
 
 router.put('/vision/:vision_name/project_schedule/blueprint/:blueprint/next/:next',validate(visionValidation.putNextBlueprint),function(req,res,next){
+    //it shall update next blueprint schedule for the current blueprint
     return visionControl.putNextBlueprint(req,res,next);
 });
 
 router.put('/vision/:vision_name/project_schedule/blueprint/:blueprint',validate(visionValidation.putEmptyBlueprintSchedule),function(req,res,next){
+    //it shall add current blueprint into the vision's schedule
     return visionControl.PutBlueprint(req,res,next);
 });
 

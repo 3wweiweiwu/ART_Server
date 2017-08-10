@@ -1,25 +1,5 @@
-﻿param(
-[string]$sRemoteVmPath="\\wuwei1\d$\VM_Image\en_w2k16_dc_r2_x64_127gb.vhd",
-[Int64]$iVmMemorySize=6*1024*1024*1024,
-[int]$iCPUCores=4,
-[string]$sLocalPath="",
-[string]$sVMServerId="1",
-[string]$sMediaPath="\\hqfiler\upload$\aspenONEV10.0\APM\V10.0_APM_Suite_173.iso",
-[string]$sSettingBase,
-[string]$sRemoteARTPath="\\nhqa-w81-q10\C\p4\qe\dev\AUTOMATION\BAF",
-[string]$sART_Version="V7",
-[string]$PRODUCT_LIST="/Aspen Asset Analytics;/Aspen Fidelis Reliability;/Aspen ProMV;/Aspen Mtell;/Aspen Mtell/Aspen Mtell Suite;/Aspen Mtell/Aspen Mtell Suite/Core Applications and Services (64bit);/Aspen Mtell/Aspen Mtell Suite/Desktop Applications (64bit);/Aspen Mtell/Aspen Mtell Suite/Agent Service (64bit);/Aspen Mtell/Aspen Mtell Suite/Training Service (64bit);/Aspen Mtell/Aspen Mtell Suite/HMI Maintenance Gateway (64bit);/Aspen Mtell/Aspen Mtell Suite/HMI Maintenance Gateway (32bit);/Aspen Mtell/Aspen Mtell Suite/Gateway Server (32bit);/Aspen Mtell/Aspen Mtell EAM Adapters;/Aspen Mtell/Aspen Mtell EAM Adapters/Avantis EAM Adapter (64bit);/Aspen Mtell/Aspen Mtell EAM Adapters/Cityworks EAM Adapter (64bit);/Aspen Mtell/Aspen Mtell EAM Adapters/Empac EAM Adapter (64bit);/Aspen Mtell/Aspen Mtell EAM Adapters/Hansen EAM Adapter (64bit);/Aspen Mtell/Aspen Mtell EAM Adapters/Infor EAM Adapter (64bit);/Aspen Mtell/Aspen Mtell EAM Adapters/Oracle JD Edwards EAM Adapter (64bit);/Aspen Mtell/Aspen Mtell EAM Adapters/Mainsaver EAM Adapter (64bit);/Aspen Mtell/Aspen Mtell EAM Adapters/Maintenance Connection EAM Adapter (64bit);/Aspen Mtell/Aspen Mtell EAM Adapters/IBM Maximo EAM Adapter (64bit);/Aspen Mtell/Aspen Mtell EAM Adapters/MP2 EAM Adapter (64bit);/Aspen Mtell/Aspen Mtell EAM Adapters/Tabware EAM Adapter (64bit);/Aspen Mtell/Aspen Mtell Sensor Adapters;/Aspen Mtell/Aspen Mtell Sensor Adapters/Honeywell PHD Sensor Adapter (64bit);/Aspen Mtell/Aspen Mtell Sensor Adapters/OpenTSDB Sensor Adapter (64bit);/Aspen Mtell/Aspen Mtell Sensor Adapters/OSIsoft PI Sensor Adapter (64bit);/Aspen Mtell/Aspen Mtell Sensor Adapters/Aptitude Observer Sensor Adapter (64bit);/Aspen Mtell/Aspen Mtell Log Manager;/Aspen Mtell/Aspen Mtell Log Manager/Log Manager (64bit)",
-[string]$Product_Folder_In_Installation_Package="aspenONE_V10_APM",
-[string]$VM_Username="administrator",
-[string]$VM_Pass="Aspen100",
-[string]$sProduct_Verification="Mtell,Analytics,ProMV"
-)
+﻿#this is media detector, it will detect new media and schedule the media when time permits
 
-
-
-
-#this is media detector, it will detect new media and schedule the media when time permits
-$sARTUri='http://mvf1:3000'
 $sARTServerUri=$sARTUri
 $taskMediaDetection="Media_Detection"
 $taskVMDeployment="VM_Deployment"
@@ -47,15 +27,11 @@ if($DebugPreference -eq "Continue"){
 }
 #
 
-#Get-VM Image
-
-
 
 #load information for current vm
 
 
 $debugPID=$PID
-$debugPID=2276
 $computerName=$env:COMPUTERNAME
 
 $projectFeed=Get-SettingForProcess -sARTUri $sARTUri -key ProjectFeed -processId $debugPID -dorm $computerName
@@ -81,7 +57,7 @@ $VM_Pass=Load-Setting -sARTServerUri $sARTServerUri -project $blueprint -task $t
 
 #chose right space for VHD deployment
 Write-Host -Object "#chose right space for VHD deployment"
-$iVHDSize_Mb=(Get-VHD $sRemoteARTPath).Size/1024/1024
+$iVHDSize_Mb=(Get-VHD $sRemoteVmPath).Size/1024/1024
 $diskSelection=Get-VolumeforVHD -sARTUri $sARTUri -machine $env:COMPUTERNAME -disk_size_in_mb $iVHDSize_Mb
 $sVHD_Local_Folder=Join-Path -Path ($diskSelection.disk.drive_letter+':') -ChildPath VHD
 if((Test-Path -Path $sVHD_Local_Folder) -eq $false)
@@ -158,6 +134,7 @@ Write-Host -Object "Deploy VM"
 
 $VM=Hyper-V\New-VM -VHDPath $sLocalVHDPath -Name $sVMClientId -MemoryStartupBytes $iVmMemorySize
 $VM|Hyper-V\Set-VM -ProcessorCount $iCPUCores
+Start-Sleep -Seconds 1
 $VM|Hyper-V\Start-VM
 #wait until VM is off so that we can change the switch
 Write-Host -Object "Configuring VM name"
@@ -176,4 +153,4 @@ Connect-VMNetworkAdapter -VMName $sVMClientId -SwitchName $VM_Switch.Name
 $VM|Hyper-V\Start-VM
 
 
-#create a dummy project in the server and assign the host to newly-created VM
+

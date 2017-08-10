@@ -57,3 +57,4 @@ if ($sVMname -ne $null -and $env:COMPUTERNAME -ne $sVMname)
 }
 Start-Process -FilePath powershell.exe -ArgumentList "-NoProfile -ExecutionPolicy Bypass -Command `"iex ((New-Object System.Net.WebClient).DownloadString('$machineManagerPath'))`"" -PassThru
 Start-Process -FilePath powershell.exe -ArgumentList "-NoProfile -ExecutionPolicy Bypass -Command `"iex ((New-Object System.Net.WebClient).DownloadString('$installBatchPath'))`"" -PassThru
+

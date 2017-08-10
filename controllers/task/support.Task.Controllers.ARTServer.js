@@ -17,6 +17,12 @@ exports.taskMediaDetection={
     task_script_path:'http://mvf1:3000/api/ps/MediaDetector.ps1',
     setting_type:"NULL"    
 }
+exports.taskDeployStandardVHDImage={
+    name:"taskDeployStandardVHDImage",
+    note:'Deploy media',
+    task_script_path:'http://mvf1:3000/api/ps/VMDeployment.ps1',
+    setting_type:"NULL"        
+}
 exports.taskVMDeployment={
     name:"VM_Deployment",
     note:'Deploy VHD to local hyper-v Host',
@@ -53,7 +59,15 @@ exports.taskMissingNote={
     memory_size_mb:5*1024,
     CPU_Core:4,
     remote_vhd_path:"\\\\wuwei1\\d$\\VM_Image\\en_w2k16_dc_r2_x64_127gb.vhd",
-};  
+};
+
+exports.sampleUninstallProduct={
+    name:'Uninstall_Products',
+    note:'Uninstall product from the machine',
+    task_script_path:'http://mvf1:3000/api/ps/MediaInstallation@Uninstall_Products.ps1',
+    setting_type:"NULL"
+}
+
 exports.PostTask=(Json,cb=()=>{})=>{
     var prom= new Promise((resolve,reject)=>{
         chai

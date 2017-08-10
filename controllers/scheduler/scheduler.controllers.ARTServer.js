@@ -230,17 +230,26 @@ exports.ScheduleNextProject=function(visionName,projectId){
                 if (project._project.pending_tasks.length>=1){
                     projectControl.GotoNextTaskInProject(projectId)
                         .then(()=>{
-                            resolve();
-                            
+                            if(project._project.pending_tasks.length>=2){
+                                //if there is pending task after removal, then we move on
+                                resolve();
+                                return;
+                            }
+                            else{
+                                //if there is no pending task after removal, then will run this function again and remove the project
+                                return exports.ScheduleNextProject(visionName,projectId)
+                                            .then(()=>{
+                                                resolve();
+                                            })
+                            }
                         })
                         .catch(err=>{
                             reject(standardError(err,500));
                             
-                        });
-                    return;
-                                            
+                        });                    
+                    return;                                            
                 }
-                
+
 
                 //if there is no pending task under the task, look up the project schedule and schedule next blueprint if any
                 let projectBlueprintId=project._project._bluePrint._id.toString();
@@ -375,7 +384,7 @@ exports.getMachineProject=function(req,res,next){
             res.status(err.status).json(err);
         })      
 }
-exports.AddTaskForVM=function(dormObj,visionObj,taskObj){
+exports.AddTaskForVM=function(dormObj,visionObj,blueprintObj,taskObj){
     return new Promise((resolve,reject)=>{
         if(dormObj==undefined){
             reject(standardError('unable to find dormObj specified',500));
@@ -391,6 +400,7 @@ exports.AddTaskForVM=function(dormObj,visionObj,taskObj){
         }                
         let projectObj=new projectModel({
             pending_tasks:[{task:taskObj._id}],
+            _bluePrint:blueprintObj._id,
             host:dormObj._id,
             status:projectStatus.waitingForRunning.id,
             pid:'',
@@ -430,14 +440,15 @@ exports.postTaskForVM=function(req,res,next){
     promiseChain.push(dormControl.IsDormValid(req.params.vm));
     promiseChain.push(visionControl.getVision({name:req.params.vision}));
     promiseChain.push(taskControl.isTaskValid(req.params.task));
+    promiseChain.push(blueprintControl.isBlueprintValid(req.params.blueprint))
     Promise.all(promiseChain)
         .then(results=>{
             //add a project based on the task specified
             let dormObj=results[0];
-            let visionObj=results[1][0];
-            
+            let visionObj=results[1][0];            
             let taskObj=results[2];
-            return exports.AddTaskForVM(dormObj,visionObj,taskObj);
+            let blueprintObj=results[3];
+            return exports.AddTaskForVM(dormObj,visionObj,blueprintObj,taskObj);
         })        
         .then(()=>{
             res.status(200).json();

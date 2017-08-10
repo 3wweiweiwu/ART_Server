@@ -505,9 +505,7 @@ exports.UpdateBlueprintMachineInstance = function (vision, blueprint, machine, a
                 }
 
                 //machine found, then try to find blueprint
-                visionModel.findOne({
-                    name: vision
-                })
+                visionModel.findOne({name: vision})
                     .populate({ path: 'current_projects' })
                     .populate({ path: 'project_schedule.project_blueprint' })
                     .populate({ path: 'project_schedule.machine_demand.dorm' })

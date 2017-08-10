@@ -110,7 +110,8 @@ while($true){
     #start of media schedule        
         #if the first item in curernt schedule is not run, then schedule the first item
         $lsCurrentSchedule=[array](Load-Setting -sARTServerUri $sARTServerUri -project $blueprint -task $taskMediaDetection -key "current_schedule")
-        if($lsCurrentSchedule.Length -gt 0 -and $lsCurrentSchedule[0] -notmatch 'run'){
+        if ($lsCurrentSchedule.Length -gt 0 -and $lsCurrentSchedule[0] -notmatch 'run')
+        {
             #schedule next project
             Set-NextProject -vision $vision -project $projectId -sARTServerUri $sARTServerUri
 

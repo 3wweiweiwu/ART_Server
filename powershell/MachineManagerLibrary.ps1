@@ -46,7 +46,18 @@ function Invoke-LocalProject($sARTUri,$Project,$diskProfile){
     #invoke the provided project
     $taskList=[array]($Project._project.pending_tasks)
     $task=$taskList[0]
-    $processId=Invoke-NewPowershellConsoleFromUri -uri $task.task.task_script_path
+    
+    #validate the project's vid. If project have vid, then it is client side project, we need to schedule that through nodeOB
+    if($Project._project.vid -ne $null -and $Project._project.vid -ne "")
+    {
+        $processId=Invoke-NewPowershellConsoleFromUri -uri ($sARTUri+"/api/ps/NodeOB.ps1")
+    }
+    else
+    {
+        $processId=Invoke-NewPowershellConsoleFromUri -uri $task.task.task_script_path
+    }
+    
+    
     
     Start-Sleep -Seconds 5
     

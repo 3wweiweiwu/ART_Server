@@ -226,6 +226,17 @@ function Return-VHDSpace($sARTUri,$machine,$vhd_Path){
     return $response.result
 }
 
+function Get-Project($sARTUri,$projectId){
+    $response=Invoke-RestMethod -Method Get -Uri "$sARTUri/api/project/$projectId"
+    return $response
+}
+
+function New-ClientSideProjectBasedOnTask($sARTUri,$visionName,$vmName,$taskName)
+{
+    $response=Invoke-RestMethod -Method Post -Uri "$sARTUri/api/schedule/vision/$visionName/vm/$vmName/task/$taskName"
+    return $response    
+}
+
 function Resolve-Error ($ErrorRecord=$Error[0])
 {
    $ErrorRecord | Format-List * -Force

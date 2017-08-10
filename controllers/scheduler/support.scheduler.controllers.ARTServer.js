@@ -88,11 +88,11 @@ exports.getMachineProject=function(machineName,cb=()=>{}){
     });    
 }
 
-exports.postTaskForVM=function(vision,vm,task,cb=()=>{}){
+exports.postTaskForVM=function(vision,vm,blueprint,task,cb=()=>{}){
     return new Promise((resolve,reject)=>{
         chai
         .request(app)
-        .post(`/api/schedule/vision/${vision}/vm/${vm}/task/${task}`)
+        .post(`/api/schedule/vision/${vision}/vm/${vm}/blueprint/${blueprint}/task/${task}`)
         .end((err,res)=>{
             if(err){
                 let result={err:err,res:res}

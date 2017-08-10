@@ -9,11 +9,13 @@ var fs = require('fs');
 
 var registryValidation=require('../validation/registry.validation.ARTServer')
 router.get('/registry/vision/:vision/project/:project/task/:task/key/:key',validate(registryValidation.GetRegistry),(req,res,next)=>{    
+    //it shall get the value for the key specified
     return registryControl.getRegistry(req,res,next);
 })
 
 
 router.post('/registry/vision/:vision/project/:project/task/:task/key/:key',validate(registryValidation.PostRegistry),(req,res,next)=>{    
+    //it shall write value for the key specified
     return registryControl.postRegistry(req,res,next);
 })
 

@@ -21,7 +21,7 @@ router.post('/schedule/:vision',validate(scheduleValidation.getVisionScheduleSta
 //     return scheduleControl.getScheduleByVision(req,res,next,{});
 // })
 
-router.post('/schedule/vision/:vision/next/:project',validate(scheduleValidation.getVisionScheduleStatus),(req,res,next)=>{
+router.post('/schedule/vision/:vision/next/:project',validate(scheduleValidation.postNextProject),(req,res,next)=>{
     //this url is used to move forward with current task
     //if there is pending_task in the project, it will move forward with pending task
     //otherwise remove current project
@@ -34,7 +34,7 @@ router.get('/schedule/machine/:machine/projects',validate(scheduleValidation.get
     //this url is used to query all the projects in the machine
     return scheduleControl.getMachineProject(req,res,next,{});
 });
-router.post('/schedule/vision/:vision/vm/:vm/task/:task',validate(scheduleValidation.postTaskForVM),(req,res,next)=>{
+router.post('/schedule/vision/:vision/vm/:vm/blueprint/:blueprint/task/:task',validate(scheduleValidation.postTaskForVM),(req,res,next)=>{
     //this function is used by the vm manager to schedule a task into the vm
     //this url will delete all project associated with the vm 
     //create a project with specified task

@@ -229,3 +229,12 @@ exports.putProjectStatus=function(req,res,next){
         })
 }
 
+exports.getProject=function(req,res,next){
+    exports.isProjectValid(req.params.projectId)
+        .then((projectDoc)=>{
+            res.status(200).json(projectDoc);
+        })
+        .catch((err)=>{
+            res.status(err.status).json(err);
+        })    
+}
