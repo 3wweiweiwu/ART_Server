@@ -492,7 +492,7 @@ exports.putBlueprintServerAsk = function (req, res, next) {
         .catch(err => { res.status(err.status).json(err); });
 }
 
-exports.UpdateBlueprintMachineInstance = function (vision, blueprint, machine, ask,listVid) {
+exports.UpdateBlueprintMachineInstance = function (vision, blueprint, machine, ask,listVid,groupNumber) {
     return new Promise((resolve, reject) => {
         dormControl.GetDorm(machine)
             .then((machineInfo) => {
@@ -525,7 +525,8 @@ exports.UpdateBlueprintMachineInstance = function (vision, blueprint, machine, a
                                 let machine_demand = {
                                     dorm: machineInfo._id,
                                     instance: ask,
-                                    vid_list:listVid
+                                    vid_list:listVid,
+                                    group_number:groupNumber
                                 }
                                 vision.project_schedule[scheduleIndex].machine_demand.push(machine_demand);
                             }
@@ -533,6 +534,7 @@ exports.UpdateBlueprintMachineInstance = function (vision, blueprint, machine, a
                                 //if machine found, then update the machine info
                                 vision.project_schedule[scheduleIndex].machine_demand[machineIndex].instance = ask;
                                 vision.project_schedule[scheduleIndex].machine_demand[machineIndex].vid_list = listVid;
+                                vision.project_schedule[scheduleIndex].machine_demand[machineIndex].group_number=groupNumber;
                             }
                             
                             vision.save((err) => {

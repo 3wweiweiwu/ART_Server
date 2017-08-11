@@ -57,10 +57,10 @@ module.exports={
             vision_name:Joi.string().required(),
             blueprint:Joi.string().required(),
             machine:Joi.string().required(),
-            ask:Joi.number().required()
+            ask:Joi.number().required()            
         },
         body:{
-            vid_list:Joi.array().required()
+            vid_list:Joi.array().required()            
         }
     },
     putEmptyBlueprintSchedule:{

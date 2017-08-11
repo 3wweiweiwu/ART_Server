@@ -374,7 +374,7 @@ describe('put /vision', () => {
             })
     });
 
-    it('shall specify server ask with /vision/:vision_name/project_schedule/blueprint/:blueprint/server_ask/:ask', (done) => {
+    it('shall specify server ask with /vision/:vision_name/project_schedule/blueprint/:blueprint/server_ask/:ask/group/:group', (done) => {
         taskSupport.postTaskAPMNewMediaDetection()
             .then(taskSupport.posttaskAPMInstall)
             .then(projectSupport.postProjectBlueprintAPMPrestaging)
@@ -397,7 +397,7 @@ describe('put /vision', () => {
                     });
             })
     });
-    it('shall return error for invalid blueprint name with /vision/:vision_name/project_schedule/blueprint/:blueprint/server_ask/:ask', (done) => {
+    it('shall return error for invalid blueprint name with /vision/:vision_name/project_schedule/blueprint/:blueprint/server_ask/:ask/group/:group', (done) => {
         taskSupport.postTaskAPMNewMediaDetection()
             .then(taskSupport.posttaskAPMInstall)
             .then(projectSupport.postProjectBlueprintAPMPrestaging)
@@ -416,7 +416,7 @@ describe('put /vision', () => {
             })
     });
     
-    it('shall update specified machine ask with /vision/:vision_name/project_schedule/blueprint/:blueprint/machine/:machine/ask/:ask', done => {
+    it('shall update specified machine ask with /vision/:vision_name/project_schedule/blueprint/:blueprint/machine/:machine/ask/:ask/group/:group', done => {
         taskSupport.postTaskAPMNewMediaDetection()
             .then(taskSupport.posttaskAPMInstall)
             .then(projectSupport.postProjectBlueprintAPMPrestaging)
@@ -425,10 +425,10 @@ describe('put /vision', () => {
                 return dormSupport.PostDorm(dormSupport.dorm1)
             })
             .then(() => {
-                return visionSupport.putBlueprintMachineInstance(visionSupport.visionAPMChef.name, projectSupport.projectAPMPrestaging.name, dormSupport.dorm1.name, 5);
+                return visionSupport.putBlueprintMachineInstance(visionSupport.visionAPMChef.name, projectSupport.projectAPMPrestaging.name, dormSupport.dorm1.name, 5,[{vid:"s1",group_number:1}]);
             })
             .then(() => {
-                return visionSupport.putBlueprintMachineInstance(visionSupport.visionAPMChef.name, projectSupport.projectAPMPrestaging.name, dormSupport.dorm1.name, 4);
+                return visionSupport.putBlueprintMachineInstance(visionSupport.visionAPMChef.name, projectSupport.projectAPMPrestaging.name, dormSupport.dorm1.name, 4,[{vid:"s1",group_number:2},{vid:"s3",group_number:1}]);
             })
             .then(() => {
                 visionModel.findOne({ name: visionSupport.visionAPMChef.name })
@@ -440,12 +440,15 @@ describe('put /vision', () => {
                         }
                         else {
                             assert.equal(vision.project_schedule[0].machine_demand[0].instance, 4);
+                            assert.equal(vision.project_schedule[0].machine_demand[0].vid_list[0].group_number, 2);
+                            assert.equal(vision.project_schedule[0].machine_demand[0].vid_list[0].vid, 's1');
+                            assert.equal(vision.project_schedule[0].machine_demand[0].vid_list[1].group_number, 1);
                             done();
                         }
                     });
             })
     });
-    it('shall return error 400 for invalid machine name /vision/:vision_name/project_schedule/blueprint/:blueprint/machine/:machine/ask/:ask', done => {
+    it('shall return error 400 for invalid machine name /vision/:vision_name/project_schedule/blueprint/:blueprint/machine/:machine/ask/:ask/group/:group', done => {
         taskSupport.postTaskAPMNewMediaDetection()
             .then(taskSupport.posttaskAPMInstall)
             .then(projectSupport.postProjectBlueprintAPMPrestaging)
@@ -469,7 +472,7 @@ describe('put /vision', () => {
             });
     });
 
-    it('shall specify machine ask with /vision/:vision_name/project_schedule/blueprint/:blueprint/machine/:machine/ask/:ask', done => {
+    it('shall specify machine ask with /vision/:vision_name/project_schedule/blueprint/:blueprint/machine/:machine/ask/:ask/group/:group', done => {
 
         taskSupport.postTaskAPMNewMediaDetection()
             .then(taskSupport.posttaskAPMInstall)

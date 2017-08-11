@@ -19,13 +19,25 @@ var visionModel=new Schema({
         key:{type:String},
         value:{type:String}
     }],
+    info:{
+        project_schedule:[{
+            tier:{
+                project_blueprint:{type:Schema.Types.ObjectId,ref:'Project.Blueprint'},                
+                current_group_number:{type:Number}
+            }
+        }]
+    },
     project_schedule:[{
         project_blueprint:{type:Schema.Types.ObjectId,ref:'Project.Blueprint'},
         server_ask:{type:Number},
         machine_demand:[{
             dorm:{type:Schema.Types.ObjectId,ref:'Dorm'},
             instance:{type:Number},
-            vid_list:[{vid:String}]
+            vid_list:[{
+                vid:String,
+                group_number:Number
+            }]
+            
         }],
         next_project:[
             {blueprint:{type:Schema.Types.ObjectId,ref:'Project.Blueprint'}}
