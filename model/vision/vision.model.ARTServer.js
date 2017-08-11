@@ -21,7 +21,7 @@ var visionModel=new Schema({
     }],
     info:{
         project_schedule:[{
-            tier:{
+            vid_group_info:{
                 project_blueprint:{type:Schema.Types.ObjectId,ref:'Project.Blueprint'},                
                 current_group_number:{type:Number}
             }

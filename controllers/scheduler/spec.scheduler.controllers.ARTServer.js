@@ -272,7 +272,7 @@ describe('post /schedule/vision/:vision/blueprint/:blueprint',()=>{
             })
             .then(() => {
                 //update machine ask
-                return visionSupport.putBlueprintMachineInstance(visionSupport.visionAPMChef.name, projectSupport.projectAPMPrestaging.name, dormSupport.dorm1.name, 2);
+                return visionSupport.putBlueprintMachineInstance(visionSupport.visionAPMChef.name, projectSupport.projectAPMPrestaging.name, dormSupport.dorm1.name, 2,[{vid:'s1',group_number:1},{vid:'s2',group_number:2}]);
             })
             .then(()=>{
                 
@@ -300,7 +300,7 @@ describe('post /schedule/vision/:vision/blueprint/:blueprint',()=>{
                 done();
             });
     });
-      it('shall schedule project to the machines with right vid /schedule/vision/:vision/blueprint/:blueprint',done=>{
+    it('shall schedule project to the machines with right vid /schedule/vision/:vision/blueprint/:blueprint',done=>{
         taskSupport.postTaskAPMNewMediaDetection()
             .then(taskSupport.posttaskAPMInstall)
             .then(projectSupport.postProjectBlueprintAPMPrestaging)            
@@ -342,6 +342,273 @@ describe('post /schedule/vision/:vision/blueprint/:blueprint',()=>{
                 done();
             });
     });
+    it('shall schedule group 0 when there is no vid group info specified /schedule/vision/:vision/blueprint/:blueprint',done=>{
+        taskSupport.postTaskAPMNewMediaDetection()
+            .then(taskSupport.posttaskAPMInstall)
+            .then(projectSupport.postProjectBlueprintAPMPrestaging)            
+            .then(visionSupport.PostVisionAPMChef)
+            .then(() => {
+                //post dorm
+                return dormSupport.PostDorm(dormSupport.dorm1)
+            })
+            .then(() => {
+                //update machine ask
+                return visionSupport.putBlueprintMachineInstance(visionSupport.visionAPMChef.name, projectSupport.projectAPMPrestaging.name, dormSupport.dorm1.name, 2,[{vid:'s1',group_number:1},{vid:'s2',group_number:2}]);
+            })
+            .then(()=>{
+                
+                return scheduleSupport.postScheduleFromBlueprint(visionSupport.visionAPMChef.name,projectSupport.projectAPMPrestaging.name);
+            })
+            .then(()=>{
+                visionControl.getVision({name:visionSupport.visionAPMChef.name})
+                    .then(visionList=>{
+                        let vision= visionList[0];
+                        assert.equal(vision.current_projects[0]._project.vid,'s1');
+                        assert.equal(vision.current_projects[1]._project.vid,"");
+                        done();
+                    })
+            })
+            .catch(err=>{
+                assert(false,'it shall not throw error');
+                done();
+            });        
+    })
+    it('shall create a new vid group info with number 1 when there is no vid group info specified /schedule/vision/:vision/blueprint/:blueprint',done=>{
+        taskSupport.postTaskAPMNewMediaDetection()
+            .then(taskSupport.posttaskAPMInstall)
+            .then(projectSupport.postProjectBlueprintAPMPrestaging)            
+            .then(visionSupport.PostVisionAPMChef)
+            .then(() => {
+                //post dorm
+                return dormSupport.PostDorm(dormSupport.dorm1)
+            })
+            .then(() => {
+                //update machine ask
+                return visionSupport.putBlueprintMachineInstance(visionSupport.visionAPMChef.name, projectSupport.projectAPMPrestaging.name, dormSupport.dorm1.name, 2,[{vid:'s1',group_number:1},{vid:'s2',group_number:2}]);
+            })
+            .then(()=>{
+                
+                return scheduleSupport.postScheduleFromBlueprint(visionSupport.visionAPMChef.name,projectSupport.projectAPMPrestaging.name);
+            })
+            .then(()=>{
+                visionControl.getVision({name:visionSupport.visionAPMChef.name})
+                    .then(visionList=>{
+                        let vision= visionList[0];
+                        assert.equal(vision.info.project_schedule.length,1);
+                        assert.equal(vision.info.project_schedule[0].vid_group_info.project_blueprint.name,projectSupport.projectAPMPrestaging.name);
+                        assert.equal(vision.info.project_schedule[0].vid_group_info.current_group_number,1);
+                        done();
+                    })
+            })
+            .catch(err=>{
+                assert(false,'it shall not throw error');
+                done();
+            });
+    });   
+    it('shall increase current group number  everytime we schedule a vm group /schedule/vision/:vision/blueprint/:blueprint',done=>{
+        taskSupport.postTaskAPMNewMediaDetection()
+            .then(taskSupport.posttaskAPMInstall)
+            .then(projectSupport.postProjectBlueprintAPMPrestaging)            
+            .then(visionSupport.PostVisionAPMChef)
+            .then(() => {
+                //post dorm
+                return dormSupport.PostDorm(dormSupport.dorm1)
+            })
+            .then(() => {
+                //update machine ask
+                return visionSupport.putBlueprintMachineInstance(visionSupport.visionAPMChef.name, projectSupport.projectAPMPrestaging.name, dormSupport.dorm1.name, 2,[{vid:'s1',group_number:1},{vid:'s2',group_number:2}]);
+            })
+            .then(()=>{
+                
+                return scheduleSupport.postScheduleFromBlueprint(visionSupport.visionAPMChef.name,projectSupport.projectAPMPrestaging.name);
+            })
+            .then(()=>{
+                
+                return scheduleSupport.postScheduleFromBlueprint(visionSupport.visionAPMChef.name,projectSupport.projectAPMPrestaging.name);
+            })            
+            .then(()=>{
+                visionControl.getVision({name:visionSupport.visionAPMChef.name})
+                    .then(visionList=>{
+                        let vision= visionList[0];
+                        //it shall increase the group number 
+                        assert.equal(vision.info.project_schedule.length,1);
+                        assert.equal(vision.info.project_schedule[0].vid_group_info.project_blueprint.name,projectSupport.projectAPMPrestaging.name);
+                        assert.equal(vision.info.project_schedule[0].vid_group_info.current_group_number,2);
+
+                        //it shall schedule 2 more new run whose vid are s2 and "" respectively
+                        assert.equal(vision.current_projects[0]._project.vid,'s1');
+                        assert.equal(vision.current_projects[1]._project.vid,"");
+                        assert.equal(vision.current_projects[2]._project.vid,'s2');
+                        assert.equal(vision.current_projects[3]._project.vid,"");
+                        done();
+                    })
+            })
+            .catch(err=>{
+                assert(false,'it shall not throw error');
+                done();
+            });          
+    })
+    it('shall schedule 2 instance with vid s1 and s2 when 2 vid is specified and instance # for machine ask is 1 /schedule/vision/:vision/blueprint/:blueprint',done=>{
+        taskSupport.postTaskAPMNewMediaDetection()
+            .then(taskSupport.posttaskAPMInstall)
+            .then(projectSupport.postProjectBlueprintAPMPrestaging)            
+            .then(visionSupport.PostVisionAPMChef)
+            .then(() => {
+                //post dorm
+                return dormSupport.PostDorm(dormSupport.dorm1)
+            })
+            .then(() => {
+                //update machine ask
+                return visionSupport.putBlueprintMachineInstance(visionSupport.visionAPMChef.name, projectSupport.projectAPMPrestaging.name, dormSupport.dorm1.name, 1,[{vid:'s1',group_number:1},{vid:'s2',group_number:1}]);
+            })
+            .then(()=>{
+                
+                return scheduleSupport.postScheduleFromBlueprint(visionSupport.visionAPMChef.name,projectSupport.projectAPMPrestaging.name);
+            })
+            .then(()=>{
+                visionControl.getVision({name:visionSupport.visionAPMChef.name})
+                    .then(visionList=>{
+                        let vision= visionList[0];
+                        assert.equal(vision.current_projects.length,2);
+                        assert.equal(vision.current_projects[0]._project.vid,"s1");
+                        assert.equal(vision.current_projects[1]._project.vid,"s2");
+                        done();
+                    })
+            })
+            .catch(err=>{
+                assert(false,'it shall not throw error');
+                done();
+            });           
+    })    
+    it('shall schedule 2 instance with no vid info when machine ask is 2 and no vid specified',done=>{
+        taskSupport.postTaskAPMNewMediaDetection()
+            .then(taskSupport.posttaskAPMInstall)
+            .then(projectSupport.postProjectBlueprintAPMPrestaging)            
+            .then(visionSupport.PostVisionAPMChef)
+            .then(() => {
+                //post dorm
+                return dormSupport.PostDorm(dormSupport.dorm1)
+            })
+            .then(() => {
+                //update machine ask
+                return visionSupport.putBlueprintMachineInstance(visionSupport.visionAPMChef.name, projectSupport.projectAPMPrestaging.name, dormSupport.dorm1.name, 2);
+            })
+            .then(()=>{
+                
+                return scheduleSupport.postScheduleFromBlueprint(visionSupport.visionAPMChef.name,projectSupport.projectAPMPrestaging.name);
+            })
+            .then(()=>{
+                visionControl.getVision({name:visionSupport.visionAPMChef.name})
+                    .then(visionList=>{
+                        let vision= visionList[0];
+                        assert.equal(vision.current_projects.length,2);   
+                        assert.equal(vision.current_projects.length,2);
+                        assert.equal(vision.current_projects[0]._project.vid,"");
+                        assert.equal(vision.current_projects[1]._project.vid,"");                                             
+                        done();
+                    })
+            })
+            .catch(err=>{
+                assert(false,'it shall not throw error');
+                done();
+            });         
+    })
+   
+    it('shall schedule group 1 when we schedule instance 3rd time /schedule/vision/:vision/blueprint/:blueprint',done=>{
+        taskSupport.postTaskAPMNewMediaDetection()
+            .then(taskSupport.posttaskAPMInstall)
+            .then(projectSupport.postProjectBlueprintAPMPrestaging)            
+            .then(visionSupport.PostVisionAPMChef)
+            .then(() => {
+                //post dorm
+                return dormSupport.PostDorm(dormSupport.dorm1)
+            })
+            .then(() => {
+                //update machine ask
+                return visionSupport.putBlueprintMachineInstance(visionSupport.visionAPMChef.name, projectSupport.projectAPMPrestaging.name, dormSupport.dorm1.name, 0,[{vid:'s1',group_number:1},{vid:'s2',group_number:2}]);
+            })
+            .then(()=>{
+                
+                return scheduleSupport.postScheduleFromBlueprint(visionSupport.visionAPMChef.name,projectSupport.projectAPMPrestaging.name);
+            })
+            .then(()=>{
+                
+                return scheduleSupport.postScheduleFromBlueprint(visionSupport.visionAPMChef.name,projectSupport.projectAPMPrestaging.name);
+            })  
+            .then(()=>{
+                
+                return scheduleSupport.postScheduleFromBlueprint(visionSupport.visionAPMChef.name,projectSupport.projectAPMPrestaging.name);
+            })                         
+            .then(()=>{
+                visionControl.getVision({name:visionSupport.visionAPMChef.name})
+                    .then(visionList=>{
+                        let vision= visionList[0];
+                        //it shall increase the group number 
+                        assert.equal(vision.info.project_schedule.length,1);
+                        assert.equal(vision.info.project_schedule[0].vid_group_info.project_blueprint.name,projectSupport.projectAPMPrestaging.name);
+                        assert.equal(vision.info.project_schedule[0].vid_group_info.current_group_number,3);
+
+                        //it shall schedule 2 more new run whose vid are s2 and "" respectively
+                        assert.equal(vision.current_projects[0]._project.vid,'s1');
+                        assert.equal(vision.current_projects[1]._project.vid,'s2');
+                        assert.equal(vision.current_projects[2]._project.vid,'s1');
+                        
+                        done();
+                    })
+            })
+            .catch(err=>{
+                assert(false,'it shall not throw error');
+                done();
+            });         
+    })
+    it('shall schedule 3rd group when we schedule instance 3rd time /schedule/vision/:vision/blueprint/:blueprint',done=>{    
+        taskSupport.postTaskAPMNewMediaDetection()
+            .then(taskSupport.posttaskAPMInstall)
+            .then(projectSupport.postProjectBlueprintAPMPrestaging)            
+            .then(visionSupport.PostVisionAPMChef)
+            .then(() => {
+                //post dorm
+                return dormSupport.PostDorm(dormSupport.dorm1)
+            })
+            .then(() => {
+                //update machine ask
+                return visionSupport.putBlueprintMachineInstance(visionSupport.visionAPMChef.name, projectSupport.projectAPMPrestaging.name, dormSupport.dorm1.name, 0,[{vid:'s1',group_number:1},{vid:'s2',group_number:2},{vid:'s5',group_number:5}]);
+            })
+            .then(()=>{
+                
+                return scheduleSupport.postScheduleFromBlueprint(visionSupport.visionAPMChef.name,projectSupport.projectAPMPrestaging.name);
+            })
+            .then(()=>{
+                
+                return scheduleSupport.postScheduleFromBlueprint(visionSupport.visionAPMChef.name,projectSupport.projectAPMPrestaging.name);
+            })  
+            .then(()=>{
+                
+                return scheduleSupport.postScheduleFromBlueprint(visionSupport.visionAPMChef.name,projectSupport.projectAPMPrestaging.name);
+            })                         
+            .then(()=>{
+                visionControl.getVision({name:visionSupport.visionAPMChef.name})
+                    .then(visionList=>{
+                        let vision= visionList[0];
+                        //it shall increase the group number 
+                        assert.equal(vision.info.project_schedule.length,1);
+                        assert.equal(vision.info.project_schedule[0].vid_group_info.project_blueprint.name,projectSupport.projectAPMPrestaging.name);
+                        assert.equal(vision.info.project_schedule[0].vid_group_info.current_group_number,3);
+
+                        //it shall schedule 2 more new run whose vid are s2 and "" respectively
+                        assert.equal(vision.current_projects[0]._project.vid,'s1');
+                        assert.equal(vision.current_projects[1]._project.vid,'s2');
+                        assert.equal(vision.current_projects[2]._project.vid,'s5');
+                        
+                        done();
+                    })
+            })
+            .catch(err=>{
+                assert(false,'it shall not throw error');
+                done();
+            });         
+
+    })
     it('shall return error when blueprint is invalid /schedule/vision/:vision/blueprint/:blueprint',done=>{
         taskSupport.postTaskAPMNewMediaDetection()
             .then(taskSupport.posttaskAPMInstall)
@@ -382,7 +649,7 @@ describe('post /schedule/vision/:vision/blueprint/:blueprint',()=>{
                     });
 
             });
-    });   
+    });         
     it('shall return error when vision is invalid',done=>{
         taskSupport.postTaskAPMNewMediaDetection()
             .then(taskSupport.posttaskAPMInstall)

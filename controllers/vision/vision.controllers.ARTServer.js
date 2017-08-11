@@ -79,6 +79,7 @@ exports.getVision = function (query, cb = () => { }) {
             .populate({ path: 'project_schedule.project_blueprint' })
             .populate({ path: 'project_schedule.machine_demand.dorm' })
             .populate({path:'project_schedule.next_project.blueprint'})
+            .populate({path:'info.project_schedule.vid_group_info.project_blueprint'})
             .exec((err, res) => {
                 if (err) {
                     reject(err);

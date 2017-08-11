@@ -11,31 +11,123 @@ let standardError = require('../common/error.controllers.ARTServer')
 let lock=require('../common/lock.common.controllers.ARTServer')
 let projectStatus=require('../project/status.project.controllers.ARTServer')
 
+
+const IncreaseVMGroupNumberForBlueprint=function(visionDoc,blueprintDoc){
+    //increase the current_group_number by 1
+    //this function is used to choose which vm group to schedule
+    return new Promise((resolve,reject)=>{
+        let infoIndex=visionDoc.info.project_schedule.findIndex(item=>{
+            return item.vid_group_info.project_blueprint._id.toString()==blueprintDoc._id.toString()
+        })
+        if(infoIndex==-1){
+            //create new group info
+            visionDoc.info.project_schedule.push({
+                vid_group_info:{
+                    project_blueprint:blueprintDoc._id.toString(),
+                    current_group_number:1
+                }
+            })
+        }
+        else{
+            //increase the current_group_number count
+            visionDoc.info.project_schedule[infoIndex].vid_group_info.current_group_number++;
+        }
+        visionDoc.save(err=>{
+            if(err){
+                reject(standardError(err));
+            }
+            else{
+                resolve()
+            }
+        })
+    });
+}
 const ScheduleBlueprintByLookupMachineDemand=function(visionDoc,blueprint){
    //loop through all machine demands
    let taskList=[];
    //find out specific project schedule
    let schedule=visionDoc.project_schedule.find(item=>{return item.project_blueprint.name==blueprint})
+   let scheduleInfo=visionDoc.info.project_schedule.find(item=>{return item.vid_group_info.project_blueprint.name==blueprint});
+   let current_group_number=0;
+   let scheduled_vids=[];
+   
+   if(scheduleInfo!=undefined){
+       //if we can find schedule info, then get the current group number and decide what to do next
+        current_group_number=scheduleInfo.vid_group_info.current_group_number;
+   }
+
+
+   //build a hash table to map group_number and vid relationship
+    
+    let groupHash={};      
+    let vidNumber=0;
+    schedule.machine_demand.forEach(demand=>{
+        demand.vid_list.forEach(vid=>{
+            //if there is no group_number specified, then mark it default group 0
+            if(vid.group_number==undefined){
+                console.warn(`no group_number specified for ${vid} in ${visionDoc.name}`)
+                vidNumber=0;
+            }
+            else{
+                vidNumber=vid.group_number;
+            }
+
+
+            if(groupHash[vidNumber]==undefined){
+                groupHash[vidNumber]=[vid.vid];
+            }
+            else{
+                groupHash[vidNumber].push(vid.vid);
+            }                
+
+        })
+    })  
+
+    let keys=Object.keys(groupHash)
+    let currentGroupIndex=current_group_number % keys.length;
+    scheduled_vids=groupHash[keys[currentGroupIndex]];
 
 
    schedule.machine_demand.forEach(demand=>{
        //one-by-one add machine and its demanded project into current_project
        
-       for(let i=0;i<demand.instance;i++){
+       //if current instance number is less than the  number of machine being scheduled for the execution, then spin up all the machine
+       
+       
+        //get number of qualified instance we have for this specific machine
+        let qualifiedVidList=demand.vid_list.filter(item=>{
+            return scheduled_vids.indexOf(item.vid)>-1
+        });
+        if(qualifiedVidList==undefined || qualifiedVidList==null){
+            qualifiedVidList=[];
+        }
+        let instanceNumber=qualifiedVidList.length;
+       if(instanceNumber<=demand.instance){
+            
+            instanceNumber=demand.instance;
+        }
+        else{
+            console.warn(`vision:${visionDoc.name}, blueprint:${blueprint} - current instance # is less than #vm required`)
+        }
+
+       for(let i=0;i<instanceNumber;i++){
 
             //currently, only add vid that is specified in the vid list to the machine
             //TODO: automatically generate vid for those un-assigned vid
             taskList.push(visionControl.CreateNewProjectAndAddToVision(visionDoc.name,blueprint)
                 .then(projectId=>{
-                    let vid="";
-                    if(demand.vid_list!=undefined && demand.vid_list!=null && i<demand.vid_list.length){
-                        vid=demand.vid_list[i].vid;
+                    let vidInfo="";
+                    if(i<qualifiedVidList.length){
+                        vidInfo=qualifiedVidList[i].vid
                     }
-                    return projectControl.UpdateHostAndVIDInProject(projectId.projectId,demand.dorm.name,vid)
+                    return projectControl.UpdateHostAndVIDInProject(projectId.projectId,demand.dorm.name,vidInfo)
                 })                
             );
        }
    });
+
+   //increase index of current_grou_number
+   
    return Promise.all(taskList);
 
 
@@ -51,6 +143,7 @@ exports.ScheduleBlueprint=function(vision,blueprint){
     //look up project schedule for specific blueprint, if not in there, then return
     //mark all project that is made based on blueprint pending retire
     //create project based on blueprint schedules
+    //based on the current group_number info, decide which vm group to schedule
     //Add project to vision
     //atomically schedule each individual project
     //if dorm is scheduled correctly, then change project status to scheduled, otherwise change staus to waiting   
@@ -62,7 +155,13 @@ exports.ScheduleBlueprint=function(vision,blueprint){
                 //mark all project that is made based on blueprint pending retire
                 //create project based on blueprint schedules
                 
-                return ScheduleBlueprintByLookupMachineDemand(vision,blueprint);
+                return ScheduleBlueprintByLookupMachineDemand(vision,blueprint)
+                        .then(()=>{
+                            return blueprintControl.isBlueprintValid(blueprint)
+                        })
+                        .then((blueprintDoc)=>{
+                            return IncreaseVMGroupNumberForBlueprint(vision,blueprintDoc);
+                        });
                     
             })
             .then((result)=>{
@@ -226,7 +325,7 @@ exports.ScheduleNextProject=function(visionName,projectId){
                 }
                 
                 
-                //if there is pending project under task, then go to next task
+                //if there is pending tasks under project, then go to next task
                 if (project._project.pending_tasks.length>=1){
                     projectControl.GotoNextTaskInProject(projectId)
                         .then(()=>{
