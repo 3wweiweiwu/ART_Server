@@ -1,5 +1,6 @@
 var projectBlueprintModel=require('../../model/project/projectBlueprint.model.ARTServer');
 var taskModel=require('../../model/task/task.model.ARTServer.js');
+let taskControl=require('../task/task.controllers.ARTServer')
 var EventEmitter=require('events');
 var async=require('async');
 let standardError=require('../common/error.controllers.ARTServer')
@@ -39,46 +40,28 @@ const newBlueprint=(req,res,next)=>{
             next:req.body.next
         });
         
-        let bluePrintEvent=new bluePrintClass()
-        let iPusher=0;
-        bluePrintEvent.on('projectBlueprintPush',()=>{
-            iPusher++;
-            if(iPusher>=req.body.tasks.length)
-            {
-                projectBlueprint.save();
-                resolve();
-            }
-        })
-        //After task list and project linking are done, then save model
-        let iTotalLinking=req.body.tasks.length;    
-        if(iTotalLinking===0)
-        {
-            //if there is no task and next associate with this project, then just save it
-            bluePrintEvent.emit('projectBlueprintPush');
-        }
-        else
-        {
-            //look up task list and link task to memory usage
+        let taskList=[]
+        req.body.tasks.forEach(function(taskItem) {
+            taskList.push(taskControl.isTaskValid(taskItem));            
+        });
 
-            for(let i=0;i<req.body.tasks.length;i++){
-                
-                let currentTaskname=req.body.tasks[i];
-                taskModel.findOne({name:currentTaskname})
-                .exec((err,task)=>{
-                    if(task==null){
-                        reject("Unable to find Task "+currentTaskname)
-                    } 
-                    else{
-                        projectBlueprint.tasks.push({task:task._id});
-                        bluePrintEvent.emit('projectBlueprintPush')
-                    }
-                    
+        Promise.all(taskList)
+            .then(taskDocs=>{
+                taskDocs.forEach(task=>{
+                    projectBlueprint.tasks.push({task:task._id});
                 });
-            }
-
-
-
-        }
+                projectBlueprint.save(err=>{
+                    if(err){
+                        reject(standardError(err,500));
+                    }
+                    else{
+                        resolve();
+                    }
+                })
+            })
+            .catch(err=>{
+                reject(standardError(err,500));
+            })
 
     });
 
