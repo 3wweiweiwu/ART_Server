@@ -1,9 +1,9 @@
 var express = require('express');
 var router = express.Router();
-var projectControl=require('../controllers/project/projectBlueprint.controllers.ARTServer')
-let scheduleControl=require('../controllers/scheduler/scheduler.controllers.ARTServer')
-var validate = require('express-validation')
-var scheduleValidation=require('../validation/scheduler.validation.ARTServer')
+
+let scheduleControl=require('../controllers/scheduler/scheduler.controllers.ARTServer');
+var validate = require('express-validation');
+var scheduleValidation=require('../validation/scheduler.validation.ARTServer');
 
 
 router.post('/schedule/vision/:vision/blueprint/:blueprint',validate(scheduleValidation.PostNewBlueprintIntoSchedule),function(req, res, next) {
@@ -14,7 +14,7 @@ router.post('/schedule/vision/:vision/blueprint/:blueprint',validate(scheduleVal
 router.post('/schedule/:vision',validate(scheduleValidation.getVisionScheduleStatus),function(req,res,next){
     //schedule all projects in the selected vision
     return scheduleControl.postScheduleSignal(req,res,next);
-})
+});
 
 // router.get('/schedule/vision/:vision',validate(scheduleValidation.getVisionScheduleStatus),(req,res,next)=>{
 //     //
@@ -28,7 +28,7 @@ router.post('/schedule/vision/:vision/next/:project',validate(scheduleValidation
     //if current project is removed, then it will move to next project
     
     return scheduleControl.postNextProject(req,res,next,{});
-})
+});
 
 router.get('/schedule/machine/:machine/projects',validate(scheduleValidation.getMachineProject),(req,res,next)=>{
     //this url is used to query all the projects in the machine

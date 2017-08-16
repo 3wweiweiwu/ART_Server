@@ -36,7 +36,9 @@ if($DebugPreference -eq "Continue"){
 
 $debugPID=$PID
 $computerName=$env:COMPUTERNAME
-
+if($DebugPreference -eq "Continue"){
+    $debugPID=6524
+}
 $projectFeed=Get-SettingForProcess -sARTUri $sARTUri -key ProjectFeed -processId $debugPID -dorm $computerName
 $projectDorm="Dorm_$computerName"
 $vision=$projectFeed.vision

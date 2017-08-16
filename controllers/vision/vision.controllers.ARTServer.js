@@ -1,9 +1,9 @@
 var visionModel = require('../../model/vision/vision.model.ARTServer');
-var projectModel = require('../../model/project/project.model.ARTServer');
+
 var projectControl = require('../project/project.controllers.ARTServer')
 let projectBlueprintModel = require('../../model/project/projectBlueprint.model.ARTServer')
 let blueprintControl = require('../project/projectBlueprint.controllers.ARTServer')
-let dormModel = require('../../model/organization/dormModel')
+
 let dormControl = require('../../controllers/organization/dormControl')
 let standardError = require('../common/error.controllers.ARTServer')
 const UpdateBasicVision = function (req, cb = () => { }) {
@@ -31,8 +31,8 @@ const CreateBasicVision = function (req, cb = () => { }) {
     return new Promise((resolve, reject) => {
         visionModel
             .remove({ name: req.body.name })
-            .exec((err) => {
-                vision = new visionModel({
+            .exec(() => {
+                let vision = new visionModel({
                     name: req.body.name,
                     note: req.body.note,
                     key_projects: [],

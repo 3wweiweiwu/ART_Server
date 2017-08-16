@@ -1,9 +1,9 @@
 var express = require('express');
 var router = express.Router();
-var visionControl=require('../controllers/vision/vision.controllers.ARTServer')
+var visionControl=require('../controllers/vision/vision.controllers.ARTServer');
 
-var validate = require('express-validation')
-var visionValidation=require('../validation/vision.validation.ArtServer.js')
+var validate = require('express-validation');
+var visionValidation=require('../validation/vision.validation.ArtServer.js');
 
 
 router.post('/vision/:vision/NewProject/:blueprint',validate(visionValidation.postNewProject),function(req, res, next) {
@@ -20,9 +20,9 @@ router.post('/vision',validate(visionValidation.post),function(req, res, next) {
 
 router.get('/vision/:vision_name',validate(visionValidation.getSpecificVision),function(req,res,next){
     //get the vision based on vision name
-    query={name:req.params.vision_name}
+    let query={name:req.params.vision_name};
     return visionControl.get(req,res,next,query);
-})
+});
 
 
 
@@ -35,7 +35,7 @@ router.get('/vision/:vision_name/registry/:key',validate(visionValidation.getReg
 router.get('/vision',(req,res,next)=>{
     //get all visions
     return visionControl.get(req,res,next,{});
-})
+});
 
 router.put('/vision/:vision_name/key_projects/:projectBlueprint',validate(visionValidation.putKeyProject),function(req,res,next){
     //add blueprint to the key project
@@ -69,18 +69,18 @@ router.put('/vision/:vision_name/project_schedule/blueprint/:blueprint',validate
 });
 
 //project Section
-    router.put('/vision/:vision_name/current_projects/:project_id/next_task',validate(visionValidation.putNextTask),function(req,res,next){
-        //remove current task and get task from pending task
-        return visionControl.putNextTask(req,res,next);
-    });
-    router.put('/vision/:vision_name/current_projects/:project_id/host/:hostName',validate(visionValidation.putProjectHost),function(req,res,next){
-        //update the host name for project
-        return visionControl.putProjectHost(req,res,next);
-    });
-    router.put('/vision/:vision_name/current_projects/:project_id/status/:status',validate(visionValidation.putProjectStatus),function(req,res,next){
-        //update status for project
-        return visionControl.putProjectStatus(req,res,next);
-    });
+router.put('/vision/:vision_name/current_projects/:project_id/next_task',validate(visionValidation.putNextTask),function(req,res,next){
+    //remove current task and get task from pending task
+    return visionControl.putNextTask(req,res,next);
+});
+router.put('/vision/:vision_name/current_projects/:project_id/host/:hostName',validate(visionValidation.putProjectHost),function(req,res,next){
+    //update the host name for project
+    return visionControl.putProjectHost(req,res,next);
+});
+router.put('/vision/:vision_name/current_projects/:project_id/status/:status',validate(visionValidation.putProjectStatus),function(req,res,next){
+    //update status for project
+    return visionControl.putProjectStatus(req,res,next);
+});
 
 
 
