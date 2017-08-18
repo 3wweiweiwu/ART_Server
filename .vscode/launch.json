@@ -30,7 +30,7 @@
                 "--timeout",
                 "999999999",
                 "--colors",
-                "${workspaceRoot}\\**\\spec.scheduler*.js"
+                "${workspaceRoot}\\**\\spec.vhd*.js"
             ],
             "internalConsoleOptions": "openOnSessionStart"            
         },       

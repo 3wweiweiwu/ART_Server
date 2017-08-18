@@ -1,0 +1,129 @@
+var express = require('express');
+var router = express.Router();
+let util=require('util');
+let vhdValidation=require('../validation/vhd.shelf.validation.ARTServer');
+var validate = require('express-validation');
+let Busboy=require('busboy');
+let vhdControl=require('../controllers/shelf/vhd.shelf.controllers.ARTServer');
+let StandardError=require('../controllers/common/error.controllers.ARTServer');
+
+//multer configuration
+let multer=require('multer');
+let upload=multer({
+    dest:'e:\\temp\\',
+    limits:{
+        fileSize:9999999999999,
+        
+    },
+    fileFilter:function(req,file,cb){
+        
+
+        
+        req.checkBody('installed_products').eachIsNotEmpty('name');
+        req.checkBody('installed_products').eachIsNotEmpty('version');
+        req.checkBody('installed_products').eachIsNotEmpty('build');        
+        req.checkBody('installed_media').eachIsNotEmpty('name');        
+        
+        //check if body is correct
+        req.checkBody('created_by').notEmpty();
+        
+        req.checkBody('os').notEmpty();
+        req.getValidationResult()
+            .then(result=>{
+                if(!result.isEmpty()){
+                    req.fileValidationError=new StandardError(util.inspect(result.array()),400);
+                    return cb(null,false);
+                    
+                }
+                else{
+                    //sanitize body                    
+                    req.body.installed_products=JSON.parse(req.body.installed_products);
+                    req.body.installed_media=JSON.parse(req.body.installed_media);
+                    return cb(null,true);
+                }
+            })
+        
+    }
+});
+
+router.get('/shelf/vhd/upload_path',validate(vhdValidation.getUploadPath),function(req,res){
+    //it shall return upload path for the task you want to upload
+    req.checkBody('installed_products').eachIsNotEmpty('name');
+    req.checkBody('installed_products').eachIsNotEmpty('version');
+    req.checkBody('installed_products').eachIsNotEmpty('build');
+
+    req.getValidationResult()
+        .then(result=>{            
+            return new Promise((resolve,reject)=>{
+                if(!result.isEmpty()){
+                    reject(StandardError(util.inspect(result.array()),404));
+                }
+                else{
+                    resolve();
+                }
+            });
+
+        })
+        .then(()=>{
+            //main workflow
+            return vhdControl.getUploadPath(req.body.created_by,req.body.size_byte,req.body.os,req.body.installed_products)
+        })
+        .then((pathObj)=>{
+            res.json(pathObj);
+        })
+        .catch(err=>{
+            res.status(err.status).json(err);
+        });        
+
+});
+
+
+router.get('/shelf/vhd',function(req,res){
+    //it shall all available image information
+    vhdControl.getVHD()
+        .then((result)=>{
+            res.json(result);
+        })
+        .catch(err=>{
+            res.status(err.status).json(err);
+        });    
+    
+});
+
+router.get('/shelf/vhd/download/:id',validate(vhdValidation.getVHDDownload),function(req,res){
+    //it shall download the image id specified
+    vhdControl.getVHD(req.params.id)
+        .then((downloadPath)=>{
+            res.download(downloadPath);
+        })
+        .catch(err=>{
+            res.status(err.status).json(err);
+        });        
+});
+
+function extendTimeout (req, res, next) {
+    res.setTimeout(480000, function () { /* Handle timeout */ })
+    next();
+
+}
+router.post('/shelf/vhd',extendTimeout,upload.single('file'),function(req,res){    
+    if(req.fileValidationError) {
+        //check if there is any validation error
+        res.status(req.fileValidationError.status).json(req.fileValidationError);
+        return;
+    }
+    //no validation error is found, then upload the file
+    vhdControl.getUploadPath(req.body.created_by,req.body.os,req.body.installed_products,req.body.installed_media,req.file)
+        .then((pathObj)=>{
+            res.json(pathObj);
+        })
+        .catch(err=>{
+            res.status(err.status).json(err);
+        });
+
+})
+
+
+
+
+module.exports=router;

@@ -3,7 +3,15 @@
     Running=3;
     Retired=4;
 }
-$sTaskVmDeployment="VM_Deployment"
+$TaskConfiguration=@{
+    VmDeployment=@{
+        name="VM_Deployment"
+    }
+    VmCheckin=@{
+        name="VM_Checkin"
+    }    
+}
+$sTaskVmDeployment=$TaskConfiguration.VmDeployment.name
 function Get-ProjectsWatingForRunning($lsCurrentMachineProjects){
     
     #filter out waiting for running project in the machine
@@ -54,7 +62,10 @@ function Invoke-LocalProject($sARTUri,$Project,$diskProfile){
     }
     else
     {
+        #if we are in the debug mode, we will launch powershell instead of 
         $processId=Invoke-NewPowershellConsoleFromUri -uri $task.task.task_script_path
+
+        
     }
     
     

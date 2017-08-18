@@ -4,6 +4,7 @@ var path = require('path');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+let validator=require('validator');
 var config=require('./config.js');
 var index = require('./routes/index');
 var users = require('./routes/users');
@@ -16,8 +17,13 @@ var vision=require('./routes/vision.routes.ARTServer');
 let scheduler=require('./routes/scheduler.routes.ARTServer');
 let powershell=require('./routes/ps.routes.ARTServer');
 let registry=require('./routes/registry.routes.ARTServer');
+let shelf=require('./routes/vhd.shelf.routes.ARTServer');
+
+
 
 var app = express();
+
+
 
 
 //mongoose ODM
@@ -31,9 +37,24 @@ app.set('view engine', 'pug');
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(expressValidator());
+app.use(bodyParser.json({limit:'1024000mb'}));
+app.use(bodyParser.urlencoded({ extended: true,limit:'1024000mb' }));
+app.use(expressValidator({
+    customValidators:{
+        eachIsNotEmpty:function(values,prop){
+            let list=null;
+            if(typeof(values)=='string' && validator.isJSON(values)){
+                list=JSON.parse(values);
+            }
+            else{
+                list=values;
+            }
+            return list.every(function(val){
+                return !validator.isEmpty(val[prop].toString());
+            });
+        }
+    }
+}));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -47,6 +68,7 @@ app.use('/api',vision);
 app.use('/api',scheduler);
 app.use('/api',powershell);
 app.use('/api',registry);
+app.use('/api',shelf);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

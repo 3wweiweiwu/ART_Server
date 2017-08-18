@@ -6,6 +6,59 @@ $ProcessSetting=@{
     InitializationKey='Initialization'    
     DoneKey='done'
 }
+function Upload-FileToServer($sUploadPath,$fieldName,$filePath,$otherFieldInfo)
+{
+
+
+
+    $ErrorActionPreference = 'Stop'
+
+
+    $url = $sUploadPath
+
+
+
+
+    #start upload
+        Add-Type -AssemblyName 'System.Net.Http'
+
+        $client = New-Object System.Net.Http.HttpClient
+        $client.Timeout=[timespan]::FromHours(8)
+        $content = New-Object System.Net.Http.MultipartFormDataContent
+        $fileStream = [System.IO.File]::OpenRead($filePath)
+        $fileName = [System.IO.Path]::GetFileName($filePath)
+        $fileContent = New-Object System.Net.Http.StreamContent($fileStream)
+        
+
+        #add respective field information
+        foreach($key in $otherFieldInfo.Keys){
+            if([string]($otherFieldInfo[$key]) -match "System.Collections"){
+                $value=$otherFieldInfo[$key]|ConvertTo-Json
+                #$value=""
+            }
+            else
+            {
+                $value=[string]($otherFieldInfo[$key])
+            }
+            $MultipartContent=New-Object System.Net.Http.StringContent($value)
+            $content.Add($MultipartContent,$key)
+        }
+        
+        $content.Add($fileContent, $fieldName, $fileName)
+        $result = $client.PostAsync($url, $content).Result
+        $result.EnsureSuccessStatusCode()
+
+    #final cleanup
+    
+    if ($MultipartContent -ne $null) {$MultipartContent.Dispose() }
+    if ($client -ne $null) { $client.Dispose() }
+    if ($content -ne $null) { $content.Dispose() }
+    if ($fileStream -ne $null) { $fileStream.Dispose() }
+    if ($fileContent -ne $null) { $fileContent.Dispose() }
+    
+        
+
+}
 
 function Add-NewServerToArt($sARTServerUri=$sARTUri){
     
@@ -153,9 +206,13 @@ function Invoke-NewPowershellConsole($sArtUri,$script){
 }
 
 function Invoke-NewPowershellConsoleFromUri($uri,[switch]$ise){
-    if($ise.IsPresent)
+    if($ise.IsPresent -or $DebugPreference -eq "Continue")
     {
-        $app=Start-Process -FilePath powershell_ise.exe -ArgumentList "-NoProfile -ExecutionPolicy Bypass -Command `"iex ((New-Object System.Net.WebClient).DownloadString('$uri'))`"" -PassThru
+        $sTempName=(Get-Date).ToFileTimeUtc().ToString()+(Get-Random).ToString()+".ps1"
+        $sTempPath=Join-Path -Path $env:TEMP -ChildPath $sTempName
+        ((New-Object System.Net.WebClient).DownloadString('http://mvf1:3000/api/ps/VMDeployment@VHD_Checkin.ps1'))|Out-File -FilePath $sTempPath -Force
+        $app=Start-Process -FilePath powershell_ise.exe -ArgumentList $sTempPath -PassThru
+        $app=@{Id=$PID}
     }
     else
     {

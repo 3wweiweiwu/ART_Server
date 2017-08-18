@@ -40,7 +40,7 @@ while($true){
         foreach($project in $lsRunningProject){
             $recordedProcessId=$Project._project.pid
             #if recorded process id is not running in this machine, then re-invoke that
-            if((Get-Process -Id $recordedProcessId -ErrorAction SilentlyContinue).MainWindowTitle -notmatch $recordedProcessId){
+            if((Get-Process).Id -contains "$recordedProcessId" -eq $false){
                 Write-Warning "We are unable to find blueprint $($Project._project._bluePrint.name) with PID $recordedProcessId. Restart it"
                 #if task is found, then start the script in the task
                 $sPID=Invoke-LocalProject -Project $project -sARTUri $sARTServerUri        

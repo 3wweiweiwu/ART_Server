@@ -156,21 +156,21 @@ exports.UpdateHostAndVIDInProject=function(id,host,vid=""){
     //this function does not validate the existence of the id and host, please valid these 2 field before using it!
     return new Promise((resolve,reject)=>{
         dormModel.findOne({name:host})
-        .exec((err,dorm)=>{
+            .exec((err,dorm)=>{
 
-            projectModel.update(
-                {_id:id},
-                {$set:{host:dorm._id,vid:vid}},
-                {multi:false},
-                (err,raw)=>{
-                    if(err)
-                    {
-                        reject(CreateStandardError(err,500));
-                    }
-                    else{
-                        resolve(raw);
-                    }
-                });
+                projectModel.update(
+                    {_id:id},
+                    {$set:{host:dorm._id,vid:vid}},
+                    {multi:false},
+                    (err,raw)=>{
+                        if(err)
+                        {
+                            reject(CreateStandardError(err,500));
+                        }
+                        else{
+                            resolve(raw);
+                        }
+                    });
 
             })
 

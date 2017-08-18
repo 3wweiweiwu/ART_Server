@@ -47,35 +47,34 @@ describe('Add required iInstallation information for download and invoke media',
     it('shall create a project under current project with task and host specified',done=>{
         taskSupport.PostTask(taskSupport.taskMediaDetection)
             .then(()=>{
-                return taskSupport.PostTask(taskSupport.taskMediaInstallation);
-            })            
-            .then(()=>{
-                projectSupport.PostNewBlueprint(projectSupport.blueprintAPMMediaDetection);
+                return taskSupport.PostTask(taskSupport.sampleDeployStandardVHDImage);
             })
             .then(()=>{
-                projectSupport.PostNewBlueprint(projectSupport.blueprintAPMMediaDeployment);
-            })            
-            .then(()=>{
-                return dormSupport.PostDorm(dormSupport.dorm1);
-            })            
-            .then(visionSupport.PostVisionAPMChef)
-            .then(()=>{
-                return scheduleSupport.postTaskForVM(visionSupport.visionAPMChef.name,dormSupport.dorm1.name,projectSupport.blueprintAPMMediaDeployment.name,taskSupport.taskMediaInstallation.name);
+                return taskSupport.PostTask(taskSupport.sampleUninstallProduct);
             })
             .then(()=>{
-                visionControl.getVision({name:visionSupport.visionAPMChef.name})
-                    .then(visionList=>{
-                        let vision=visionList[0];
-                        //new project shall be added to the current project list
-                        assert(vision.current_projects.length,1);
-                        done();
-                    });
-                
-
+                return taskSupport.PostTask(taskSupport.sampleRestart);
             })
-            .catch((err)=>{
-                assert(false,`shall not throw error ${err}`);
+            .then(()=>{
+                return taskSupport.PostTask(taskSupport.sampleWait);
+            })            
+            .then(()=>{
+                return taskSupport.PostTask(taskSupport.sampleInstallMedia);
+            })
+            .then(()=>{
+                return taskSupport.PostTask(taskSupport.sampleVHDCheckin);
+            })
+            .then(()=>{
+                return projectSupport.PostNewBlueprint(projectSupport.sampleBP_APMMediaDetection);
+            })
+            .then(()=>{
+                return projectSupport.PostNewBlueprint(projectSupport.sampleAPMDeployment);
+            })
+            .then(()=>{
                 done();
+            })
+            .catch(err=>{
+                assert(false,err);
             });
         
     });

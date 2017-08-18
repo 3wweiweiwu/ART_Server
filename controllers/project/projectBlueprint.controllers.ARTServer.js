@@ -114,13 +114,13 @@ exports.isBlueprintValid=function(blueprint,cb=()=>{}){
 exports.createBlueprint=(req,res,next)=>{
     projectBlueprintModel.remove({name:req.body.name},(err,query)=>{
         newBlueprint(req,res,next)
-        .then(()=>{res.json();})
-        .catch((err)=>{
-            res.status(400).json({
-                result:'fail',
-                detail:err
+            .then(()=>{res.json();})
+            .catch((err)=>{
+                res.status(400).json({
+                    result:'fail',
+                    detail:err
+                });
             });
-        });
     });
 }
 
