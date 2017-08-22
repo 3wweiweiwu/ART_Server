@@ -2,7 +2,7 @@
 #this script is adaptor we used to run/kill process in the machine
 $sARTUri='http://mvf1:3000'
 $sARTServerUri=$sARTUri
-
+$DebugPreference="Continue"
 iex ((New-Object System.Net.WebClient).DownloadString("$sARTServerUri/api/ps/Library.ps1"))
 iex ((New-Object System.Net.WebClient).DownloadString("$sARTServerUri/api/ps/ARTLibrary.ps1"))
 iex ((New-Object System.Net.WebClient).DownloadString("$sARTServerUri/api/ps/MachineManagerLibrary.ps1"))

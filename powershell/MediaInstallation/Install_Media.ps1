@@ -2,12 +2,10 @@
 $taskName="Install_Media"
 $DebugPreference="Continue"
 
-iex ((New-Object System.Net.WebClient).DownloadString("$sARTUri/api/ps/ARTLibrary.ps1"))
+iex ((New-Object System.Net.WebClient).DownloadString("$sARTUri/api/ps/MediaInstallation@MediaInstallationLibrary.ps1"))
 iex ((New-Object System.Net.WebClient).DownloadString("$sARTUri/api/ps/MediaInstallation@wwwErrorAnalysis.ps1"))
 $debugPID=$PID
-if($DebugPreference -eq "Continue"){
-    $debugPID=4332
-}
+
 
 $computerName=$env:COMPUTERNAME
 $projectFeed=Get-SettingForProcess -sARTUri $sARTUri -key ProjectFeed -processId $debugPID -dorm $computerName
@@ -24,7 +22,7 @@ $sVMClientId=$projectFeed.vmId
     $Product_Verification=Load-Setting -sARTServerUri $sARTUri -vision $vision -project $blueprint -task $taskName -key 'Product_Verification'
     
 
-
+    
 #copy file from hqfiler to local
     Wait-FileAvailable -TimeOut 3600 -Path $Installation_File
     $Local_Media_Storage="c:\p4"
@@ -45,7 +43,7 @@ $sVMClientId=$projectFeed.vmId
     $sSilkInstallerFolder=Convert-P4LocationToWinLocation -P4Location $sInstallerPath -P4_Work_Space_Folder $P4_Work_Space_Folder
     $sSettingIniPath=Join-Path -Path $sSilkInstallerFolder -ChildPath setting.ini
 
-    "PRODUCT_LIST=$Installation_File"|Out-File -FilePath $sSettingIniPath -Force
+    "PRODUCT_LIST=$PRODUCT_LIST"|Out-File -FilePath $sSettingIniPath -Force
 
 #prepare media ready for the installation
     if($Installation_File -match "iso$")
@@ -174,6 +172,9 @@ $sVMClientId=$projectFeed.vmId
         }
 
     }
+    else{
+        $InstallFail=$true
+    }
     
     
     if($InstallFail)
@@ -184,12 +185,15 @@ $sVMClientId=$projectFeed.vmId
         Restart-Computer -Force
         Start-Sleep -Seconds 3600
     }
-
+    
                 
-                
+    
+    #created image meta info
+    Write-InstalledProductInfo -sARTUri $sARTUri  -vision $vision -project $blueprint -task $taskName -Installation_File $Installation_File
+                    
     Set-NextProject -sARTServerUri $sARTUri -vision $vision -project $projectId                
     Set-ItemProperty -Path HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\RunOnce -Name ATM_Admin -Value ""
                 
-    Restart-Computer -Force
+    
                 
     Start-Sleep -Seconds 3600

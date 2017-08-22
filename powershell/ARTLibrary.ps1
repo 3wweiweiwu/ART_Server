@@ -6,18 +6,31 @@ $ProcessSetting=@{
     InitializationKey='Initialization'    
     DoneKey='done'
 }
-function Upload-FileToServer($sUploadPath,$fieldName,$filePath,$otherFieldInfo)
+
+function Join-Url($parentPath,$childPath)
+{
+    $url=$parentPath -replace("http://","")
+
+    $url=$url+="/"+$childPath
+
+    $url=$url.replace("//","/").replace("//","/")
+
+    $url='http://'+$url
+
+    return $url
+}
+
+function Upload-FileToServer($sARTUri,$fieldName,$filePath,$otherFieldInfo)
 {
 
 
 
-    $ErrorActionPreference = 'Stop'
+    
+    $url = Join-Url -parentPath $sARTUri -childPath "/api/shelf/vhd"
 
 
-    $url = $sUploadPath
-
-
-
+    #convert otherfieldinfo to object
+    $otherFieldInfo=$otherFieldInfo|ConvertTo-Json|ConvertFrom-Json
 
     #start upload
         Add-Type -AssemblyName 'System.Net.Http'
@@ -31,14 +44,14 @@ function Upload-FileToServer($sUploadPath,$fieldName,$filePath,$otherFieldInfo)
         
 
         #add respective field information
-        foreach($key in $otherFieldInfo.Keys){
-            if([string]($otherFieldInfo[$key]) -match "System.Collections"){
-                $value=$otherFieldInfo[$key]|ConvertTo-Json
-                #$value=""
+        foreach($key in ($otherFieldInfo|Get-Member|where{$_.MemberType -eq "NoteProperty"}).Name){
+            if($otherFieldInfo.$key.GetType().name -eq "Object[]" -or $otherFieldInfo.installed_media.GetType().Name -eq "PSCustomObject"){
+                $value=$otherFieldInfo.$key|ConvertTo-Json
+                
             }
             else
             {
-                $value=[string]($otherFieldInfo[$key])
+                $value=[string]($otherFieldInfo.$key)
             }
             $MultipartContent=New-Object System.Net.Http.StringContent($value)
             $content.Add($MultipartContent,$key)
@@ -210,7 +223,7 @@ function Invoke-NewPowershellConsoleFromUri($uri,[switch]$ise){
     {
         $sTempName=(Get-Date).ToFileTimeUtc().ToString()+(Get-Random).ToString()+".ps1"
         $sTempPath=Join-Path -Path $env:TEMP -ChildPath $sTempName
-        ((New-Object System.Net.WebClient).DownloadString('http://mvf1:3000/api/ps/VMDeployment@VHD_Checkin.ps1'))|Out-File -FilePath $sTempPath -Force
+        ((New-Object System.Net.WebClient).DownloadString($uri))|Out-File -FilePath $sTempPath -Force
         $app=Start-Process -FilePath powershell_ise.exe -ArgumentList $sTempPath -PassThru
         $app=@{Id=$PID}
     }
