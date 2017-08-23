@@ -5,5 +5,5 @@ module.exports=function (err, statusCode = 400, res = {}) {
         err: err,
         res: res
 
-    }
-}
+    };
+};

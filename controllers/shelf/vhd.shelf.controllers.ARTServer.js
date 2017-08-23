@@ -1,10 +1,10 @@
-let vhdModel=require('../../model/shelf/vhd.shelf.model.ARTServer')
-let config=require('../../config')
-let StandardError=require('../common/error.controllers.ARTServer')
+let vhdModel=require('../../model/shelf/vhd.shelf.model.ARTServer');
+let config=require('../../config');
+let StandardError=require('../common/error.controllers.ARTServer');
 let fs=require('fs');
 let vhdControl=function(){
 
-    let getUploadPath=function(createdBy,os,productList,mediaList,storageInfo){
+    let getUploadPath=function(createdBy,os,productList,mediaList,storageInfo,series){
         return new Promise((resolve,reject)=>{
             storageInfo.username=config.shelf.user_name;
             storageInfo.password=config.shelf.password;
@@ -16,6 +16,7 @@ let vhdControl=function(){
                 },
                 content:{                    
                     os:os,
+                    series:series,
                     installed_products:productList,
                     installed_media:mediaList
                 },
@@ -29,9 +30,9 @@ let vhdControl=function(){
                 else{                    
                     resolve();
                 }
-            })
-        })
-    }
+            });
+        });
+    };
     let getVHDDownload=function(id){
         return new Promise((resolve,reject)=>{
             vhdModel.findById(id)
@@ -55,32 +56,32 @@ let vhdControl=function(){
                             }
                         });
                     }
-                })
+                });
 
-        })
-    }
-    let getVHD=function(){
+        });
+    };
+    let getVHD=function(query){
         return new Promise((resolve,reject)=>{
-            vhdModel.find({})
+            vhdModel.find(query)
                 .then(results=>{
-                    //sanitize result, remove storage info
+                    //sanitize result, remove all storage info except for size
                     results.forEach(item=>{
-                        item.storage="";
-                    })
+                        item.storage='';
+                    });
                     
                     resolve(results);
                 })
                 .catch(err=>{
                     reject(StandardError(err,err.status));
-                })
+                });
         });
 
-    }
+    };
     return {
         getUploadPath:getUploadPath,
         getVHDDownload:getVHDDownload,
         getVHD:getVHD
-    }
-}
+    };
+};
 
-module.exports=vhdControl()
+module.exports=vhdControl();

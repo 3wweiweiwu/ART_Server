@@ -3,23 +3,15 @@ $taskName="Install_Media"
 $DebugPreference="Continue"
 
 iex ((New-Object System.Net.WebClient).DownloadString("$sARTUri/api/ps/MediaInstallation@MediaInstallationLibrary.ps1"))
-iex ((New-Object System.Net.WebClient).DownloadString("$sARTUri/api/ps/MediaInstallation@wwwErrorAnalysis.ps1"))
-$debugPID=$PID
+iex ((New-Object System.Net.WebClient).DownloadString("$sARTUri/api/ps/Library.ps1"))
+iex ((New-Object System.Net.WebClient).DownloadString("$sARTUri/api/ps/CommonHeader.ps1"))
 
-
-$computerName=$env:COMPUTERNAME
-$projectFeed=Get-SettingForProcess -sARTUri $sARTUri -key ProjectFeed -processId $debugPID -dorm $computerName
-$projectDorm="Dorm_$computerName"
-$vision=$projectFeed.vision
-$blueprint=$projectFeed.blueprint
-$projectId=$projectFeed.projectId
-$sVMClientId=$projectFeed.vmId
 
 #load setting from server for the task
-    $Installation_File=Load-Setting -sARTServerUri $sARTUri -vision $vision -project $blueprint -task $taskName -key 'Installation_File'
-    $PRODUCT_LIST=Load-Setting -sARTServerUri $sARTUri -vision $vision -project $blueprint -task $taskName -key 'PRODUCT_LIST'
-    $Product_Folder_In_Installation_Package=Load-Setting -sARTServerUri $sARTUri -vision $vision -project $blueprint -task $taskName -key 'Product_Folder_In_Installation_Package'
-    $Product_Verification=Load-Setting -sARTServerUri $sARTUri -vision $vision -project $blueprint -task $taskName -key 'Product_Verification'
+    $Installation_File=Load-Setting -sARTServerUri $sARTUri -project $blueprint -task $Task.mediaDetection -key 'current_schedule'
+    $PRODUCT_LIST=Load-Setting -sARTServerUri $sARTUri -project $blueprint -task $taskName -key 'PRODUCT_LIST'
+    $Product_Folder_In_Installation_Package=Load-Setting -sARTServerUri $sARTUri -project $blueprint -task $taskName -key 'Product_Folder_In_Installation_Package'
+    $Product_Verification=Load-Setting -sARTServerUri $sARTUri -project $blueprint -task $taskName -key 'Product_Verification'
     
 
     

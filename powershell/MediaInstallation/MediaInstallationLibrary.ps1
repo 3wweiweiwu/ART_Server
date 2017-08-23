@@ -27,7 +27,7 @@ function Write-InstalledProductInfo($sARTUri,$vision,$project,$task,$Installatio
     
     }
 
-    Write-Setting -sARTServerUri $sARTUri -vision $vision -project $project -task $task -key "InstalledProductInfo" -value $otherFieldInfo
+    Write-Setting -sARTServerUri $sARTUri -project $project -task $task -key "InstalledProductInfo" -value $otherFieldInfo
 }
 
 function Load-InstalledProductInfo($sARTUri,$vision,$project,$task){

@@ -3,6 +3,7 @@
 $sARTUri='http://mvf1:3000'
 $sARTServerUri=$sARTUri
 $DebugPreference="Continue"
+#$DebugPreference='SilentlyContinue'
 iex ((New-Object System.Net.WebClient).DownloadString("$sARTServerUri/api/ps/Library.ps1"))
 iex ((New-Object System.Net.WebClient).DownloadString("$sARTServerUri/api/ps/ARTLibrary.ps1"))
 iex ((New-Object System.Net.WebClient).DownloadString("$sARTServerUri/api/ps/MachineManagerLibrary.ps1"))
@@ -31,7 +32,7 @@ while($true){
     
     #Check _project that are in ready to run state, schedule them if we have enough resource
     #pull the project every 5 second
-    Start-Sleep -Seconds 5
+    #Start-Sleep -Seconds 5
     Write-Host -Object "Waiting for task from server"
     $lsCurrentMachineProjects=[array](Get-ProjectsInMachine -sARTServerUri $sARTUri)
     
@@ -40,7 +41,7 @@ while($true){
         foreach($project in $lsRunningProject){
             $recordedProcessId=$Project._project.pid
             #if recorded process id is not running in this machine, then re-invoke that
-            if((Get-Process).Id -contains "$recordedProcessId" -eq $false){
+            if((Get-Process).Id -contains "$recordedProcessId" -eq $false -or $recordedProcessId -eq $null){
                 Write-Warning "We are unable to find blueprint $($Project._project._bluePrint.name) with PID $recordedProcessId. Restart it"
                 #if task is found, then start the script in the task
                 $sPID=Invoke-LocalProject -Project $project -sARTUri $sARTServerUri        

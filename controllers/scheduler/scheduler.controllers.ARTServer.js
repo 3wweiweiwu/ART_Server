@@ -1,15 +1,15 @@
 var visionModel = require('../../model/vision/vision.model.ARTServer');
 var projectModel = require('../../model/project/project.model.ARTServer');
-var projectControl = require('../project/project.controllers.ARTServer')
-let visionControl = require('../vision/vision.controllers.ARTServer')
-let projectBlueprintModel = require('../../model/project/projectBlueprint.model.ARTServer')
-let blueprintControl = require('../project/projectBlueprint.controllers.ARTServer')
-let dormModel = require('../../model/organization/dormModel')
-let dormControl = require('../../controllers/organization/dormControl')
-let taskControl=require('../../controllers/task/task.controllers.ARTServer')
-let standardError = require('../common/error.controllers.ARTServer')
-let lock=require('../common/lock.common.controllers.ARTServer')
-let projectStatus=require('../project/status.project.controllers.ARTServer')
+var projectControl = require('../project/project.controllers.ARTServer');
+let visionControl = require('../vision/vision.controllers.ARTServer');
+let projectBlueprintModel = require('../../model/project/projectBlueprint.model.ARTServer');
+let blueprintControl = require('../project/projectBlueprint.controllers.ARTServer');
+let dormModel = require('../../model/organization/dormModel');
+let dormControl = require('../../controllers/organization/dormControl');
+let taskControl=require('../../controllers/task/task.controllers.ARTServer');
+let standardError = require('../common/error.controllers.ARTServer');
+let lock=require('../common/lock.common.controllers.ARTServer');
+let projectStatus=require('../project/status.project.controllers.ARTServer');
 
 
 const IncreaseVMGroupNumberForBlueprint=function(visionDoc,blueprintDoc){
@@ -17,8 +17,8 @@ const IncreaseVMGroupNumberForBlueprint=function(visionDoc,blueprintDoc){
     //this function is used to choose which vm group to schedule
     return new Promise((resolve,reject)=>{
         let infoIndex=visionDoc.info.project_schedule.findIndex(item=>{
-            return item.vid_group_info.project_blueprint._id.toString()==blueprintDoc._id.toString()
-        })
+            return item.vid_group_info.project_blueprint._id.toString()==blueprintDoc._id.toString();
+        });
         if(infoIndex==-1){
             //create new group info
             visionDoc.info.project_schedule.push({
@@ -26,7 +26,7 @@ const IncreaseVMGroupNumberForBlueprint=function(visionDoc,blueprintDoc){
                     project_blueprint:blueprintDoc._id.toString(),
                     current_group_number:1
                 }
-            })
+            });
         }
         else{
             //increase the current_group_number count
@@ -34,30 +34,48 @@ const IncreaseVMGroupNumberForBlueprint=function(visionDoc,blueprintDoc){
         }
         visionDoc.save(err=>{
             if(err){
-                reject(standardError(err));
+                //if it is version error, then we are going to redo this operation again with updated document
+                if(err.name=='VersionError'){
+                    visionControl.getVision({_id:visionDoc._id})
+                        .then(visionDoc=>{
+                            return IncreaseVMGroupNumberForBlueprint(visionDoc[0],blueprintDoc);
+                        })
+                        .then(()=>{
+                            resolve();
+                        })
+                        .catch((err)=>{
+                            reject(standardError(err));
+                            return;
+                        });
+                }
+                else{
+                    reject(standardError(err));
+                    return;
+                }
+                
             }
             else{
-                resolve()
+                resolve();
             }
-        })
+        });
     });
-}
+};
 const ScheduleBlueprintByLookupMachineDemand=function(visionDoc,blueprint){
-   //loop through all machine demands
-   let taskList=[];
-   //find out specific project schedule
-   let schedule=visionDoc.project_schedule.find(item=>{return item.project_blueprint.name==blueprint})
-   let scheduleInfo=visionDoc.info.project_schedule.find(item=>{return item.vid_group_info.project_blueprint.name==blueprint});
-   let current_group_number=0;
-   let scheduled_vids=[];
+    //loop through all machine demands
+    let taskList=[];
+    //find out specific project schedule
+    let schedule=visionDoc.project_schedule.find(item=>{return item.project_blueprint.name==blueprint;});
+    let scheduleInfo=visionDoc.info.project_schedule.find(item=>{return item.vid_group_info.project_blueprint.name==blueprint;});
+    let current_group_number=0;
+    let scheduled_vids=[];
    
-   if(scheduleInfo!=undefined){
-       //if we can find schedule info, then get the current group number and decide what to do next
+    if(scheduleInfo!=undefined){
+        //if we can find schedule info, then get the current group number and decide what to do next
         current_group_number=scheduleInfo.vid_group_info.current_group_number;
-   }
+    }
 
 
-   //build a hash table to map group_number and vid relationship
+    //build a hash table to map group_number and vid relationship
     
     let groupHash={};      
     let vidNumber=0;
@@ -65,7 +83,7 @@ const ScheduleBlueprintByLookupMachineDemand=function(visionDoc,blueprint){
         demand.vid_list.forEach(vid=>{
             //if there is no group_number specified, then mark it default group 0
             if(vid.group_number==undefined){
-                console.warn(`no group_number specified for ${vid} in ${visionDoc.name}`)
+                console.warn(`no group_number specified for ${vid} in ${visionDoc.name}`);
                 vidNumber=0;
             }
             else{
@@ -80,58 +98,58 @@ const ScheduleBlueprintByLookupMachineDemand=function(visionDoc,blueprint){
                 groupHash[vidNumber].push(vid.vid);
             }                
 
-        })
-    })  
+        });
+    });  
 
-    let keys=Object.keys(groupHash)
+    let keys=Object.keys(groupHash);
     let currentGroupIndex=current_group_number % keys.length;
     scheduled_vids=groupHash[keys[currentGroupIndex]];
 
 
-   schedule.machine_demand.forEach(demand=>{
-       //one-by-one add machine and its demanded project into current_project
+    schedule.machine_demand.forEach(demand=>{
+        //one-by-one add machine and its demanded project into current_project
        
-       //if current instance number is less than the  number of machine being scheduled for the execution, then spin up all the machine
+        //if current instance number is less than the  number of machine being scheduled for the execution, then spin up all the machine
        
        
         //get number of qualified instance we have for this specific machine
         let qualifiedVidList=demand.vid_list.filter(item=>{
-            return scheduled_vids.indexOf(item.vid)>-1
+            return scheduled_vids.indexOf(item.vid)>-1;
         });
         if(qualifiedVidList==undefined || qualifiedVidList==null){
             qualifiedVidList=[];
         }
         let instanceNumber=qualifiedVidList.length;
-       if(instanceNumber<=demand.instance){
+        if(instanceNumber<=demand.instance){
             
             instanceNumber=demand.instance;
         }
         else{
-            console.warn(`vision:${visionDoc.name}, blueprint:${blueprint} - current instance # is less than #vm required`)
+            console.warn(`vision:${visionDoc.name}, blueprint:${blueprint} - current instance # is less than #vm required`);
         }
 
-       for(let i=0;i<instanceNumber;i++){
+        for(let i=0;i<instanceNumber;i++){
 
             //currently, only add vid that is specified in the vid list to the machine
             //TODO: automatically generate vid for those un-assigned vid
             taskList.push(visionControl.CreateNewProjectAndAddToVision(visionDoc.name,blueprint)
                 .then(projectId=>{
-                    let vidInfo="";
+                    let vidInfo='';
                     if(i<qualifiedVidList.length){
-                        vidInfo=qualifiedVidList[i].vid
+                        vidInfo=qualifiedVidList[i].vid;
                     }
-                    return projectControl.UpdateHostAndVIDInProject(projectId.projectId,demand.dorm.name,vidInfo)
+                    return projectControl.UpdateHostAndVIDInProject(projectId.projectId,demand.dorm.name,vidInfo);
                 })                
             );
-       }
-   });
+        }
+    });
 
-   //increase index of current_grou_number
+    //increase index of current_grou_number
    
-   return Promise.all(taskList);
+    return Promise.all(taskList);
 
 
-}
+};
 
 
 
@@ -156,12 +174,12 @@ exports.ScheduleBlueprint=function(vision,blueprint){
                 //create project based on blueprint schedules
                 
                 return ScheduleBlueprintByLookupMachineDemand(vision,blueprint)
-                        .then(()=>{
-                            return blueprintControl.isBlueprintValid(blueprint)
-                        })
-                        .then((blueprintDoc)=>{
-                            return IncreaseVMGroupNumberForBlueprint(vision,blueprintDoc);
-                        });
+                    .then(()=>{
+                        return blueprintControl.isBlueprintValid(blueprint);
+                    })
+                    .then((blueprintDoc)=>{
+                        return IncreaseVMGroupNumberForBlueprint(vision,blueprintDoc);
+                    });
                     
             })
             .then((result)=>{
@@ -172,7 +190,7 @@ exports.ScheduleBlueprint=function(vision,blueprint){
             });
       
     });
-}
+};
 
 
 
@@ -180,13 +198,13 @@ exports.ScheduleBlueprint=function(vision,blueprint){
 
 exports.postScheduleFromBlueprint=function(req,res,next){
     exports.ScheduleBlueprint(req.params.vision,req.params.blueprint)
-    .then(()=>{
-        res.json();
-    })
-    .catch((err)=>{
-        res.status(err.status).json(err);
-    })
-}
+        .then(()=>{
+            res.json();
+        })
+        .catch((err)=>{
+            res.status(err.status).json(err);
+        });
+};
 exports.MarkProjectPendingRetire=function(vision,blueprint){
     //kill project in the vision that is constructed based on blueprint
     return new Promise((resolve,reject)=>{
@@ -195,7 +213,7 @@ exports.MarkProjectPendingRetire=function(vision,blueprint){
             .then(visionList=>{
                 
                 if(visionList==null){
-                    reject(standardError(`unable to find ${vision}`))
+                    reject(standardError(`unable to find ${vision}`));
                     return;
                 }
                 
@@ -208,7 +226,7 @@ exports.MarkProjectPendingRetire=function(vision,blueprint){
                 let updates=[];
                 visionList[0].current_projects
                     .filter(item=>{
-                        return item._project._bluePrint.name==blueprint
+                        return item._project._bluePrint.name==blueprint;
                     })
                     .forEach(item=>{
                         updates.push(projectControl.UpdateProjectStatus(item._project._id,projectStatus.pendingRetire.id));                        
@@ -216,7 +234,7 @@ exports.MarkProjectPendingRetire=function(vision,blueprint){
 
                 Promise.all(updates)
                     .then(()=>{
-                        resolve()
+                        resolve();
                     })
                     .catch(err=>{
                         reject(err);
@@ -225,13 +243,13 @@ exports.MarkProjectPendingRetire=function(vision,blueprint){
             })
             .catch(err=>{
                 reject(err);
-            })
-    })
+            });
+    });
     
 
 
 
-}
+};
 
 
 
@@ -286,14 +304,14 @@ exports.ScheduleVision=function(vision){
                     })
                     .catch(err=>{
                         reject(err);
-                    })
+                    });
 
-            })
+            });
 
     });
 
 
-}
+};
 
 
 exports.ScheduleNextProject=function(visionName,projectId){
@@ -303,7 +321,7 @@ exports.ScheduleNextProject=function(visionName,projectId){
             .then(visionList=>{
                 
                 if(visionList==null){
-                    reject(standardError(`unable to find ${vision}`))
+                    reject(standardError(`unable to find ${vision}`));
                     return;
                 }
                 
@@ -315,12 +333,10 @@ exports.ScheduleNextProject=function(visionName,projectId){
                 let visionDoc=visionList[0];
                 
                 //filter out current_projects to find out if we can find projectName
-                let project=visionDoc.current_projects.find(item=>{return item._project._id.toString()==projectId});
+                let project=visionDoc.current_projects.find(item=>{return item._project._id.toString()==projectId;});
                 //test project id
                 if(project==null){
-                    reject(standardError(`unable to find project id ${projectId} specified`,400))
-                    
-                    resolve();
+                    reject(standardError(`unable to find project id ${projectId} specified`,400));
                     return;
                 }
                 
@@ -337,9 +353,9 @@ exports.ScheduleNextProject=function(visionName,projectId){
                             else{
                                 //if there is no pending task after removal, then will run this function again and remove the project
                                 return exports.ScheduleNextProject(visionName,projectId)
-                                            .then(()=>{
-                                                resolve();
-                                            })
+                                    .then(()=>{
+                                        resolve();
+                                    });
                             }
                         })
                         .catch(err=>{
@@ -352,36 +368,36 @@ exports.ScheduleNextProject=function(visionName,projectId){
 
                 //if there is no pending task under the task, look up the project schedule and schedule next blueprint if any
                 let projectBlueprintId=project._project._bluePrint._id.toString();
-                let currentSchedule=visionDoc.project_schedule.find(item=>{return item.project_blueprint._id.toString()==projectBlueprintId});
+                let currentSchedule=visionDoc.project_schedule.find(item=>{return item.project_blueprint._id.toString()==projectBlueprintId;});
                 
                 //mark current project as pending retire
                 projectControl.UpdateProjectStatus(projectId,projectStatus.pendingRetire.id)
-                .then(()=>{
+                    .then(()=>{
                     //find current schedule
                     
-                    if(currentSchedule.next_project==null){
-                        console.warn(`unable to find current blueprint ${projectBlueprintId}`);
-                        resolve();
-                        return;
-                    }
-
-                    ///schedule blueprint
-                    let scheduleList=[];
-                    currentSchedule.next_project.forEach(item=>{
-                        scheduleList.push(exports.ScheduleBlueprint(visionName,item.blueprint.name));
-                    });
-
-                    Promise.all(scheduleList)
-                        .then(()=>{
-                            return exports.ScheduleVision(visionName);
-                        })
-                        .then(()=>{
+                        if(currentSchedule.next_project==null){
+                            console.warn(`unable to find current blueprint ${projectBlueprintId}`);
                             resolve();
-                        })
-                        .catch(err=>{
-                            reject(standardError(err,500));
-                        })
-                });
+                            return;
+                        }
+
+                        ///schedule blueprint
+                        let scheduleList=[];
+                        currentSchedule.next_project.forEach(item=>{
+                            scheduleList.push(exports.ScheduleBlueprint(visionName,item.blueprint.name));
+                        });
+
+                        Promise.all(scheduleList)
+                            .then(()=>{
+                                return exports.ScheduleVision(visionName);
+                            })
+                            .then(()=>{
+                                resolve();
+                            })
+                            .catch(err=>{
+                                reject(standardError(err,500));
+                            });
+                    });
 
 
 
@@ -392,7 +408,7 @@ exports.ScheduleNextProject=function(visionName,projectId){
             });
 
     });
-}
+};
 
 exports.postNextProject=function(req,res,next){
     //remove existing project from current project
@@ -404,8 +420,8 @@ exports.postNextProject=function(req,res,next){
         })
         .catch((err)=>{
             res.status(err.status).json(err);
-        })
-}
+        });
+};
 
 
 exports.postScheduleSignal=function(req,res,next){
@@ -416,8 +432,8 @@ exports.postScheduleSignal=function(req,res,next){
         })
         .catch((err)=>{
             res.status(err.status).json(err);
-        })    
-}
+        });    
+};
 
 exports.GetProjectsInMachine=function(machineName){
     return new Promise((resolve,reject)=>{
@@ -450,11 +466,11 @@ exports.GetProjectsInMachine=function(machineName){
                 visionList.forEach(vision=>{
                     vision.current_projects.filter(project=>{
                         if(project._project.host==undefined){
-                            console.warn(`No host is specified for project ${project._project._bluePrint.name}`)
+                            console.warn(`No host is specified for project ${project._project._bluePrint.name}`);
                             return false;
                         }
                         else{
-                            return project._project.host.name==machineName    
+                            return project._project.host.name==machineName;    
                         }
                         
                     }).forEach(item=>{
@@ -464,12 +480,12 @@ exports.GetProjectsInMachine=function(machineName){
                         newItem['vision']=vision;
                         result.push(newItem);
                     });
-                })
-               resolve(result) ;
-            })        
+                });
+                resolve(result) ;
+            });        
     });
         
-}
+};
 exports.getMachineProject=function(req,res,next){
     //get the projects that associate with specific machine
     dormControl.IsDormValid(req.params.machine)
@@ -481,8 +497,8 @@ exports.getMachineProject=function(req,res,next){
         })
         .catch((err)=>{
             res.status(err.status).json(err);
-        })      
-}
+        });      
+};
 exports.AddTaskForVM=function(dormObj,visionObj,blueprintObj,taskObj){
     return new Promise((resolve,reject)=>{
         if(dormObj==undefined){
@@ -514,7 +530,7 @@ exports.AddTaskForVM=function(dormObj,visionObj,blueprintObj,taskObj){
                 //delete other project in current_project with similar vm name
                 visionObj.current_projects=visionObj.current_projects.filter(item=>{
                     return item._project.host.name!=dormObj.name;
-                })
+                });
                 
                 //add the new project to the current_schedule uner the vision specified
                 visionObj.current_projects.push({_project:projectObj._id});
@@ -526,20 +542,20 @@ exports.AddTaskForVM=function(dormObj,visionObj,blueprintObj,taskObj){
                     else{
                         resolve(projectObj._id);
                     }
-                })
+                });
                 
             }
-        })
+        });
     });
 
-}
+};
 exports.postTaskForVM=function(req,res,next){
     //this function will post task for the VM
     let promiseChain=[];
     promiseChain.push(dormControl.IsDormValid(req.params.vm));
     promiseChain.push(visionControl.getVision({name:req.params.vision}));
     promiseChain.push(taskControl.isTaskValid(req.params.task));
-    promiseChain.push(blueprintControl.isBlueprintValid(req.params.blueprint))
+    promiseChain.push(blueprintControl.isBlueprintValid(req.params.blueprint));
     Promise.all(promiseChain)
         .then(results=>{
             //add a project based on the task specified
@@ -554,11 +570,11 @@ exports.postTaskForVM=function(req,res,next){
         })
         .catch(err=>{
             res.status(err.status).json(err);
-        })
+        });
     
 
     
 
     
     
-}
+};

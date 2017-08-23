@@ -392,3 +392,8 @@ exports.PostVisionAESChef=()=>{
 exports.PostVisionAPMChefoffline=()=>{
     return exports.postNewVision(exports.visionAPMChefOffline)
 }
+exports.sampleMtell={
+    name:'MTELL_Prestaging',
+    note:'Prepare daily APM image',
+    status:'online'
+}

@@ -1,5 +1,14 @@
-﻿$sParentFolder=([System.IO.Path]::GetDirectoryName($myInvocation.MyCommand.Definition))
-.(Join-Path -Path $sParentFolder -ChildPath ARTLibrary.ps1)
+﻿iex ((New-Object System.Net.WebClient).DownloadString("$sARTServerUri/api/ps/ARTLibrary.ps1"))
+
+if($DebugPreference -eq "Continue")
+{
+    $sParentFolder=([System.IO.Path]::GetDirectoryName($myInvocation.MyCommand.Definition))
+    .(Join-Path -Path $sParentFolder -ChildPath ARTLibrary.ps1)
+}
+
+
+
+
 function Get-PendingTasks($sARTUri,$projectId){
     $projectdoc=Get-Project -sARTUri $sARTUri -projectId $projectId
     $lsResult=@()
@@ -15,4 +24,4 @@ function Get-HostForProject($sARTUri,$projectId){
     return $projectDoc.host.name
     
 }
-Write-Host -Object "NodeOB_Library is loaded!"
+Write-Host -Object "NodeOB_Library is loaded!" -ForegroundColor DarkMagenta

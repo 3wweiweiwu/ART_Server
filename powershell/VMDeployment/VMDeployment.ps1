@@ -2,8 +2,8 @@
 
 $sARTServerUri=$sARTUri
 $taskMediaDetection="Media_Detection"
-$taskVMDeployment="VM_Deployment"
-$DebugPreference = "Continue"
+$taskVMDeployment="taskDeployStandardVHDImage"
+#$DebugPreference = "Continue"
 
 
 $ScheduleMode=@{
@@ -29,19 +29,7 @@ if($DebugPreference -eq "Continue"){
 
 
 #load information for current vm
-
-
-$debugPID=$PID
-$computerName=$env:COMPUTERNAME
-
-$projectFeed=Get-SettingForProcess -sARTUri $sARTUri -key ProjectFeed -processId $debugPID -dorm $computerName
-$projectDorm="Dorm_$computerName"
-$vision=$projectFeed.vision
-$blueprint=$projectFeed.blueprint
-$projectId=$projectFeed.projectId
-$sVMClientId=$projectFeed.vmId
-#create ui identifier
-$Host.UI.RawUI.WindowTitle ="$blueprint==$projectId==$debugPID"
+iex ((New-Object System.Net.WebClient).DownloadString("$sARTUri/api/ps/CommonHeader.ps1"))
 
 
 
@@ -57,7 +45,8 @@ $VM_Pass=Load-Setting -sARTServerUri $sARTServerUri -project $blueprint -task $t
 
 #chose right space for VHD deployment
 Write-Host -Object "#chose right space for VHD deployment"
-$iVHDSize_Mb=(Get-VHD $sRemoteVmPath).Size/1024/1024
+$iVHDSize_Mb=(Get-VHDSize -sARTUri $sARTServerUri -vhdID $sRemoteVmPath)/1024/1024
+
 $diskSelection=Get-VolumeforVHD -sARTUri $sARTUri -machine $env:COMPUTERNAME -disk_size_in_mb $iVHDSize_Mb
 $sVHD_Local_Folder=Join-Path -Path ($diskSelection.disk.drive_letter+':') -ChildPath VHD
 if((Test-Path -Path $sVHD_Local_Folder) -eq $false)
@@ -87,7 +76,8 @@ Write-Host -Object "#copy vhd to local vhd folder"
 $sExtension=(Get-Item -Path $sRemoteVmPath).Extension
 $sVHDName=$sVMClientId+$sExtension   #Create a new name for vhd based on VM name
 $sLocalVHDPath=Join-Path -Path $sVHD_Local_Folder -ChildPath $sVHDName
-Start-BitsTransfer -Source $sRemoteVmPath -Destination $sLocalVHDPath -Description "Copy VHD from $sRemoteVmPath to $sLocalPath"
+Download-VHD -sARTUri $sARTUri -imageId $sRemoteVmPath -localPath $sLocalVHDPath
+
 
 
 #mount the vhd and get the drive letter of VHD

@@ -9,14 +9,15 @@ let vhdModel=new Schema({
     },
     content:{        
         os:{type:String},
+        series:{type:String},
         installed_products:[{
             name:{type:String},
             version:{type:String},
             build:{type:String}
         }],
-        installed_media:[{
+        installed_media:{
             name:{type:String}
-        }]
+        }
     },
     storage:{        
         destination:{type:String},

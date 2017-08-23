@@ -1,5 +1,6 @@
 var Joi=require('joi');
-
+let util=require('util');
+let StandardError=require('../controllers/common/error.controllers.ARTServer');
 module.exports={
     getUploadPath:{
         body:{
@@ -13,5 +14,35 @@ module.exports={
         params:{
             id:Joi.string().required()
         }
+    },
+    upload:function(req,file,cb){
+        
+
+        
+        req.checkBody('installed_products').eachIsNotEmpty('name');
+        req.checkBody('installed_products').eachIsNotEmpty('version');
+        req.checkBody('installed_products').eachIsNotEmpty('build');        
+        req.checkBody('installed_media').notEmpty();        
+        req.checkBody('series').notEmpty();       
+        
+        //check if body is correct
+        req.checkBody('created_by').notEmpty();
+        
+        req.checkBody('os').notEmpty();
+        req.getValidationResult()
+            .then(result=>{
+                if(!result.isEmpty()){
+                    req.fileValidationError=new StandardError(util.inspect(result.array()),400);
+                    return cb(null,false);
+                    
+                }
+                else{
+                    //sanitize body                    
+                    req.body.installed_products=JSON.parse(req.body.installed_products);
+                    req.body.installed_media=JSON.parse(req.body.installed_media);
+                    return cb(null,true);
+                }
+            });
+        
     }
 };

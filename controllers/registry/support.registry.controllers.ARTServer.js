@@ -16,6 +16,7 @@ exports.Keys={
 }
 exports.postRegistry=function(vision,project,task,key,value,cb=()=>{}){
     return new Promise((resolve,reject)=>{
+        key=key.replace('/','%2F');
         chai
         .request(app)
         .post(`/api/registry/vision/${vision}/project/${project}/task/${task}/key/${key}`)

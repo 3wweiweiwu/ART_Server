@@ -16,7 +16,7 @@ $sVMClientId=$projectFeed.vmId
 
 #Start-Process -FilePath (Join-Path -Path $sParentFolder -ChildPath uninstall.exe)
 
-$Product_Uninstall_List=Load-Setting -sARTServerUri $sARTUri -vision $vision -project $blueprint -task $taskName -key 'Product_Uninstall_List'
+$Product_Uninstall_List=Load-Setting -sARTServerUri $sARTUri -project $blueprint -task $taskName -key 'Product_Uninstall_List'
 
 if($Product_Uninstall_List.Count -eq 0 -or $Product_Uninstall_List[0] -match "all")
 {

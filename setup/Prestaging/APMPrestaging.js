@@ -133,7 +133,7 @@ describe('Add new vision APM Prestaging',()=>{
             .then(()=>{
                 //setting for the vm deployment
                 return new Promise((resolve)=>{
-                    registrySupport.postRegistry(registrySupport.Keys.Template,projectSupport.sampleAPMDeployment.name,taskSupport.taskVMDeployment.name,'base_vhd_path','\\\\wuwei1\\temp\\en_w2k16_dc_r2_x64_127gb.vhd')
+                    registrySupport.postRegistry(registrySupport.Keys.Template,projectSupport.sampleAPMDeployment.name,taskSupport.taskVMDeployment.name,'base_vhd_path','599c85c9a758ba2afcc18df9')
                         .then(()=>{
                             return registrySupport.postRegistry(registrySupport.Keys.Template,projectSupport.sampleAPMDeployment.name,taskSupport.taskVMDeployment.name,'memory_size',6*1024*1024*1024);
                         })

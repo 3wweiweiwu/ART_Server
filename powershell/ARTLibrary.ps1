@@ -7,6 +7,43 @@ $ProcessSetting=@{
     DoneKey='done'
 }
 
+$Task=@{
+    mediaDetection="Media_Detection"
+}
+
+
+function Get-All($sARTUri)
+{
+    $url = Join-Url -parentPath $sARTUri -childPath "/api/shelf/vhd"
+    $reponse=Invoke-RestMethod -Method Get -Uri $url
+}
+
+function Get-VHDSize($sARTUri,$vhdID)
+{
+    $url = Join-Url -parentPath $sARTUri -childPath "/api/shelf/vhd/download/$vhdID"
+    $clnt = [System.Net.WebRequest]::Create($url)
+    $resp = $clnt.GetResponse()
+    $fileSize = $resp.ContentLength
+    return $fileSize
+}
+
+function Get-VHD($sARTUri,$vhdID)
+{
+    $url = Join-Url -parentPath $sARTUri -childPath "/api/shelf/vhd/$vhdID"
+    $reponse=Invoke-RestMethod -Method Get -Uri $url
+    return $reponse
+}
+
+function Download-VHD($sARTUri,$imageId,$localPath)
+{
+    $url = Join-Url -parentPath $sARTUri -childPath "/api/shelf/vhd/download/$imageId"
+    $start_time = Get-Date
+    Write-Host -Object "Start to download from $url to $localPath"
+    (New-Object System.Net.WebClient).DownloadFile($url, $localPath)
+    Write-Output "Time taken: $((Get-Date).Subtract($start_time).Minutes) min"
+
+}
+
 function Join-Url($parentPath,$childPath)
 {
     $url=$parentPath -replace("http://","")

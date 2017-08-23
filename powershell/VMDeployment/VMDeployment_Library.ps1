@@ -40,3 +40,6 @@ function Get-VirtualSwitch()
     $ART_Switch=New-VMSwitch -Name $ART_Switch_Name -NetAdapterName $ethernet.Name -AllowManagementOS $true
 
 }
+
+
+Write-Host -Object "VM Deployment Library is loadded" -ForegroundColor DarkMagenta

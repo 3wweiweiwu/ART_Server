@@ -1,9 +1,9 @@
 ﻿#this is media detector, it will detect new media and schedule the media when time permits
 $sARTUri='http://mvf1:3000'
 $sARTServerUri=$sARTUri
-
+iex ((New-Object System.Net.WebClient).DownloadString("$sARTServerUri/api/ps/NodeOB_Library.ps1"))
 $Task=@{
-    taskMediaDetection="Media_Detection"
+    taskMediaDetection=$Task.mediaDetection
     taskVMDeployment="taskDeployStandardVHDImage"
     taskNewCheckPoint="New_CheckPoint"
     taskVHDCheckin="VHD_Checkin"
@@ -13,17 +13,12 @@ $Task=@{
 
 
 
-$DebugPreference = "Continue"
 
 
 $ScheduleMode=@{
     EveryNewMedia="EveryNewMedia"
 }
-iex ((New-Object System.Net.WebClient).DownloadString("$sARTServerUri/api/ps/VMDeployment_Library.ps1"))
-iex ((New-Object System.Net.WebClient).DownloadString("$sARTServerUri/api/ps/ARTLibrary.ps1"))
-iex ((New-Object System.Net.WebClient).DownloadString("$sARTServerUri/api/ps/Library.ps1"))
-iex ((New-Object System.Net.WebClient).DownloadString("$sARTServerUri/api/ps/VMDeployment_Library.ps1"))
-iex ((New-Object System.Net.WebClient).DownloadString("$sARTServerUri/api/ps/NodeOB_Library.ps1"))
+
 
 
 
@@ -42,18 +37,7 @@ if($DebugPreference -eq "Continue"){
 
 #load information for current vm
 
-
-$debugPID=$PID
-$computerName=$env:COMPUTERNAME
-
-$projectFeed=Get-SettingForProcess -sARTUri $sARTUri -key ProjectFeed -processId $debugPID -dorm $computerName
-$projectDorm="Dorm_$computerName"
-$vision=$projectFeed.vision
-$blueprint=$projectFeed.blueprint
-$projectId=$projectFeed.projectId
-$sVMClientId=$projectFeed.vmId
-#create ui identifier
-$Host.UI.RawUI.WindowTitle ="$blueprint==$projectId==$debugPID"
+iex ((New-Object System.Net.WebClient).DownloadString("$sARTUri/api/ps/CommonHeader.ps1"))
 
 while($true){
     #Start-Sleep -Seconds 10

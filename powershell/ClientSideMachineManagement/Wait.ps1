@@ -2,15 +2,7 @@
 $taskName="Wait"
 
 iex ((New-Object System.Net.WebClient).DownloadString("$sARTUri/api/ps/ARTLibrary.ps1"))
-
-$debugPID=$PID
-$computerName=$env:COMPUTERNAME
-$projectFeed=Get-SettingForProcess -sARTUri $sARTUri -key ProjectFeed -processId $debugPID -dorm $computerName
-$projectDorm="Dorm_$computerName"
-$vision=$projectFeed.vision
-$blueprint=$projectFeed.blueprint
-$projectId=$projectFeed.projectId
-$sVMClientId=$projectFeed.vmId
+iex ((New-Object System.Net.WebClient).DownloadString("$sARTUri/api/ps/CommonHeader.ps1"))
 
 
 Start-Sleep -Seconds 60

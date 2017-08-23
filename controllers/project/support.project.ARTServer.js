@@ -76,6 +76,15 @@ exports.putVIDToProject=(projectId,VID,cb=()=>{})=>{
             });   
     });
 };
+exports.sampleBP_MtellMediaDetection={
+    name:'Mtell_Media_Detection',
+    note:'detect apm media',
+    memory_usage_mb:1024,
+    disk_usage_mb:1024,
+    tasks:[taskSupport.taskMediaDetection.name],
+    next:[]    
+};
+
 exports.sampleBP_APMMediaDetection={
     name:'APM_Media_Detection',
     note:'detect apm media',
@@ -108,6 +117,15 @@ exports.blueprintAPMMediaDeployment={
     tasks:[taskSupport.taskMediaInstallation.name],
     next:[]    
 };
+exports.sampleMtellDeployment={
+    name:'Mtell_Media_Deployment',
+    note:'Install APM media whenever it is posted',
+    memory_usage_mb:6*1024,
+    disk_usage_mb:10*1024,
+    tasks:[taskSupport.sampleDeployStandardVHDImage.name,taskSupport.sampleUninstallProduct.name,taskSupport.sampleRestart.name,taskSupport.sampleWait.name,taskSupport.sampleInstallMedia.name,taskSupport.sampleRestart.name,taskSupport.sampleWait.name,taskSupport.sampleVHDCheckin.name],
+    next:[]       
+};
+
 exports.sampleAPMDeployment={
     name:'APM_Media_Deployment',
     note:'Install APM media whenever it is posted',

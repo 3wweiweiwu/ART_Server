@@ -28,7 +28,7 @@ var app = express();
 
 //mongoose ODM
 var mongoose=require('mongoose');
-mongoose.connect(config.testdbAddress);
+mongoose.connect(config.dbAddress);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -49,9 +49,18 @@ app.use(expressValidator({
             else{
                 list=values;
             }
-            return list.every(function(val){
-                return !validator.isEmpty(val[prop].toString());
-            });
+            let result=false;
+            try{
+                result= list.every(function(val){
+                    return !validator.isEmpty(val[prop].toString());
+                });
+            }
+            catch(err){
+                result=false;
+            }
+
+            
+            return result;
         }
     }
 }));

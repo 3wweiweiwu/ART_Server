@@ -2,7 +2,7 @@
 $sARTUri='http://mvf1:3000'
 $sARTServerUri=$sARTUri
 $taskMediaDetection="Media_Detection"
-$DebugPreference = "Continue"
+#$DebugPreference = "Continue"
 
 
 $ScheduleMode=@{
@@ -16,8 +16,13 @@ iex ((New-Object System.Net.WebClient).DownloadString("$sARTServerUri/api/ps/Lib
 
 
 #2nd load for debugging purpose
-$sRootFolder=[System.IO.Path]::GetDirectoryName($myInvocation.MyCommand.Definition)
-.(Join-Path -Path $sRootFolder -ChildPath ARTLibrary.ps1)
+
+if($DebugPreference -eq "Continue")
+{
+    $sRootFolder=[System.IO.Path]::GetDirectoryName($myInvocation.MyCommand.Definition)
+    .(Join-Path -Path $sRootFolder -ChildPath ARTLibrary.ps1)
+}
+
 
 $debugPID=$PID
 $computerName=$env:COMPUTERNAME
@@ -55,7 +60,7 @@ foreach($item in $lsFiles){
 }
 
 #update the remote snapshot in the server
-Write-Setting -project $blueprint -task $taskMediaDetection -key "Media_Folder_Snapshot" -value $lsMedia_Folder_Snapshot -sARTServerUri $sARTServerUri
+Write-Setting -project $blueprint -task $Task.mediaDetection -key "Media_Folder_Snapshot" -value $lsMedia_Folder_Snapshot -sARTServerUri $sARTServerUri
 
 #keep pulling the server to find out if new media is posted
 while($true){
@@ -84,7 +89,7 @@ while($true){
             
                 #update the media folder snaptshot because something new is detected
                 $lsMedia_Folder_Snapshot+=@($file)
-                Write-Setting -project $blueprint -task $taskMediaDetection -key "Media_Folder_Snapshot" -value $lsMedia_Folder_Snapshot -sARTServerUri $sARTServerUri            
+                Write-Setting -project $blueprint -task $Task.mediaDetection -key "Media_Folder_Snapshot" -value $lsMedia_Folder_Snapshot -sARTServerUri $sARTServerUri            
 
                 #if the new file proved to be a media, then add that into schedule
                 if($result[0] -eq $true){
@@ -95,7 +100,7 @@ while($true){
                     
                         $lsCurrentSchedule=@($sCurrentMediaPath)
 
-                        Write-Setting -project $blueprint -task $taskMediaDetection -key "current_schedule" -value $lsCurrentSchedule -sARTServerUri $sARTServerUri
+                        Write-Setting -project $blueprint -task $Task.mediaDetection -key "current_schedule" -value $lsCurrentSchedule -sARTServerUri $sARTServerUri
                     }
                 }
 
@@ -109,7 +114,7 @@ while($true){
 
     #start of media schedule        
         #if the first item in curernt schedule is not run, then schedule the first item
-        $lsCurrentSchedule=[array](Load-Setting -sARTServerUri $sARTServerUri -project $blueprint -task $taskMediaDetection -key "current_schedule")
+        $lsCurrentSchedule=[array](Load-Setting -sARTServerUri $sARTServerUri -project $blueprint -task $Task.mediaDetection -key "current_schedule")
         if ($lsCurrentSchedule.Length -gt 0 -and $lsCurrentSchedule[0] -notmatch 'run')
         {
             #schedule next project
@@ -117,7 +122,7 @@ while($true){
 
             #update current schedule queue
             $lsCurrentSchedule=@('run')+$lsCurrentSchedule
-            Write-Setting -sARTServerUri $sARTServerUri -project $blueprint -task $taskMediaDetection -key current_schedule -value $lsCurrentSchedule
+            Write-Setting -sARTServerUri $sARTServerUri -project $blueprint -task $Task.mediaDetection -key current_schedule -value $lsCurrentSchedule
         }
         
     #end of media schedule

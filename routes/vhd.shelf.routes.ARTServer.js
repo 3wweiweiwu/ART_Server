@@ -11,38 +11,9 @@ let multer=require('multer');
 let upload=multer({
     dest:'e:\\temp\\',
     limits:{
-        fileSize:9999999999999,
-        
+        fileSize:9999999999999,        
     },
-    fileFilter:function(req,file,cb){
-        
-
-        
-        req.checkBody('installed_products').eachIsNotEmpty('name');
-        req.checkBody('installed_products').eachIsNotEmpty('version');
-        req.checkBody('installed_products').eachIsNotEmpty('build');        
-        req.checkBody('installed_media').eachIsNotEmpty('name');        
-        
-        //check if body is correct
-        req.checkBody('created_by').notEmpty();
-        
-        req.checkBody('os').notEmpty();
-        req.getValidationResult()
-            .then(result=>{
-                if(!result.isEmpty()){
-                    req.fileValidationError=new StandardError(util.inspect(result.array()),400);
-                    return cb(null,false);
-                    
-                }
-                else{
-                    //sanitize body                    
-                    req.body.installed_products=JSON.parse(req.body.installed_products);
-                    req.body.installed_media=JSON.parse(req.body.installed_media);
-                    return cb(null,true);
-                }
-            });
-        
-    }
+    fileFilter:vhdValidation.upload
 });
 function extendTimeout (req, res, next) {
     res.setTimeout(480000, function () { /* Handle timeout */ });
@@ -92,7 +63,22 @@ router.get('/shelf/vhd',extendTimeout,function(req,res){
         });    
     
 });
-
+router.get('/shelf/vhd/:id',extendTimeout,function(req,res){
+    //it shall all available image information
+    let query={};
+    if(req.params.id!=undefined){
+        query={_id:req.params.id};
+    }
+        
+    vhdControl.getVHD(query)
+        .then((result)=>{
+            res.json(result);
+        })
+        .catch(err=>{
+            res.status(err.status).json(err);
+        });    
+    
+});
 router.get('/shelf/vhd/download/:id',validate(vhdValidation.getVHDDownload),function(req,res){
     //it shall download the image id specified
     vhdControl.getVHDDownload(req.params.id)
@@ -108,9 +94,11 @@ router.get('/shelf/vhd/download/:id',validate(vhdValidation.getVHDDownload),func
 router.post('/shelf/vhd',extendTimeout,upload.single('file'),function(req,res){    
     //upload vhd to shelf here is a template
 
+
     // $otherFieldInfo=@{
     //     created_by="me";
     //     os="10";    
+    //     series=''
     //     installed_products=@(
     //         @{name="A+";version="10";build=50},
     //         @{name="HYSYS";version="10";build=55}
@@ -120,7 +108,7 @@ router.post('/shelf/vhd',extendTimeout,upload.single('file'),function(req,res){
     //         @{name="AES10"}
     //     )
         
-    // }    
+    // }
     
     if(req.fileValidationError) {
         //check if there is any validation error
@@ -128,7 +116,7 @@ router.post('/shelf/vhd',extendTimeout,upload.single('file'),function(req,res){
         return;
     }
     //no validation error is found, then upload the file
-    vhdControl.getUploadPath(req.body.created_by,req.body.os,req.body.installed_products,req.body.installed_media,req.file)
+    vhdControl.getUploadPath(req.body.created_by,req.body.os,req.body.installed_products,req.body.installed_media,req.file,req.body.series)
         .then((pathObj)=>{
             res.json(pathObj);
         })
