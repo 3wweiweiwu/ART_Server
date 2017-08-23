@@ -42,6 +42,7 @@ const IncreaseVMGroupNumberForBlueprint=function(visionDoc,blueprintDoc){
                         })
                         .then(()=>{
                             resolve();
+                            return;
                         })
                         .catch((err)=>{
                             reject(standardError(err));
@@ -516,6 +517,14 @@ let AdddTaskForVM_SaveVision=function(visionId,dormObj,projectObj){
                         if(err.name=='VersionError'){
                             //if there is version error
                             return AdddTaskForVM_SaveVision(visionObj._id,dormObj,projectObj)
+                                .then(()=>{
+                                    resolve();
+                                    return;
+                                })
+                                .catch(err=>{
+                                    reject(err);
+                                    return;
+                                });
                         }
                         else{
                             reject(err);
