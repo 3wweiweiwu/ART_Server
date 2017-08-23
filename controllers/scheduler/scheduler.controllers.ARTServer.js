@@ -499,6 +499,36 @@ exports.getMachineProject=function(req,res,next){
             res.status(err.status).json(err);
         });      
 };
+
+let AdddTaskForVM_SaveVision=function(visionId,dormObj,projectObj){
+    return new Promise((resolve,reject)=>{
+        visionControl.getVision({_id:visionId})
+            .then(visionList=>{
+            //delete other project in current_project with similar vm name
+                let visionObj=visionList[0];
+                visionObj.current_projects=visionObj.current_projects.filter(item=>{
+                    return item._project.host.name!=dormObj.name;
+                });
+                //add the new project to the current_schedule uner the vision specified
+                visionObj.current_projects.push({_project:projectObj._id});
+                visionObj.save(err=>{
+                    if(err){
+                        if(err.name=='VersionError'){
+                            //if there is version error
+                            return AdddTaskForVM_SaveVision(visionObj._id,dormObj,projectObj)
+                        }
+                        else{
+                            reject(err);
+                        }
+                    }
+                    else{
+                        resolve();
+                    }
+                });            
+            });
+    });
+};
+
 exports.AddTaskForVM=function(dormObj,visionObj,blueprintObj,taskObj){
     return new Promise((resolve,reject)=>{
         if(dormObj==undefined){
@@ -527,28 +557,21 @@ exports.AddTaskForVM=function(dormObj,visionObj,blueprintObj,taskObj){
                 return;
             }
             else{
-                //delete other project in current_project with similar vm name
-                visionObj.current_projects=visionObj.current_projects.filter(item=>{
-                    return item._project.host.name!=dormObj.name;
-                });
-                
-                //add the new project to the current_schedule uner the vision specified
-                visionObj.current_projects.push({_project:projectObj._id});
-                visionObj.save(err=>{
-                    if(err){
+                AdddTaskForVM_SaveVision(visionObj._id,dormObj,projectObj)
+                    .then(()=>{
+                        resolve(projectObj._id);
+                    })
+                    .catch(err=>{
                         reject(standardError(err,500));
                         return;
-                    }                    
-                    else{
-                        resolve(projectObj._id);
-                    }
-                });
-                
+                    });
             }
         });
     });
 
 };
+
+
 exports.postTaskForVM=function(req,res,next){
     //this function will post task for the VM
     let promiseChain=[];
