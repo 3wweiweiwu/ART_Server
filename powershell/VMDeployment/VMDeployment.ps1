@@ -1,5 +1,5 @@
 ﻿#this is media detector, it will detect new media and schedule the media when time permits
-
+$sARTUri="http://mvf1:3000"
 $sARTServerUri=$sARTUri
 $taskMediaDetection="Media_Detection"
 $taskVMDeployment="taskDeployStandardVHDImage"
@@ -12,7 +12,7 @@ $ScheduleMode=@{
 iex ((New-Object System.Net.WebClient).DownloadString("$sARTServerUri/api/ps/VMDeployment@VMDeployment_Library.ps1"))
 iex ((New-Object System.Net.WebClient).DownloadString("$sARTServerUri/api/ps/ARTLibrary.ps1"))
 iex ((New-Object System.Net.WebClient).DownloadString("$sARTServerUri/api/ps/Library.ps1"))
-iex ((New-Object System.Net.WebClient).DownloadString("$sARTServerUri/api/ps/VMDeployment_Library.ps1"))
+
 
 
 
@@ -37,10 +37,11 @@ iex ((New-Object System.Net.WebClient).DownloadString("$sARTUri/api/ps/CommonHea
 $sRemoteVmPath=Load-Setting -sARTServerUri $sARTServerUri -project $blueprint -task $taskVMDeployment -key base_vhd_path
 $iVmMemorySize=Load-Setting -sARTServerUri $sARTServerUri -project $blueprint -task $taskVMDeployment -key memory_size
 $iCPUCores=Load-Setting -sARTServerUri $sARTServerUri -project $blueprint -task $taskVMDeployment -key cpu_cores
-$PRODUCT_LIST=Load-Setting -sARTServerUri $sARTServerUri -project $blueprint -task $taskVMDeployment -key PRODUCT_LIST
 $VM_Username=Load-Setting -sARTServerUri $sARTServerUri -project $blueprint -task $taskVMDeployment -key VM_Username
 $VM_Pass=Load-Setting -sARTServerUri $sARTServerUri -project $blueprint -task $taskVMDeployment -key VM_Pass
 
+$lsCurrentSchedule=([array](Load-Setting -sARTServerUri $sARTUri -vision $vision -task $Task.mediaDetection -key current_schedule))
+$Installation_File=$lsCurrentSchedule[$lsCurrentSchedule.Length-1]
 
 
 #chose right space for VHD deployment
@@ -48,6 +49,7 @@ Write-Host -Object "#chose right space for VHD deployment"
 $iVHDSize_Mb=(Get-VHDSize -sARTUri $sARTServerUri -vhdID $sRemoteVmPath)/1024/1024
 
 $diskSelection=Get-VolumeforVHD -sARTUri $sARTUri -machine $env:COMPUTERNAME -disk_size_in_mb $iVHDSize_Mb
+
 $sVHD_Local_Folder=Join-Path -Path ($diskSelection.disk.drive_letter+':') -ChildPath VHD
 if((Test-Path -Path $sVHD_Local_Folder) -eq $false)
 {
@@ -64,19 +66,23 @@ if($VM -ne $null){
     #Delete hardrive    
     $VM|Hyper-V\Stop-VM -Force
     $sVHDDrive=($VM.HardDrives|Select-Object -First 1).Path
+    
     Return-VHDSpace -sARTUri $sARTUri -machine $env:COMPUTERNAME -vhd_Path $sVHDDrive    
     $VM|Hyper-V\Remove-VM -Force
     Remove-Item -Path $sVHDDrive -Force
     
 }
 
+
+
 #copy vhd to local vhd folder
 
 Write-Host -Object "#copy vhd to local vhd folder"
-$sExtension=(Get-Item -Path $sRemoteVmPath).Extension
-$sVHDName=$sVMClientId+$sExtension   #Create a new name for vhd based on VM name
+$sExtension=(Get-VHDFromServer -sARTUri $sARTUri -vhdID $sRemoteVmPath).storage.originalname
+$sVHDName=$sVMClientId+"_"+$sExtension   #Create a new name for vhd based on VM name
 $sLocalVHDPath=Join-Path -Path $sVHD_Local_Folder -ChildPath $sVHDName
 Download-VHD -sARTUri $sARTUri -imageId $sRemoteVmPath -localPath $sLocalVHDPath
+
 
 
 
@@ -93,6 +99,7 @@ $pipe.Dispose()
 
 
 
+
 #copy minimum ART installer to vm image
 Write-Host -Object "copy minimum ART installer to vm image "
 $sArt_VHD=Join-Path $sDriverLetter -ChildPath ".\p4\ART\"
@@ -100,6 +107,19 @@ if((Test-Path -Path $sArt_VHD) -eq $false)
 {
     New-Item -Path $sArt_VHD -ItemType directory    #create ART root folder
 }
+
+
+#copy detected from hqfiler to drive
+Wait-FileAvailable -TimeOut 3600 -Path $Installation_File
+$Local_Media_Storage=Join-Path -Path $sDriverLetter -ChildPath p4
+if((Test-Path -Path $Local_Media_Storage) -eq $false)
+{
+    md $Local_Media_Storage
+}
+
+Copy-Item -Path $Installation_File -Destination $Local_Media_Storage -Force|Out-Host -Verbose
+$sLocal_Media_Path=Join-Path -Path $Local_Media_Storage -ChildPath (Split-Path -Path $Installation_File -Leaf)
+
 
 $VMSetting=@{
     ND_User="corp\svc-mvfwAdmin"

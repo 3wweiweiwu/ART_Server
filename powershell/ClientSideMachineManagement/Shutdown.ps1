@@ -6,5 +6,5 @@ iex ((New-Object System.Net.WebClient).DownloadString("$sARTUri/api/ps/CommonHea
 
 
 Set-NextProject -sARTServerUri $sARTUri -vision $vision -project $projectId
-Restart-Computer -Force
+Stop-Computer -Force
 Start-Sleep -Seconds 3600

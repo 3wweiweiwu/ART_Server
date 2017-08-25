@@ -62,6 +62,9 @@ describe('Add new vision APM Prestaging',()=>{
                 return taskSupport.PostTask(taskSupport.sampleWait);
             })            
             .then(()=>{
+                return taskSupport.PostTask(taskSupport.sampleShutdown);
+            })
+            .then(()=>{
                 return taskSupport.PostTask(taskSupport.sampleInstallMedia);
             })
             .then(()=>{
@@ -110,7 +113,7 @@ describe('Add new vision APM Prestaging',()=>{
                     registrySupport.postRegistry(registrySupport.Keys.Template,blueprintMediaDetectionObj.name,taskSupport.taskMediaDetection.name,'family','mtell')
                         .then(()=>{
                             //registrySupport.postRegistry(registrySupport.Keys.Template,blueprintMediaDetectionObj.name,taskSupport.taskMediaDetection.name,'media_path','\\\\hqfiler\\upload$\\aspenONEV10.0\\APM')
-                            return registrySupport.postRegistry(registrySupport.Keys.Template,blueprintMediaDetectionObj.name,taskSupport.taskMediaDetection.name,'media_path','e:\\mtellmedia');
+                            return registrySupport.postRegistry(registrySupport.Keys.Template,blueprintMediaDetectionObj.name,taskSupport.taskMediaDetection.name,'media_path','\\\\hqfiler\\upload$\\aspenONEV10.0_CP\\Mtell');
                         })
                         .then(()=>{
                             return registrySupport.postRegistry(registrySupport.Keys.Template,blueprintMediaDetectionObj.name,taskSupport.taskMediaDetection.name,'Media_Folder_Snapshot','Run');
@@ -119,7 +122,7 @@ describe('Add new vision APM Prestaging',()=>{
                             return registrySupport.postRegistry(registrySupport.Keys.Template,blueprintMediaDetectionObj.name,taskSupport.taskMediaDetection.name,'schedule_mode','EveryNewMedia');
                         })
                         .then(()=>{
-                            return registrySupport.postRegistry(registrySupport.Keys.Template,blueprintMediaDetectionObj.name,taskSupport.taskMediaDetection.name,'current_schedule',' ');
+                            return registrySupport.postRegistry(visionObj.name,registrySupport.Keys.Template,taskSupport.taskMediaDetection.name,'current_schedule',' ');
                         })                        
                         .then(()=>{
                             resolve();
@@ -146,6 +149,12 @@ describe('Add new vision APM Prestaging',()=>{
                             return registrySupport.postRegistry(registrySupport.Keys.Template,blueprintMediaPreparationObj.name,taskSupport.sampleDeployStandardVHDImage.name,'cpu_cores',4);
                         })
                         .then(()=>{
+                            return registrySupport.postRegistry(registrySupport.Keys.Template,blueprintMediaPreparationObj.name,taskSupport.sampleDeployStandardVHDImage.name,'VM_Username','administrator');
+                        })
+                        .then(()=>{
+                            return registrySupport.postRegistry(registrySupport.Keys.Template,blueprintMediaPreparationObj.name,taskSupport.sampleDeployStandardVHDImage.name,'VM_Pass','Aspen100');
+                        })                        
+                        .then(()=>{
                             resolve();
                         });
                 });
@@ -155,16 +164,10 @@ describe('Add new vision APM Prestaging',()=>{
                 return new Promise((resolve)=>{
                     registrySupport.postRegistry(registrySupport.Keys.Template,blueprintMediaPreparationObj.name,taskSupport.sampleInstallMedia.name,'Installation_File','\\\\hqfiler\\upload$\\aspenONEV10.0\\APM\\V10.0_APM_Suite_174.iso')
                         .then(()=>{
-                            return registrySupport.postRegistry(registrySupport.Keys.Template,blueprintMediaPreparationObj.name,taskSupport.sampleInstallMedia.name,'VM_Username','administrator');
+                            return registrySupport.postRegistry(registrySupport.Keys.Template,blueprintMediaPreparationObj.name,taskSupport.sampleInstallMedia.name,'PRODUCT_LIST','/Aspen Mtell;/Aspen Mtell/Aspen Mtell Suite;/Aspen Mtell/Aspen Mtell Suite/Core Applications and Services (64bit);/Aspen Mtell/Aspen Mtell Suite/Desktop Applications (64bit);/Aspen Mtell/Aspen Mtell Suite/Agent Service (64bit);/Aspen Mtell/Aspen Mtell Suite/Training Service (64bit);/Aspen Mtell/Aspen Mtell SCADA?HMI Integration;/Aspen Mtell/Aspen Mtell SCADA?HMI Integration/HMI Maintenance Gateway (64bit);/Aspen Mtell/Aspen Mtell SCADA?HMI Integration/HMI Maintenance Gateway (32bit);/Aspen Mtell/Aspen Mtell SCADA?HMI Integration/Gateway Server (32bit);/Aspen Mtell/Aspen Mtell EAM Adapters;/Aspen Mtell/Aspen Mtell EAM Adapters/Avantis EAM Adapter (64bit);/Aspen Mtell/Aspen Mtell EAM Adapters/Cityworks EAM Adapter (64bit);/Aspen Mtell/Aspen Mtell EAM Adapters/Empac EAM Adapter (64bit);/Aspen Mtell/Aspen Mtell EAM Adapters/Hansen EAM Adapter (64bit);/Aspen Mtell/Aspen Mtell EAM Adapters/Infor EAM Adapter (64bit);/Aspen Mtell/Aspen Mtell EAM Adapters/Oracle JD Edwards EAM Adapter (64bit);/Aspen Mtell/Aspen Mtell EAM Adapters/Mainsaver EAM Adapter (64bit);/Aspen Mtell/Aspen Mtell EAM Adapters/Maintenance Connection EAM Adapter (64bit);/Aspen Mtell/Aspen Mtell EAM Adapters/IBM Maximo EAM Adapter (64bit);/Aspen Mtell/Aspen Mtell EAM Adapters/MP2 EAM Adapter (64bit);/Aspen Mtell/Aspen Mtell EAM Adapters/Tabware EAM Adapter (64bit);/Aspen Mtell/Aspen Mtell Sensor Adapters;/Aspen Mtell/Aspen Mtell Sensor Adapters/Honeywell PHD Sensor Adapter (64bit);/Aspen Mtell/Aspen Mtell Sensor Adapters/OpenTSDB Sensor Adapter (64bit);/Aspen Mtell/Aspen Mtell Sensor Adapters/OSIsoft PI Sensor Adapter (64bit);/Aspen Mtell/Aspen Mtell Sensor Adapters/Aptitude Observer Sensor Adapter (64bit);/Aspen Mtell/Aspen Mtell Log Manager;/Aspen Mtell/Aspen Mtell Log Manager/Log Manager (64bit)');
                         })
                         .then(()=>{
-                            return registrySupport.postRegistry(registrySupport.Keys.Template,blueprintMediaPreparationObj.name,taskSupport.sampleInstallMedia.name,'VM_Pass','Aspen100');
-                        })                      
-                        .then(()=>{
-                            return registrySupport.postRegistry(registrySupport.Keys.Template.name,blueprintMediaPreparationObj.name,taskSupport.sampleInstallMedia.name,'PRODUCT_LIST','/Aspen Mtell');
-                        })
-                        .then(()=>{
-                            return registrySupport.postRegistry(registrySupport.Keys.Template.name,blueprintMediaPreparationObj.name,taskSupport.sampleInstallMedia.name,'Product_Folder_In_Installation_Package','aspenONE_V*_APM');
+                            return registrySupport.postRegistry(registrySupport.Keys.Template,blueprintMediaPreparationObj.name,taskSupport.sampleInstallMedia.name,'Product_Folder_In_Installation_Package','aspenONE_V*_APM');
                         })
                         .then(()=>{
                             let Product_Verification=['mtell','mtell'];

@@ -3,11 +3,14 @@
 $sARTUri='http://mvf1:3000'
 $sARTServerUri=$sARTUri
 $DebugPreference="Continue"
-#$DebugPreference='SilentlyContinue'
+$DebugPreference='SilentlyContinue'
 iex ((New-Object System.Net.WebClient).DownloadString("$sARTServerUri/api/ps/Library.ps1"))
 iex ((New-Object System.Net.WebClient).DownloadString("$sARTServerUri/api/ps/ARTLibrary.ps1"))
 iex ((New-Object System.Net.WebClient).DownloadString("$sARTServerUri/api/ps/MachineManagerLibrary.ps1"))
 
+$windowTitle="ART2 Machine Manager - $($env:COMPUTERNAME)"
+
+$Host.UI.RawUI.WindowTitle =$windowTitle
 
 #2nd load for debugging purpose
 $sParentFolder=[System.IO.Path]::GetDirectoryName($myInvocation.MyCommand.Definition)
@@ -32,10 +35,16 @@ while($true){
     
     #Check _project that are in ready to run state, schedule them if we have enough resource
     #pull the project every 5 second
-    #Start-Sleep -Seconds 5
+    Start-Sleep -Seconds 15
     Write-Host -Object "Waiting for task from server"
     $lsCurrentMachineProjects=[array](Get-ProjectsInMachine -sARTServerUri $sARTUri)
     
+    #go through existing powershell console window, kill unrelated window to avoid double schedule
+        Kill-UnrelatedPowershellConsole -lsProjectList $lsCurrentMachineProjects -lsException @($windowTitle)
+        
+
+
+
     #check existing project in the machine to ensure they are up and running
         $lsRunningProject=[array](Get-RunningProject -lsCurrentMachineProjects $lsCurrentMachineProjects)
         foreach($project in $lsRunningProject){

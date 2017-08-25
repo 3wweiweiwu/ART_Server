@@ -5,25 +5,28 @@ $DebugPreference="Continue"
 iex ((New-Object System.Net.WebClient).DownloadString("$sARTUri/api/ps/MediaInstallation@MediaInstallationLibrary.ps1"))
 iex ((New-Object System.Net.WebClient).DownloadString("$sARTUri/api/ps/Library.ps1"))
 iex ((New-Object System.Net.WebClient).DownloadString("$sARTUri/api/ps/CommonHeader.ps1"))
-
+$taskName=$Task.installMedia
 
 #load setting from server for the task
-    $Installation_File=Load-Setting -sARTServerUri $sARTUri -project $blueprint -task $Task.mediaDetection -key 'current_schedule'
+
     $PRODUCT_LIST=Load-Setting -sARTServerUri $sARTUri -project $blueprint -task $taskName -key 'PRODUCT_LIST'
     $Product_Folder_In_Installation_Package=Load-Setting -sARTServerUri $sARTUri -project $blueprint -task $taskName -key 'Product_Folder_In_Installation_Package'
     $Product_Verification=Load-Setting -sARTServerUri $sARTUri -project $blueprint -task $taskName -key 'Product_Verification'
-    
+    $lsCurrentSchedule=([array](Load-Setting -sARTServerUri $sARTUri -vision $vision -task $Task.mediaDetection -key current_schedule))
+    $Installation_File=$lsCurrentSchedule[$lsCurrentSchedule.Length-1]
+#test installation file, if this is 
+
 
     
-#copy file from hqfiler to local
-    Wait-FileAvailable -TimeOut 3600 -Path $Installation_File
-    $Local_Media_Storage="c:\p4"
-    if((Test-Path -Path $Local_Media_Storage) -eq $false)
-    {
-        md $Local_Media_Storage
-    }
-    Copy-Item -Path $Installation_File -Destination $Local_Media_Storage -Force|Out-Host
-    $sLocal_Media_Path=Join-Path -Path $Local_Media_Storage -ChildPath (Split-Path -Path $Installation_File -Leaf)
+#copy detected from hqfiler to drive
+
+$Local_Media_Storage='c:\p4'
+if((Test-Path -Path $Local_Media_Storage) -eq $false)
+{
+    md $Local_Media_Storage
+}
+#Copy-Item -Path $Installation_File -Destination $Local_Media_Storage -Force|Out-Host
+$sLocal_Media_Path=Join-Path -Path $Local_Media_Storage -ChildPath (Split-Path -Path $Installation_File -Leaf)
 
 #download installation script form p4
     $sInstallerPath="//depot/qe/dev/AUTOMATION/BAF/Shared Features/aspenOneInstaller/AspenOneInstaller/"
@@ -139,14 +142,14 @@ iex ((New-Object System.Net.WebClient).DownloadString("$sARTUri/api/ps/CommonHea
                
 
      
-    $InstallFail=$false
+    $bVerified=$false
 
     if([string]($Product_Verification) -notmatch "none")
     {
         #Check Whether the software has been installed or not
         
         $InstalledSoftware=[array](Get-WmiObject -Class Win32_Product|where{$_.Vendor -match "AspenTech"})
-        foreach($Verification in $lsProduct_Verification)
+        foreach($Verification in $Product_Verification)
         {
             $bVerified=$false
             if (($InstalledSoftware.Caption|where{$_ -like ("*"+$Verification.replace("(","*").replace(")","*")+"*")}).Count -gt 0)
@@ -165,11 +168,11 @@ iex ((New-Object System.Net.WebClient).DownloadString("$sARTUri/api/ps/CommonHea
 
     }
     else{
-        $InstallFail=$true
+        $bVerified=$true
     }
     
     
-    if($InstallFail)
+    if(!$bVerified)
     {
         log -ServerLocation $sServerDirectory -Err ("The installation failed. Revert to Task Queue")
         #Fix folder problem

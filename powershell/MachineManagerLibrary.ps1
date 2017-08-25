@@ -59,6 +59,7 @@ function Invoke-LocalProject($sARTUri,$Project,$diskProfile){
     if($Project._project.vid -ne $null -and $Project._project.vid -ne "")
     {
         $processId=Invoke-NewPowershellConsoleFromUri -uri ($sARTUri+"/api/ps/NodeOB.ps1")
+        
     }
     else
     {

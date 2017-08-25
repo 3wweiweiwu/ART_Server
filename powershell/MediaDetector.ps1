@@ -41,7 +41,7 @@ $sMediaPath=Load-Setting -sARTServerUri $sARTServerUri -project $blueprint -task
 $sFamily=Load-Setting -sARTServerUri $sARTServerUri -project $blueprint -task $taskMediaDetection -key family
 $lsMedia_Folder_Snapshot=[array](Load-Setting -sARTServerUri $sARTServerUri -project $blueprint -task $taskMediaDetection -key "Media_Folder_Snapshot")
 $sScheduleMode=Load-Setting -sARTServerUri $sARTServerUri -project $blueprint -task $taskMediaDetection -key "schedule_mode"
-$lsCurrentSchedule=[array](Load-Setting -sARTServerUri $sARTServerUri -project $blueprint -task $taskMediaDetection -key "current_schedule")
+$lsCurrentSchedule=[array](Load-Setting -sARTServerUri $sARTServerUri -vision $vision -task $taskMediaDetection -key "current_schedule") #this is recorded at vision level as this information is shared by everyone
 
 #if media folder snapshot is empty, then initalize it
 if($lsMedia_Folder_Snapshot -eq ""){
@@ -100,7 +100,7 @@ while($true){
                     
                         $lsCurrentSchedule=@($sCurrentMediaPath)
 
-                        Write-Setting -project $blueprint -task $Task.mediaDetection -key "current_schedule" -value $lsCurrentSchedule -sARTServerUri $sARTServerUri
+                        Write-Setting -vision $vision -task $Task.mediaDetection -key "current_schedule" -value $lsCurrentSchedule -sARTServerUri $sARTServerUri
                     }
                 }
 
@@ -114,7 +114,7 @@ while($true){
 
     #start of media schedule        
         #if the first item in curernt schedule is not run, then schedule the first item
-        $lsCurrentSchedule=[array](Load-Setting -sARTServerUri $sARTServerUri -project $blueprint -task $Task.mediaDetection -key "current_schedule")
+        $lsCurrentSchedule=[array](Load-Setting -sARTServerUri $sARTServerUri -task $Task.mediaDetection -key "current_schedule" -vision $vision)
         if ($lsCurrentSchedule.Length -gt 0 -and $lsCurrentSchedule[0] -notmatch 'run')
         {
             #schedule next project
@@ -122,7 +122,7 @@ while($true){
 
             #update current schedule queue
             $lsCurrentSchedule=@('run')+$lsCurrentSchedule
-            Write-Setting -sARTServerUri $sARTServerUri -project $blueprint -task $Task.mediaDetection -key current_schedule -value $lsCurrentSchedule
+            Write-Setting -sARTServerUri $sARTServerUri -task $Task.mediaDetection -key current_schedule -value $lsCurrentSchedule -vision $vision
         }
         
     #end of media schedule

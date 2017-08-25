@@ -1,7 +1,7 @@
 ﻿
 $sParentFolder=[System.IO.Path]::GetDirectoryName($myInvocation.MyCommand.Definition)
 $sARTUri='http://mvf1:3000'
-
+$iTimeout=500 #set global timeout for rest api call to be # ms
 $ProcessSetting=@{
     InitializationKey='Initialization'    
     DoneKey='done'
@@ -9,29 +9,100 @@ $ProcessSetting=@{
 
 $Task=@{
     mediaDetection="Media_Detection"
+    installMedia='Install_Media'
+    taskVHDSeriesManagement='VHD_Series_Management'
+    taskVMDeployment="taskDeployStandardVHDImage"
+    taskNewCheckPoint="New_CheckPoint"
+    taskVHDCheckin="VHD_Checkin" 
+
 }
 
+function Get-RandomName($extension)
+{
+    $sTempName=(Get-Date).ToFileTimeUtc().ToString()+(Get-Random).ToString()+$extension
+    return $sTempName
+}
+function Kill-UnrelatedPowershellConsole($lsProjectList,$lsException=@())
+{
+    #kill unrelated powershell console
+    #criteria
+        #The powershell's title is not equal to the name in exception list
+        #The powershell's title is not included in project's id list
+    $lsPowershellConsole=[array](Get-Process -Name powershell)
+
+    #merge the project id into exception list
+    foreach($project in $lsProjectList)
+    {
+        $lsException+=@($project._project._id)
+    }
+
+    #loop through  powershell console and check against the exception list
+    foreach($item in $lsPowershellConsole)
+    {
+        $bKill=$true
+        foreach($name in $lsException)
+        {
+            if($item.MainWindowTitle -match $name)
+            {
+                $bKill=$false
+                break;
+            }
+        }
+        if($bKill)
+        {
+            Write-Host "kill $($item.Id) with title $($item.MainWindowTitle)"
+            $item|Stop-Process -Force
+        }
+    }
+
+}
 
 function Get-All($sARTUri)
 {
     $url = Join-Url -parentPath $sARTUri -childPath "/api/shelf/vhd"
-    $reponse=Invoke-RestMethod -Method Get -Uri $url
+    try
+    {
+        $reponse=Invoke-RestMethod -Method Get -Uri $url
+    }
+    catch
+    {
+        Write-Warning -Message "Get-All($sARTUri)"
+        Get-All -sARTUri $sARTUri
+    }
+    
+    
+    
 }
 
 function Get-VHDSize($sARTUri,$vhdID)
 {
+    Start-Sleep -Seconds 1
     $url = Join-Url -parentPath $sARTUri -childPath "/api/shelf/vhd/download/$vhdID"
     $clnt = [System.Net.WebRequest]::Create($url)
     $resp = $clnt.GetResponse()
     $fileSize = $resp.ContentLength
+    Start-Sleep -Milliseconds $iTimeout
     return $fileSize
 }
 
-function Get-VHD($sARTUri,$vhdID)
+function Get-VHDFromServer($sARTUri,$vhdID)
 {
-    $url = Join-Url -parentPath $sARTUri -childPath "/api/shelf/vhd/$vhdID"
-    $reponse=Invoke-RestMethod -Method Get -Uri $url
-    return $reponse
+    try
+    {
+        Write-Host -Object "$sARTUri,$vhdID"
+        $url = Join-Url -parentPath $sARTUri -childPath "/api/shelf/vhd/$vhdID"
+        
+        $reponse=Invoke-RestMethod -Method Get -Uri $url
+    
+    
+        return $reponse
+    }
+    catch
+    {
+        Write-Warning -Message "Get-VHD($sARTUri,$vhdID)"
+        return Get-VHDFromServer -sARTUri $sARTUri -vhdID $vhdID
+    }
+
 }
 
 function Download-VHD($sARTUri,$imageId,$localPath)
@@ -39,8 +110,9 @@ function Download-VHD($sARTUri,$imageId,$localPath)
     $url = Join-Url -parentPath $sARTUri -childPath "/api/shelf/vhd/download/$imageId"
     $start_time = Get-Date
     Write-Host -Object "Start to download from $url to $localPath"
-    (New-Object System.Net.WebClient).DownloadFile($url, $localPath)
-    Write-Output "Time taken: $((Get-Date).Subtract($start_time).Minutes) min"
+    #(New-Object System.Net.WebClient).DownloadFile($url, $localPath)
+    Start-BitsTransfer -Source $url -Destination $localPath
+    Write-Output "Time taken: $((Get-Date).Subtract($start_time).TotalMinutes) min"
 
 }
 
@@ -134,6 +206,7 @@ function Add-NewServerToArt($sARTServerUri=$sARTUri){
     }
     $dormJson=$dormStatus|ConvertTo-Json -Depth 4
     $response=Invoke-RestMethod -Uri "$sARTServerUri/api/dorm" -Method Post -Body $dormJson -ContentType 'application/json'
+    Start-Sleep -Milliseconds $iTimeout
 
     if($response.result -eq "ok"){
         return $true
@@ -150,16 +223,31 @@ function Write-Setting($sARTServerUri,$vision="Template",$project="Template",$ta
         value=($value|ConvertTo-Json)
     }
     $valueJson=$value|ConvertTo-Json -Depth 99
-    $response=Invoke-RestMethod -Uri "$sARTServerUri/api/registry/vision/$vision/project/$project/task/$task/key/$key" -Method Post -Body $valueJson -ContentType 'application/json'
+    while($true)
+    {
+        try
+        {
+            $response=Invoke-RestMethod -Uri "$sARTServerUri/api/registry/vision/$vision/project/$project/task/$task/key/$key" -Method Post -Body $valueJson -ContentType 'application/json'
+            Start-Sleep -Milliseconds $iTimeout
+            break
+        }
+        catch
+        {
+            Start-Sleep -Milliseconds $iTimeout
+        }
+        
+    }
+    
     Write-Debug -Message "$sARTServerUri,$vision,$project,$task,$key,$value"
 }
 
-function Load-Setting($sARTServerUri,$vision="Template",$project="Template",$task="Template",$key){
+function Load-Setting($sARTServerUri,$vision="Template",$project="Template",$task="Template",$key,[switch]$LoadOnce){
     #load setting from server
     while($true)
     {
         try{
             $response=Invoke-RestMethod -Uri "$sARTServerUri/api/registry/vision/$vision/project/$project/task/$task/key/$key" -Method Get -ContentType 'application/json'
+            Start-Sleep -Milliseconds $iTimeout
             try{
                 $result=$response.result|ConvertFrom-Json
 
@@ -173,6 +261,9 @@ function Load-Setting($sARTServerUri,$vision="Template",$project="Template",$tas
         catch{
             Start-Sleep -Seconds 1
             Write-Warning "unable to load-setting $sARTServerUri | $vision | $project | $task | $key |"
+            if($LoadOnce.IsPresent){
+                break
+            }
         }
     }
 
@@ -200,25 +291,73 @@ function Set-DormDiskSpace($sARTServerUri,$dormName){
 
     }
     $diskJson=@{diskProfile=$lsDisk}|ConvertTo-Json
-    Invoke-RestMethod -Uri "$sARTServerUri/api/dorm/DiskInitializationSignal/$dormName" -Method Put -Body $diskJson -ContentType 'application/json'
+    
+    try
+    {
+        Invoke-RestMethod -Uri "$sARTServerUri/api/dorm/DiskInitializationSignal/$dormName" -Method Put -Body $diskJson -ContentType 'application/json'
+        Start-Sleep -Milliseconds $iTimeout
+    }
+    catch
+    {
+        Start-Sleep -Milliseconds $iTimeout        
+        Write-Warning -Message "Fail to invoke Set-DormDiskSpace $sARTServerUri,$dormName"
+        Set-DormDiskSpace -sARTServerUri $sARTServerUri -dormName $dormName
+    }
+    
+    
 }
 
 function Set-ProcessIdInProject($sARTServerUri,$projectId,$processId){
-    Invoke-RestMethod -Uri "$sARTServerUri/api/project/$projectId/PID/$processId" -Method Put 
+    try
+    {
+        Invoke-RestMethod -Uri "$sARTServerUri/api/project/$projectId/PID/$processId" -Method Put 
+        Start-Sleep -Milliseconds $iTimeout
+    }
+    catch
+    {
+        Write-Warning -Message "Set-ProcessIdInProject($sARTServerUri,$projectId,$processId)"
+        Start-Sleep -Milliseconds $iTimeout
+        Set-ProcessIdInProject -sARTServerUri $sARTServerUri -projectId $projectId -processId $processId
+    }
+
 }
 
 function Set-ProjectStatus($sARTServerUri,$projectId,$statusId){
-    $response=Invoke-RestMethod -Uri "$sARTServerUri/api/project/$projectId/status/$statusId" -Method Put -ContentType 'application/json'
+    try
+    {
+        $response=Invoke-RestMethod -Uri "$sARTServerUri/api/project/$projectId/status/$statusId" -Method Put -ContentType 'application/json'
+        Start-Sleep -Milliseconds $iTimeout
+    }
+    catch
+    {
+        Write-Warning -Message "Set-ProjectStatus($sARTServerUri,$projectId,$statusId)"
+        Start-Sleep -Milliseconds $iTimeout
+        Set-ProjectStatus -sARTServerUri $sARTServerUri -projectId $projectId -statusId $statusId
+    }
+
 }
 
 function Set-NextProject($sARTServerUri,$vision,$project){
-    #current project is done, move to next project    
-    $response=Invoke-RestMethod -Uri "$sARTServerUri/api/schedule/vision/$vision/next/$project" -Method Post -ContentType 'application/json'
+    
+    try
+    {
+        #current project is done, move to next project    
+        $response=Invoke-RestMethod -Uri "$sARTServerUri/api/schedule/vision/$vision/next/$project" -Method Post -ContentType 'application/json'
+        Start-Sleep -Milliseconds $iTimeout
+    }
+    catch
+    {
+        Write-Warning -Message "Set-NextProject($sARTServerUri,$vision,$project){"
+        Start-Sleep -Milliseconds $iTimeout
+        Set-NextProject -sARTServerUri $sARTServerUri -vision $vision -project $project
+    }
+
 }
 
 function Get-ProjectsInMachine($sARTServerUri,$sMachineName=$env:COMPUTERNAME){
     try{
         $response=Invoke-RestMethod -Uri "$sARTServerUri/api/schedule/machine/$sMachineName/projects" -Method Get -ContentType 'application/json'
+        Start-Sleep -Milliseconds $iTimeout
         try{
             $result=$response.result|ConvertFrom-Json
 
@@ -256,17 +395,38 @@ function Invoke-NewPowershellConsole($sArtUri,$script){
 }
 
 function Invoke-NewPowershellConsoleFromUri($uri,[switch]$ise){
+    $sTempName=(Get-Date).ToFileTimeUtc().ToString()+(Get-Random).ToString()+".ps1"
+    $sTempPath=Join-Path -Path $env:TEMP -ChildPath $sTempName
+    
+    while($true)
+    {
+        try
+        {
+            ((New-Object System.Net.WebClient).DownloadString($uri))|Out-File -FilePath $sTempPath -Force
+            Start-Sleep -Milliseconds $iTimeout
+            break
+        }
+        catch
+        {
+            Write-Warning -Message "Invoke-NewPowershellConsoleFromUri($uri,[switch]$ise)"
+        }
+    }
+    
+    
+
+
+
     if($ise.IsPresent -or $DebugPreference -eq "Continue")
     {
-        $sTempName=(Get-Date).ToFileTimeUtc().ToString()+(Get-Random).ToString()+".ps1"
-        $sTempPath=Join-Path -Path $env:TEMP -ChildPath $sTempName
-        ((New-Object System.Net.WebClient).DownloadString($uri))|Out-File -FilePath $sTempPath -Force
+
+        
         $app=Start-Process -FilePath powershell_ise.exe -ArgumentList $sTempPath -PassThru
         $app=@{Id=$PID}
     }
     else
     {
-        $app=Start-Process -FilePath powershell.exe -ArgumentList "-NoProfile -ExecutionPolicy Bypass -Command `"iex ((New-Object System.Net.WebClient).DownloadString('$uri'))`"" -PassThru
+        #$app=Start-Process -FilePath powershell.exe -ArgumentList "-NoProfile -ExecutionPolicy Bypass -Command `"iex ((New-Object System.Net.WebClient).DownloadString('$uri'))`"" -PassThru
+        $app=Start-Process -FilePath powershell.exe -ArgumentList "-ExecutionPolicy Bypass -Command `"$sTempPath`"" -PassThru
     }
     
     return $app.Id
@@ -315,33 +475,93 @@ function Get-FreshSettingForCurrentProcess($sARTUri,$key){
 
 function Remove-ProjectFromProjectCurrentProject($sARTUri,$visionName,$projectId){
     #delete project from current project list
-    $response=Invoke-RestMethod -Uri "$sARTUri/api/vision/$visionName/current_projects/$projectId" -Method Delete -ContentType 'application/json'
+    try
+    {
+        $response=Invoke-RestMethod -Uri "$sARTUri/api/vision/$visionName/current_projects/$projectId" -Method Delete -ContentType 'application/json'
+        Start-Sleep -Milliseconds $iTimeout
+    }
+    catch
+    {
+        Write-Warning -Message "Remove-ProjectFromProjectCurrentProject($sARTUri,$visionName,$projectId)"
+        Start-Sleep -Milliseconds $iTimeout
+        Remove-ProjectFromProjectCurrentProject -sARTUri $sARTUri -visionName $visionName -projectId $projectId
+    }
+
 
 }
 
 
 function Get-VolumeforVHD($sARTUri,$machine,$disk_size_in_mb){
-    $response=Invoke-RestMethod -Method Put -Uri "$sARTUri/api/dorm/$machine/vm/$disk_size_in_mb/drive/*"
-    return $response
+    try
+    {
+        $response=Invoke-RestMethod -Method Put -Uri "$sARTUri/api/dorm/$machine/vm/$disk_size_in_mb/drive/*"
+        Start-Sleep -Milliseconds $iTimeout
+        return $response
+    }
+    catch
+    {
+        Write-Warning -Message "Get-VolumeforVHD($sARTUri,$machine,$disk_size_in_mb){"
+        Start-Sleep -Milliseconds $iTimeout
+        return Get-VolumeforVHD -sARTUri $sARTUri -machine $machine -disk_size_in_mb $disk_size_in_mb
+    }
+
 }
 
 function Return-VHDSpace($sARTUri,$machine,$vhd_Path){
-    $VHD=Get-VHD -Path $vhd_Path
-    $sDriveLetter=$VHD.Path[0]
-    $disk_size_in_mb=$VHD.Size/1024/1024*-1
-    $response=Invoke-RestMethod -Method Put -Uri "$sARTUri/api/dorm/$machine/vm/$disk_size_in_mb/drive/$sDriveLetter"
-    return $response.result
+
+
+    try
+    {
+        $VHD=Hyper-V\Get-VHD -Path $vhd_Path
+        $sDriveLetter=$VHD.Path[0]
+        $disk_size_in_mb=$VHD.Size/1024/1024*-1
+
+        $response=Invoke-RestMethod -Method Put -Uri "$sARTUri/api/dorm/$machine/vm/$disk_size_in_mb/drive/$sDriveLetter"
+        Start-Sleep -Milliseconds $iTimeout
+        return $response.result
+    }
+    catch
+    {
+        
+        Write-Warning -Message "Return-VHDSpace($sARTUri,$machine,$vhd_Path) <$sARTUri/api/dorm/$machine/vm/$disk_size_in_mb/drive/$sDriveLetter>"
+        Start-Sleep -Milliseconds $iTimeout
+        return Return-VHDSpace -sARTUri $sARTUri -machine $machine -vhd_Path $vhd_Path
+    }
+
 }
 
-function Get-Project($sARTUri,$projectId){
-    $response=Invoke-RestMethod -Method Get -Uri "$sARTUri/api/project/$projectId"
-    return $response
+function Get-Project($sARTUri,$projectId)
+{
+    try
+    {
+        $response=Invoke-RestMethod -Method Get -Uri "$sARTUri/api/project/$projectId"
+        Start-Sleep -Milliseconds $iTimeout
+        return $response
+    }
+    catch
+    {
+        Write-Warning -Message "Get-Project($sARTUri,$projectId)"
+        Start-Sleep -Milliseconds $iTimeout
+        return Get-Project -sARTUri $sARTUri -projectId $projectId
+    }
+
 }
 
 function New-ClientSideProjectBasedOnTask($sARTUri,$visionName,$vmName,$blueprintName,$taskName)
 {
-    $response=Invoke-RestMethod -Method Post -Uri "$sARTUri/api/schedule/vision/$visionName/vm/$vmName/blueprint/$blueprintName/task/$taskName"
-    return $response    
+    try
+    {
+        $response=Invoke-RestMethod -Method Post -Uri "$sARTUri/api/schedule/vision/$visionName/vm/$vmName/blueprint/$blueprintName/task/$taskName"
+        Start-Sleep -Milliseconds $iTimeout
+        return $response    
+    }
+    catch
+    {
+        Write-Warning -Message "New-ClientSideProjectBasedOnTask($sARTUri,$visionName,$vmName,$blueprintName,$taskName)"
+        Start-Sleep -Milliseconds $iTimeout
+        return New-ClientSideProjectBasedOnTask -sARTUri $sARTUri -visionName $visionName -vmName $vmName -blueprintName $blueprintName -taskName $taskName
+    }
+
 }
 
 function Resolve-Error ($ErrorRecord=$Error[0])
@@ -355,4 +575,4 @@ function Resolve-Error ($ErrorRecord=$Error[0])
    }
 }
 
-Write-Host "ART Library is loaded. V2"
+Write-Host "ART Library is loaded. V2" -ForegroundColor DarkMagenta

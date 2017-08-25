@@ -1,14 +1,11 @@
-﻿#this is media detector, it will detect new media and schedule the media when time permits
+﻿#This task is NodeOB
+
+
+#this is media detector, it will detect new media and schedule the media when time permits
 $sARTUri='http://mvf1:3000'
 $sARTServerUri=$sARTUri
 iex ((New-Object System.Net.WebClient).DownloadString("$sARTServerUri/api/ps/NodeOB_Library.ps1"))
-$Task=@{
-    taskMediaDetection=$Task.mediaDetection
-    taskVMDeployment="taskDeployStandardVHDImage"
-    taskNewCheckPoint="New_CheckPoint"
-    taskVHDCheckin="VHD_Checkin"
-    taskInstallMedia="Install_Media"
-}
+
 
 
 
@@ -39,56 +36,76 @@ if($DebugPreference -eq "Continue"){
 
 iex ((New-Object System.Net.WebClient).DownloadString("$sARTUri/api/ps/CommonHeader.ps1"))
 
+#get the client side task
+
+#so far no client side project is scheduled
+$bClientProjectScheduled=$false
 while($true){
-    #Start-Sleep -Seconds 10
-    $lsProjects=$null
+    Start-Sleep -Seconds 10
+    
+    $lsProjects=$null #client side project list
+    $lsTaskInClient=$null
     $lsProjects=[array](Get-ProjectsInMachine -sARTServerUri $sARTUri -sMachineName $sVMClientId.ToUpper())
+    
+    
+    if($lsProjects -ne $null -and $bClientProjectScheduled)
+    {
+        #while there is project scheduled in client, then we are trying to get the task
+        $lsTaskInClient=[array](Get-PendingTasks -sARTUri $sARTUri -projectId $lsProjects[0]._project._id)
+    }
+    
+    
+    $lsTasks=[array](Get-PendingTasks -sARTUri $sARTUri -projectId $projectId) #get task in server side
 
-    $lsTaskInClient=[array](Get-PendingTasks -sARTUri $sARTUri -projectId $lsProjects[0]._project._id)
-
-    $lsTasks=[array](Get-PendingTasks -sARTUri $sARTUri -projectId $projectId)
-
-    #if # of task in server is 0, then quit the node watch. we are all set with this project
+    #if we have completed all server tasks, then quit the node watch. we are all set with this project
         if($lsTasks.Length -eq 0){
+            Read-Host -Prompt "Project is completed successfully"
             break;
         }
-
-    #if current project is null and current project length is greater than 0 and current project is equivalent to client task, then continue
-        if($lsProjects -ne $null -and $lsProjects.Length -gt 0)
+    #if there used to be a client side project scheduled, and now the project is gone, it means that the client side project is done, make server side project move forward
+        if ($bClientProjectScheduled -and $lsProjects -eq $null)
         {
-
-            if($lsTaskInClient -eq $null -or $lsTaskInClient.Length -eq 0)
-            {
-                #client side task is ready, move toward next task
-                Set-NextProject -sARTServerUri $sARTUri -vision $vision -project $projectId
-                $lsTasks=[array](Get-PendingTasks -sARTUri $sARTUri -projectId $projectId)
-            }
-            elseif($lsTaskInClient[0] -eq $lsTasks[0]){
-                #keep waiting because we are still executing the same task
-                continue
-            }
-            
+            #schedule next server task and change the client side project status to not scheduled
+            Set-NextProject -sARTServerUri $sARTUri -vision $vision -project $projectId
+            $lsTasks=[array](Get-PendingTasks -sARTUri $sARTUri -projectId $projectId)
+            $bClientProjectScheduled=$false
+        }
+        elseif ($bClientProjectScheduled)
+        {
+            #there is ongoing project in the client, then continue
+            continue
         }
 
 
-    #if current task is different from what we see in the client, then schedule current task
+    #there is no client side project scheduled and we have pending task in client side, then schedule one  
 
-    #if current task is vm deployment, then deploy the vm
+    
+        Write-Host -Object "Executing $($lsTasks[0])..." -ForegroundColor DarkMagenta -BackgroundColor White
+        Read-Host -Prompt "Press any key to continue"
         if($lsTasks[0] -eq $Task.taskVMDeployment)
         {
+            
+            Write-Host -Object "#schedule server side task vm deployment" -ForegroundColor DarkMagenta -BackgroundColor White
             iex ((New-Object System.Net.WebClient).DownloadString("$sARTServerUri/api/ps/VMDeployment@VMDeployment.ps1"))
             Set-NextProject -sARTServerUri $sARTUri -vision $vision -project $projectId
         }
-        elseif($lsTasks[0] -eq $Task.taskVHDCheckin){
+        elseif($lsTasks[0] -eq $Task.taskVHDCheckin)
+        {
+            #schedule server side task vhd checkin   
+            Write-Host -Object "#schedule server side task vhd checkin" -ForegroundColor DarkMagenta -BackgroundColor White
             iex ((New-Object System.Net.WebClient).DownloadString("$sARTServerUri/api/ps/VMDeployment@VHD_Checkin.ps1"))
             Set-NextProject -sARTServerUri $sARTUri -vision $vision -project $projectId
         }
-        else{
-            #the current task is client side task
+        elseif($lsTasks[0] -eq $Task.taskVHDSeriesManagement)
+        {
+            #schedule VHD Series management
+        }
+        else
+        {
+            #schedue client side task, and flip client project schedule status
+            Write-Host -Object "#schedue client side task, and flip client project schedule status" -ForegroundColor DarkMagenta -BackgroundColor White
             New-ClientSideProjectBasedOnTask -sARTUri $sARTUri -visionName $vision -vmName $sVMClientId.ToUpper() -taskName $lsTasks[0] -blueprintName $blueprint -ServerSideProjectId $projectId
-            
-
-
+            $bClientProjectScheduled=$true
         
         }
     

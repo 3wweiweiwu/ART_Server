@@ -66,7 +66,9 @@ let vhdControl=function(){
                 .then(results=>{
                     //sanitize result, remove all storage info except for size
                     results.forEach(item=>{
+                        let tempOriginalName=item.storage.originalname;
                         item.storage='';
+                        item.storage.originalname=tempOriginalName;
                     });
                     
                     resolve(results);

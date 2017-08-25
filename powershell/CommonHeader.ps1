@@ -7,3 +7,7 @@ $blueprint=$projectFeed.blueprint
 $projectId=$projectFeed.projectId
 $sVMClientId=$projectFeed.vmId
 $Host.UI.RawUI.WindowTitle ="$blueprint==$projectId==$debugPID"
+
+Write-Host -Object "Common Header Loaded!" -ForegroundColor DarkMagenta
+Write-Debug -Message $debugPID
+Write-Debug -Message $projectFeed
