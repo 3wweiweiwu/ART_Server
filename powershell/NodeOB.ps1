@@ -81,7 +81,7 @@ while($true){
 
     
         Write-Host -Object "Executing $($lsTasks[0])..." -ForegroundColor DarkMagenta -BackgroundColor White
-        Read-Host -Prompt "Press any key to continue"
+        
         if($lsTasks[0] -eq $Task.taskVMDeployment)
         {
             

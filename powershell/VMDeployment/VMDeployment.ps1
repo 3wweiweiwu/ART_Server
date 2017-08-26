@@ -79,7 +79,7 @@ if($VM -ne $null){
 
 Write-Host -Object "#copy vhd to local vhd folder"
 $sExtension=(Get-VHDFromServer -sARTUri $sARTUri -vhdID $sRemoteVmPath).storage.originalname
-$sVHDName=$sVMClientId+"_"+$sExtension   #Create a new name for vhd based on VM name
+$sVHDName=([guid]::NewGuid()).Guid+"_"+$sExtension   #Create a new name for vhd based on VM name
 $sLocalVHDPath=Join-Path -Path $sVHD_Local_Folder -ChildPath $sVHDName
 Download-VHD -sARTUri $sARTUri -imageId $sRemoteVmPath -localPath $sLocalVHDPath
 

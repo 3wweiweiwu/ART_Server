@@ -17,6 +17,25 @@ $Task=@{
 
 }
 
+function Resolve-RestError()
+{
+    $result=@{
+        bConnectionDropped=$false
+    }
+    
+    if($Error[0].ToString() -match "Unable to connect to the remote server")
+    {
+        $result.bConnectionDropped=$true
+        Write-Warning -Message "Connection is dropped...wait for connection to come back"        
+        Start-Sleep -Milliseconds ($iTimeout*50)
+        
+    }
+    Write-Warning -Object $Error[0].ToString()    
+    Start-Sleep -Milliseconds ($iTimeout*50)
+    $Error.Clear()
+    return $result
+}
+
 function Get-RandomName($extension)
 {
     $sTempName=(Get-Date).ToFileTimeUtc().ToString()+(Get-Random).ToString()+$extension
@@ -57,7 +76,7 @@ function Kill-UnrelatedPowershellConsole($lsProjectList,$lsException=@())
 
 }
 
-function Get-All($sARTUri)
+function Get-AllVHDInShelf($sARTUri)
 {
     $url = Join-Url -parentPath $sARTUri -childPath "/api/shelf/vhd"
     try
@@ -87,20 +106,24 @@ function Get-VHDSize($sARTUri,$vhdID)
 
 function Get-VHDFromServer($sARTUri,$vhdID)
 {
-    try
+    while($true)
     {
-        Write-Host -Object "$sARTUri,$vhdID"
-        $url = Join-Url -parentPath $sARTUri -childPath "/api/shelf/vhd/$vhdID"
+        try
+        {
+            Write-Host -Object "$sARTUri,$vhdID"
+            $url = Join-Url -parentPath $sARTUri -childPath "/api/shelf/vhd/$vhdID"
         
-        $reponse=Invoke-RestMethod -Method Get -Uri $url
+            $reponse=Invoke-RestMethod -Method Get -Uri $url
     
     
-        return $reponse
-    }
-    catch
-    {
-        Write-Warning -Message "Get-VHD($sARTUri,$vhdID)"
-        return Get-VHDFromServer -sARTUri $sARTUri -vhdID $vhdID
+            return $reponse
+        }
+        catch
+        {
+        
+            Write-Warning -Message "Get-VHD($sARTUri,$vhdID)"
+            Resolve-RestError            
+        }
     }
 
 }
@@ -111,7 +134,7 @@ function Download-VHD($sARTUri,$imageId,$localPath)
     $start_time = Get-Date
     Write-Host -Object "Start to download from $url to $localPath"
     #(New-Object System.Net.WebClient).DownloadFile($url, $localPath)
-    Start-BitsTransfer -Source $url -Destination $localPath
+    Start-BitsTransfer -Source $url -Destination $localPath -Description "Copying item from $url to $localPath"
     Write-Output "Time taken: $((Get-Date).Subtract($start_time).TotalMinutes) min"
 
 }
@@ -234,6 +257,7 @@ function Write-Setting($sARTServerUri,$vision="Template",$project="Template",$ta
         catch
         {
             Start-Sleep -Milliseconds $iTimeout
+            Resolve-Error
         }
         
     }
@@ -291,87 +315,117 @@ function Set-DormDiskSpace($sARTServerUri,$dormName){
 
     }
     $diskJson=@{diskProfile=$lsDisk}|ConvertTo-Json
-    
-    try
+    while($true)
     {
-        Invoke-RestMethod -Uri "$sARTServerUri/api/dorm/DiskInitializationSignal/$dormName" -Method Put -Body $diskJson -ContentType 'application/json'
-        Start-Sleep -Milliseconds $iTimeout
+        try
+        {
+            Invoke-RestMethod -Uri "$sARTServerUri/api/dorm/DiskInitializationSignal/$dormName" -Method Put -Body $diskJson -ContentType 'application/json'
+            Start-Sleep -Milliseconds $iTimeout
+            break
+        }
+        catch
+        {
+            Resolve-RestError
+            Write-Warning -Message "Fail to invoke Set-DormDiskSpace $sARTServerUri,$dormName"            
+        }
     }
-    catch
-    {
-        Start-Sleep -Milliseconds $iTimeout        
-        Write-Warning -Message "Fail to invoke Set-DormDiskSpace $sARTServerUri,$dormName"
-        Set-DormDiskSpace -sARTServerUri $sARTServerUri -dormName $dormName
-    }
-    
     
 }
 
 function Set-ProcessIdInProject($sARTServerUri,$projectId,$processId){
-    try
+    while($true)
     {
-        Invoke-RestMethod -Uri "$sARTServerUri/api/project/$projectId/PID/$processId" -Method Put 
-        Start-Sleep -Milliseconds $iTimeout
+        try
+        {
+            Invoke-RestMethod -Uri "$sARTServerUri/api/project/$projectId/PID/$processId" -Method Put 
+            Start-Sleep -Milliseconds $iTimeout
+            break
+        }
+        catch
+        {
+            Write-Warning -Message "Set-ProcessIdInProject($sARTServerUri,$projectId,$processId)"
+            Resolve-RestError            
+        }
+
     }
-    catch
-    {
-        Write-Warning -Message "Set-ProcessIdInProject($sARTServerUri,$projectId,$processId)"
-        Start-Sleep -Milliseconds $iTimeout
-        Set-ProcessIdInProject -sARTServerUri $sARTServerUri -projectId $projectId -processId $processId
-    }
+
+
+
 
 }
 
 function Set-ProjectStatus($sARTServerUri,$projectId,$statusId){
-    try
+    while($true)
     {
-        $response=Invoke-RestMethod -Uri "$sARTServerUri/api/project/$projectId/status/$statusId" -Method Put -ContentType 'application/json'
-        Start-Sleep -Milliseconds $iTimeout
+        try
+        {
+            $response=Invoke-RestMethod -Uri "$sARTServerUri/api/project/$projectId/status/$statusId" -Method Put -ContentType 'application/json'
+            Start-Sleep -Milliseconds $iTimeout
+            break
+        }
+        catch
+        {
+            Write-Warning -Message "Set-ProjectStatus($sARTServerUri,$projectId,$statusId)"
+            Resolve-RestError
+            
+        }
+
     }
-    catch
-    {
-        Write-Warning -Message "Set-ProjectStatus($sARTServerUri,$projectId,$statusId)"
-        Start-Sleep -Milliseconds $iTimeout
-        Set-ProjectStatus -sARTServerUri $sARTServerUri -projectId $projectId -statusId $statusId
-    }
+
 
 }
 
 function Set-NextProject($sARTServerUri,$vision,$project){
-    
-    try
+    while($true)
     {
-        #current project is done, move to next project    
-        $response=Invoke-RestMethod -Uri "$sARTServerUri/api/schedule/vision/$vision/next/$project" -Method Post -ContentType 'application/json'
-        Start-Sleep -Milliseconds $iTimeout
-    }
-    catch
-    {
-        Write-Warning -Message "Set-NextProject($sARTServerUri,$vision,$project){"
-        Start-Sleep -Milliseconds $iTimeout
-        Set-NextProject -sARTServerUri $sARTServerUri -vision $vision -project $project
+        try
+        {
+            #current project is done, move to next project    
+            $response=Invoke-RestMethod -Uri "$sARTServerUri/api/schedule/vision/$vision/next/$project" -Method Post -ContentType 'application/json'
+            Start-Sleep -Milliseconds $iTimeout
+            break
+        }
+        catch
+        {
+            Write-Warning -Message "Set-NextProject($sARTServerUri,$vision,$project){"            
+            Resolve-RestError
+        }
     }
 
 }
 
 function Get-ProjectsInMachine($sARTServerUri,$sMachineName=$env:COMPUTERNAME){
-    try{
-        $response=Invoke-RestMethod -Uri "$sARTServerUri/api/schedule/machine/$sMachineName/projects" -Method Get -ContentType 'application/json'
-        Start-Sleep -Milliseconds $iTimeout
+    while($true)
+    {
         try{
-            $result=$response.result|ConvertFrom-Json
+            $response=Invoke-RestMethod -Uri "$sARTServerUri/api/schedule/machine/$sMachineName/projects" -Method Get -ContentType 'application/json'
+            Start-Sleep -Milliseconds $iTimeout
+            try{
+                $result=$response.result|ConvertFrom-Json
 
+            }
+            catch{
+                $result=$response.result
+            }
+            
+            return $result
         }
         catch{
-            $result=$response.result
-        }
             
-        return $result
+            #if failure is due to connection drop, then continue
+            $result=Resolve-RestError
+            if($result.bConnectionDropped)
+            {
+                continue
+            }
+            #if failure is due to other reason, then stop
+            Start-Sleep -Seconds 1
+            Write-Host "unable to find project for $sMachineName from $sARTServerUri"
+            
+
+            break
+        }    
     }
-    catch{
-        Start-Sleep -Seconds 1
-        Write-Host "unable to find project for $sMachineName from $sARTServerUri"
-    }    
 }
 
 function Write-SettingForProcess($sARTUri,$key,$value,$processId,$dorm){
@@ -456,12 +510,13 @@ function Get-FreshSettingForCurrentProcess($sARTUri,$key){
         try
         {
             $value=Get-CurrentProcessSetting -sARTUri $sARTUri -key $key
-            Start-Sleep -Seconds 0.5
+            Start-Sleep -Seconds $iTimeout
+
         }
         catch
         {
             Write-Host -Object "unable to Get-FreshSetting $sARTUri,$key"
-            Start-Sleep -Seconds 1
+            Start-Sleep -Seconds $iTimeout
             continue
         }
         
@@ -475,93 +530,104 @@ function Get-FreshSettingForCurrentProcess($sARTUri,$key){
 
 function Remove-ProjectFromProjectCurrentProject($sARTUri,$visionName,$projectId){
     #delete project from current project list
-    try
+    while($true)
     {
-        $response=Invoke-RestMethod -Uri "$sARTUri/api/vision/$visionName/current_projects/$projectId" -Method Delete -ContentType 'application/json'
-        Start-Sleep -Milliseconds $iTimeout
+        try
+        {
+            $response=Invoke-RestMethod -Uri "$sARTUri/api/vision/$visionName/current_projects/$projectId" -Method Delete -ContentType 'application/json'
+            Start-Sleep -Milliseconds $iTimeout
+            break
+        }
+        catch
+        {
+            Write-Warning -Message "Remove-ProjectFromProjectCurrentProject($sARTUri,$visionName,$projectId)"
+            Resolve-RestError
+            
+        }
     }
-    catch
-    {
-        Write-Warning -Message "Remove-ProjectFromProjectCurrentProject($sARTUri,$visionName,$projectId)"
-        Start-Sleep -Milliseconds $iTimeout
-        Remove-ProjectFromProjectCurrentProject -sARTUri $sARTUri -visionName $visionName -projectId $projectId
-    }
-
 
 }
 
 
 function Get-VolumeforVHD($sARTUri,$machine,$disk_size_in_mb){
-    try
+    while($true)
     {
-        $response=Invoke-RestMethod -Method Put -Uri "$sARTUri/api/dorm/$machine/vm/$disk_size_in_mb/drive/*"
-        Start-Sleep -Milliseconds $iTimeout
-        return $response
-    }
-    catch
-    {
-        Write-Warning -Message "Get-VolumeforVHD($sARTUri,$machine,$disk_size_in_mb){"
-        Start-Sleep -Milliseconds $iTimeout
-        return Get-VolumeforVHD -sARTUri $sARTUri -machine $machine -disk_size_in_mb $disk_size_in_mb
+        try
+        {
+            $response=Invoke-RestMethod -Method Put -Uri "$sARTUri/api/dorm/$machine/vm/$disk_size_in_mb/drive/*"
+            Start-Sleep -Milliseconds $iTimeout
+            return $response
+        }
+        catch
+        {
+            Write-Warning -Message "Get-VolumeforVHD($sARTUri,$machine,$disk_size_in_mb){"
+            Resolve-RestError
+            
+        }
     }
 
 }
 
 function Return-VHDSpace($sARTUri,$machine,$vhd_Path){
 
-
-    try
+    while($true)
     {
-        $VHD=Hyper-V\Get-VHD -Path $vhd_Path
-        $sDriveLetter=$VHD.Path[0]
-        $disk_size_in_mb=$VHD.Size/1024/1024*-1
+        try
+        {
+            $VHD=Hyper-V\Get-VHD -Path $vhd_Path
+            $sDriveLetter=$VHD.Path[0]
+            $disk_size_in_mb=$VHD.Size/1024/1024*-1
 
-        $response=Invoke-RestMethod -Method Put -Uri "$sARTUri/api/dorm/$machine/vm/$disk_size_in_mb/drive/$sDriveLetter"
-        Start-Sleep -Milliseconds $iTimeout
-        return $response.result
-    }
-    catch
-    {
+            $response=Invoke-RestMethod -Method Put -Uri "$sARTUri/api/dorm/$machine/vm/$disk_size_in_mb/drive/$sDriveLetter"
+            Start-Sleep -Milliseconds $iTimeout
+            return $response.result
+        }
+        catch
+        {
         
-        Write-Warning -Message "Return-VHDSpace($sARTUri,$machine,$vhd_Path) <$sARTUri/api/dorm/$machine/vm/$disk_size_in_mb/drive/$sDriveLetter>"
-        Start-Sleep -Milliseconds $iTimeout
-        return Return-VHDSpace -sARTUri $sARTUri -machine $machine -vhd_Path $vhd_Path
+            Write-Warning -Message "Return-VHDSpace($sARTUri,$machine,$vhd_Path) <$sARTUri/api/dorm/$machine/vm/$disk_size_in_mb/drive/$sDriveLetter>"
+            Resolve-RestError
+            
+        }
     }
 
 }
 
 function Get-Project($sARTUri,$projectId)
 {
-    try
+    while($true)
     {
-        $response=Invoke-RestMethod -Method Get -Uri "$sARTUri/api/project/$projectId"
-        Start-Sleep -Milliseconds $iTimeout
-        return $response
+        try
+        {
+            $response=Invoke-RestMethod -Method Get -Uri "$sARTUri/api/project/$projectId"
+            Start-Sleep -Milliseconds $iTimeout
+            return $response
+        }
+        catch
+        {
+            Write-Warning -Message "Get-Project($sARTUri,$projectId)"            
+            Resolve-Error
+        }
     }
-    catch
-    {
-        Write-Warning -Message "Get-Project($sARTUri,$projectId)"
-        Start-Sleep -Milliseconds $iTimeout
-        return Get-Project -sARTUri $sARTUri -projectId $projectId
-    }
-
 }
 
 function New-ClientSideProjectBasedOnTask($sARTUri,$visionName,$vmName,$blueprintName,$taskName)
 {
-    try
+    while($true)
     {
-        $response=Invoke-RestMethod -Method Post -Uri "$sARTUri/api/schedule/vision/$visionName/vm/$vmName/blueprint/$blueprintName/task/$taskName"
-        Start-Sleep -Milliseconds $iTimeout
-        return $response    
+        try
+        {
+            $response=Invoke-RestMethod -Method Post -Uri "$sARTUri/api/schedule/vision/$visionName/vm/$vmName/blueprint/$blueprintName/task/$taskName"
+            Start-Sleep -Milliseconds $iTimeout
+            return $response    
+        }
+        catch
+        {
+            Write-Warning -Message "New-ClientSideProjectBasedOnTask($sARTUri,$visionName,$vmName,$blueprintName,$taskName)"
+            
+            Resolve-Error
+        }
     }
-    catch
-    {
-        Write-Warning -Message "New-ClientSideProjectBasedOnTask($sARTUri,$visionName,$vmName,$blueprintName,$taskName)"
-        Start-Sleep -Milliseconds $iTimeout
-        return New-ClientSideProjectBasedOnTask -sARTUri $sARTUri -visionName $visionName -vmName $vmName -blueprintName $blueprintName -taskName $taskName
-    }
-
 }
 
 function Resolve-Error ($ErrorRecord=$Error[0])

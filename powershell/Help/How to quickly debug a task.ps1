@@ -5,5 +5,13 @@
 
 #feature to add
 #manage # of check points and decide what to delete and what not
+
 #deploy existing vhd to other machine with 1 linear
-#when multiple media comes, we will need to mark previous project to be ready for retire
+
+#when multiple media comes, we shall only execute the latest media
+    #The name of VHD shall be a guid. everytime, we shall use a new name
+    #the script shall kill the vm with the same name
+    #we will need to mark previous project to be ready for retire
+
+
+#support regression test execution

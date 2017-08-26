@@ -13,9 +13,14 @@ $windowTitle="ART2 Machine Manager - $($env:COMPUTERNAME)"
 $Host.UI.RawUI.WindowTitle =$windowTitle
 
 #2nd load for debugging purpose
-$sParentFolder=[System.IO.Path]::GetDirectoryName($myInvocation.MyCommand.Definition)
-.(Join-Path -Path $sParentFolder -ChildPath ARTLibrary.ps1)
-.(Join-Path -Path $sParentFolder -ChildPath MachineManagerLibrary.ps1)
+if($DebugPreference -eq "Continue")
+{
+    $sParentFolder=[System.IO.Path]::GetDirectoryName($myInvocation.MyCommand.Definition)
+    .(Join-Path -Path $sParentFolder -ChildPath ARTLibrary.ps1)
+    .(Join-Path -Path $sParentFolder -ChildPath MachineManagerLibrary.ps1)
+
+}
+
 
 
 
