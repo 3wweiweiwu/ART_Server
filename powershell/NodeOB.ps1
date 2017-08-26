@@ -80,7 +80,7 @@ while($true){
     #there is no client side project scheduled and we have pending task in client side, then schedule one  
 
     
-        Write-Host -Object "Executing $($lsTasks[0])..." -ForegroundColor DarkMagenta -BackgroundColor White
+        Write-Host -Object "$((Get-Date).tostring())# Executing $($lsTasks[0])..." -ForegroundColor DarkMagenta -BackgroundColor White
         
         if($lsTasks[0] -eq $Task.taskVMDeployment)
         {

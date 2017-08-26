@@ -45,7 +45,7 @@ $Installation_File=$lsCurrentSchedule[$lsCurrentSchedule.Length-1]
 
 
 #chose right space for VHD deployment
-Write-Host -Object "#chose right space for VHD deployment"
+Write-Host -Object "$((Get-Date).tostring())#chose right space for VHD deployment"
 $iVHDSize_Mb=(Get-VHDSize -sARTUri $sARTServerUri -vhdID $sRemoteVmPath)/1024/1024
 
 $diskSelection=Get-VolumeforVHD -sARTUri $sARTUri -machine $env:COMPUTERNAME -disk_size_in_mb $iVHDSize_Mb
@@ -57,7 +57,7 @@ if((Test-Path -Path $sVHD_Local_Folder) -eq $false)
 }
 
 #clean up related vm if any
-Write-Host -Object "#clean up related vm if any"
+Write-Host -Object "$((Get-Date).tostring())#clean up related vm if any"
 $VM=$null
 $VM=Hyper-V\Get-VM -Name $sVMClientId -ErrorAction SilentlyContinue
 if($VM -ne $null){
@@ -77,7 +77,7 @@ if($VM -ne $null){
 
 #copy vhd to local vhd folder
 
-Write-Host -Object "#copy vhd to local vhd folder"
+Write-Host -Object "$((Get-Date).tostring())#copy vhd to local vhd folder"
 $sExtension=(Get-VHDFromServer -sARTUri $sARTUri -vhdID $sRemoteVmPath).storage.originalname
 $sVHDName=([guid]::NewGuid()).Guid+"_"+$sExtension   #Create a new name for vhd based on VM name
 $sLocalVHDPath=Join-Path -Path $sVHD_Local_Folder -ChildPath $sVHDName
@@ -87,7 +87,7 @@ Download-VHD -sARTUri $sARTUri -imageId $sRemoteVmPath -localPath $sLocalVHDPath
 
 
 #mount the vhd and get the drive letter of VHD
-Write-Host -Object "mount the vhd and get the drive letter of VHD"
+Write-Host -Object "$((Get-Date).tostring())#mount the vhd and get the drive letter of VHD"
 Dismount-VHD -Path $sLocalVHDPath -ErrorAction SilentlyContinue
 $pipe=Wait-PipelineFree -Pipelinename "ART_Mount_VHD" -iTimeout 600 #block while mounting vhd
 $VHDObj=Mount-VHD -Path $sLocalVHDPath -Passthru
@@ -101,7 +101,7 @@ $pipe.Dispose()
 
 
 #copy minimum ART installer to vm image
-Write-Host -Object "copy minimum ART installer to vm image "
+Write-Host -Object "$((Get-Date).tostring())#copy minimum ART installer to vm image "
 $sArt_VHD=Join-Path $sDriverLetter -ChildPath ".\p4\ART\"
 if((Test-Path -Path $sArt_VHD) -eq $false)
 {
@@ -110,6 +110,7 @@ if((Test-Path -Path $sArt_VHD) -eq $false)
 
 
 #copy detected from hqfiler to drive
+Write-Host -Object "$((Get-Date).tostring())#copy detected from hqfiler to drive"
 Wait-FileAvailable -TimeOut 3600 -Path $Installation_File
 $Local_Media_Storage=Join-Path -Path $sDriverLetter -ChildPath p4
 if((Test-Path -Path $Local_Media_Storage) -eq $false)
@@ -140,14 +141,14 @@ $lsVMManagerContent|Out-File -FilePath $sVmManagerPathInVM -Force
 Dismount-VHD -Path $sLocalVHDPath
 
 #deploy VM
-Write-Host -Object "Deploy VM"
+Write-Host -Object "$((Get-Date).tostring())#Deploy VM"
 
 $VM=Hyper-V\New-VM -VHDPath $sLocalVHDPath -Name $sVMClientId -MemoryStartupBytes $iVmMemorySize
 $VM|Hyper-V\Set-VM -ProcessorCount $iCPUCores
 Start-Sleep -Seconds 1
 $VM|Hyper-V\Start-VM
 #wait until VM is off so that we can change the switch
-Write-Host -Object "Configuring VM name"
+Write-Host -Object "$((Get-Date).tostring())#Configuring VM name"
 while($VM.State -ne "Off")
 {
        
@@ -157,7 +158,7 @@ while($VM.State -ne "Off")
 }
 
 #connect to virtual switch and make it online
-Write-Host -Object "#connect to virtual switch and make it online"
+Write-Host -Object "$((Get-Date).tostring())#connect to virtual switch and make it online"
 $VM_Switch=Get-VMSwitch
 Connect-VMNetworkAdapter -VMName $sVMClientId -SwitchName $VM_Switch.Name
 $VM|Hyper-V\Start-VM

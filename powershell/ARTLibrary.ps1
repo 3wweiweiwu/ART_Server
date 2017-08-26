@@ -30,7 +30,7 @@ function Resolve-RestError()
         Start-Sleep -Milliseconds ($iTimeout*50)
         
     }
-    Write-Warning -Object $Error[0].ToString()    
+    Write-Warning -Object "$((Get-Date).tostring()) # $($Error[0].ToString())"
     Start-Sleep -Milliseconds ($iTimeout*50)
     $Error.Clear()
     return $result
@@ -130,12 +130,28 @@ function Get-VHDFromServer($sARTUri,$vhdID)
 
 function Download-VHD($sARTUri,$imageId,$localPath)
 {
-    $url = Join-Url -parentPath $sARTUri -childPath "/api/shelf/vhd/download/$imageId"
-    $start_time = Get-Date
-    Write-Host -Object "Start to download from $url to $localPath"
-    #(New-Object System.Net.WebClient).DownloadFile($url, $localPath)
-    Start-BitsTransfer -Source $url -Destination $localPath -Description "Copying item from $url to $localPath"
-    Write-Output "Time taken: $((Get-Date).Subtract($start_time).TotalMinutes) min"
+    function main()
+    {
+        $url = Join-Url -parentPath $sARTUri -childPath "/api/shelf/vhd/download/$imageId"
+        $start_time = Get-Date
+        Write-Host -Object "Start to download from $url to $localPath"
+        #(New-Object System.Net.WebClient).DownloadFile($url, $localPath)
+        Start-BitsTransfer -Source $url -Destination $localPath -Description "Copying item from $url to $localPath"
+        Write-Output "Time taken: $((Get-Date).Subtract($start_time).TotalMinutes) min"
+    }
+    while($true)
+    {
+        try
+        {
+            main
+            break
+        }    
+        catch
+        {
+            Resolve-RestError
+            Write-Warning "Download-VHD($sARTUri,$imageId,$localPath)"
+        }
+    }
 
 }
 
@@ -157,50 +173,66 @@ function Upload-FileToServer($sARTUri,$fieldName,$filePath,$otherFieldInfo)
 
 
 
-    
-    $url = Join-Url -parentPath $sARTUri -childPath "/api/shelf/vhd"
+    function main()
+    {
+        $url = Join-Url -parentPath $sARTUri -childPath "/api/shelf/vhd"
 
 
-    #convert otherfieldinfo to object
-    $otherFieldInfo=$otherFieldInfo|ConvertTo-Json|ConvertFrom-Json
+        #convert otherfieldinfo to object
+        $otherFieldInfo=$otherFieldInfo|ConvertTo-Json|ConvertFrom-Json
 
-    #start upload
-        Add-Type -AssemblyName 'System.Net.Http'
+        #start upload
+            Add-Type -AssemblyName 'System.Net.Http'
 
-        $client = New-Object System.Net.Http.HttpClient
-        $client.Timeout=[timespan]::FromHours(8)
-        $content = New-Object System.Net.Http.MultipartFormDataContent
-        $fileStream = [System.IO.File]::OpenRead($filePath)
-        $fileName = [System.IO.Path]::GetFileName($filePath)
-        $fileContent = New-Object System.Net.Http.StreamContent($fileStream)
+            $client = New-Object System.Net.Http.HttpClient
+            $client.Timeout=[timespan]::FromHours(8)
+            $content = New-Object System.Net.Http.MultipartFormDataContent
+            $fileStream = [System.IO.File]::OpenRead($filePath)
+            $fileName = [System.IO.Path]::GetFileName($filePath)
+            $fileContent = New-Object System.Net.Http.StreamContent($fileStream)
         
 
-        #add respective field information
-        foreach($key in ($otherFieldInfo|Get-Member|where{$_.MemberType -eq "NoteProperty"}).Name){
-            if($otherFieldInfo.$key.GetType().name -eq "Object[]" -or $otherFieldInfo.installed_media.GetType().Name -eq "PSCustomObject"){
-                $value=$otherFieldInfo.$key|ConvertTo-Json
+            #add respective field information
+            foreach($key in ($otherFieldInfo|Get-Member|where{$_.MemberType -eq "NoteProperty"}).Name){
+                if($otherFieldInfo.$key.GetType().name -eq "Object[]" -or $otherFieldInfo.installed_media.GetType().Name -eq "PSCustomObject"){
+                    $value=$otherFieldInfo.$key|ConvertTo-Json
                 
+                }
+                else
+                {
+                    $value=[string]($otherFieldInfo.$key)
+                }
+                $MultipartContent=New-Object System.Net.Http.StringContent($value)
+                $content.Add($MultipartContent,$key)
             }
-            else
-            {
-                $value=[string]($otherFieldInfo.$key)
-            }
-            $MultipartContent=New-Object System.Net.Http.StringContent($value)
-            $content.Add($MultipartContent,$key)
-        }
         
-        $content.Add($fileContent, $fieldName, $fileName)
-        $result = $client.PostAsync($url, $content).Result
-        $result.EnsureSuccessStatusCode()
+            $content.Add($fileContent, $fieldName, $fileName)
+            $result = $client.PostAsync($url, $content).Result
+            $result.EnsureSuccessStatusCode()
 
-    #final cleanup
+        #final cleanup
     
-    if ($MultipartContent -ne $null) {$MultipartContent.Dispose() }
-    if ($client -ne $null) { $client.Dispose() }
-    if ($content -ne $null) { $content.Dispose() }
-    if ($fileStream -ne $null) { $fileStream.Dispose() }
-    if ($fileContent -ne $null) { $fileContent.Dispose() }
-    
+        if ($MultipartContent -ne $null) {$MultipartContent.Dispose() }
+        if ($client -ne $null) { $client.Dispose() }
+        if ($content -ne $null) { $content.Dispose() }
+        if ($fileStream -ne $null) { $fileStream.Dispose() }
+        if ($fileContent -ne $null) { $fileContent.Dispose() }
+    }
+
+    while($true)
+    {
+        try
+        {
+            main
+            break
+        }
+        catch
+        {
+            Resolve-RestError
+            Write-Warning -Message "Upload-FileToServer($sARTUri,$fieldName,$filePath,$otherFieldInfo)"
+        }
+    }
+
         
 
 }
