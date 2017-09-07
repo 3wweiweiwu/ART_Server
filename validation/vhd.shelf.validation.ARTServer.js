@@ -15,6 +15,34 @@ module.exports={
             id:Joi.string().required()
         }
     },
+    postNewSeries:{
+        params:{
+            name:Joi.string().required()
+        }
+    },
+    getNewSeries:{
+        params:{
+            name:Joi.string().required()
+        }
+    },
+    updateSeriesVHDSlot:{
+        params:{
+            name:Joi.string().required(),
+            number:Joi.number().required()
+        }
+    },
+    addSeriesSubscriber:{
+        params:{
+            name:Joi.string().required(),
+            vision:Joi.string().required()
+        }        
+    },
+    delSeriesSubscriber:{
+        params:{
+            name:Joi.string().required(),
+            vision:Joi.string().required()
+        }        
+    },    
     upload:function(req,file,cb){
         
 

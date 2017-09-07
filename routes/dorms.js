@@ -31,4 +31,14 @@ router.put('/dorm/:dormName/vm/:size_mb/drive/:driveLetter',validate(dormValidat
     return dormControl.PutVMToDorm(req,res,next);
 });
 
+router.delete('/dorm/:dormName',validate(dormValidation.DeleteDorm),function(req,res){
+    dormControl.DeleteDorm(req.params.dormName)
+        .then(()=>{
+            res.json();
+        })
+        .catch(err=>{
+            res.status(err.status).json(err);
+        })
+
+})
 module.exports = router;

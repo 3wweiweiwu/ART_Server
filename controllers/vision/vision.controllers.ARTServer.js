@@ -1,5 +1,5 @@
 var visionModel = require('../../model/vision/vision.model.ARTServer');
-
+let lockControl=require('../common/lock.common.controllers.ARTServer');
 var projectControl = require('../project/project.controllers.ARTServer');
 let projectBlueprintModel = require('../../model/project/projectBlueprint.model.ARTServer');
 let blueprintControl = require('../project/projectBlueprint.controllers.ARTServer');
@@ -48,7 +48,7 @@ const CreateBasicVision = function (req, cb = () => { }) {
                         return cb(err);
                     }
                     else {
-                        resolve();
+                        resolve(vision._id);
                         return cb(null);
                     }
                 });
@@ -188,7 +188,8 @@ const AddProjectIntoVision=(visionName,projectId)=>{
     });
 };
 
-
+//TODO: if there is another project in the vision that have the same vid,
+//then simply mark previous project as pending retire
 exports.CreateNewProjectAndAddToVision = function (visionName, blueprint) {
     return new Promise((resolve, reject) => {
         projectControl.CreateNewProject(blueprint)
@@ -364,7 +365,7 @@ exports.GetRegistry = function (req, res) {
 };
 
 
-exports.CreateNewBlueprintSchedule = function (visions, blueprintName, cb = () => { }) {
+let CreateNewBlueprintScheduleWithoutLock = function (visions, blueprintName, cb = () => { }) {
     return new Promise((resolve, reject) => {
         //validate blueprint status
 
@@ -419,12 +420,31 @@ exports.CreateNewBlueprintSchedule = function (visions, blueprintName, cb = () =
 
     });
 };
+
+exports.CreateNewBlueprintSchedule =function(visionName,blueprintName){
+    return new Promise((resolve,reject)=>{
+        let lockName=`CreateNewBlueprintSchedule =function(${visionName},${blueprintName})`;
+        lockControl.Aquire(lockName)
+            .then(()=>{
+                return checkVisionNameValid(visionName)
+            })
+            .then((visions)=>{
+                return CreateNewBlueprintScheduleWithoutLock(visions,blueprintName);
+            })            
+            .then(()=>{
+                lockControl.Release(lockName);
+                resolve();
+            })
+            .catch(err=>{
+                lockControl.Release(lockName);
+                reject(err);
+            });
+    });
+}
+
 exports.PutBlueprint = function (req, res) {
 
-    checkVisionNameValid(req.params.vision_name)
-        .then((vision) => {
-            return exports.CreateNewBlueprintSchedule(vision, req.params.blueprint);
-        })
+    exports.CreateNewBlueprintSchedule(req.params.vision_name, req.params.blueprint)
         .then(() => {
             res.json();
         })
@@ -480,11 +500,9 @@ exports.UpdateServerAsk = function (vision, blueprint, serverAsk, cb = () => { }
 };
 exports.putBlueprintServerAsk = function (req, res) {
     //vision check
-    checkVisionNameValid(req.params.vision_name)
-        .then((vision) => {
-            //initialize schedule
-            return exports.CreateNewBlueprintSchedule(vision, req.params.blueprint);
-        })
+    
+
+    exports.CreateNewBlueprintSchedule(req.params.vision_name, req.params.blueprint)        
         .then(() => {
             //update server ask
             return exports.UpdateServerAsk(req.params.vision_name, req.params.blueprint, req.params.ask);
@@ -493,7 +511,9 @@ exports.putBlueprintServerAsk = function (req, res) {
             //return succss indicator
             res.json();
         })
-        .catch(err => { res.status(err.status).json(err); });
+        .catch(err => { 
+            res.status(err.status).json(err); 
+        });
 };
 let UpdateBlueprintMachineInstance_UpdateVision=function(visionName,machineInfo,ask,listVid,groupNumber,blueprint,machine){
     return new Promise((resolve,reject)=>{
@@ -586,11 +606,8 @@ exports.UpdateBlueprintMachineInstance = function (vision, blueprint, machine, a
 };
 exports.putBlueprintMachineInstance = function (req, res) {
     //vision check
-    checkVisionNameValid(req.params.vision_name)
-        .then((vision) => {
-            //initialize schedule
-            return exports.CreateNewBlueprintSchedule(vision, req.params.blueprint);
-        })
+
+    exports.CreateNewBlueprintSchedule(req.params.vision_name, req.params.blueprint)
         .then(() => {
             //update machine instance
 
@@ -615,6 +632,17 @@ let UpdateNextBlueprint_SaveVision=function(vision_name,blueprints,nextBlueprint
                 else {
                     let nextBlueprintDoc = blueprints.find(item => { return item.name == nextBlueprint; });
                     let scheduleIndex = vision.project_schedule.findIndex(item => { return item.project_blueprint.name == baseBlueprint; });
+                    
+                    //if there is existing next project, then quit the loop because we don't want to add same task twice
+                    let nextProject=vision.project_schedule[scheduleIndex].next_project.find(item=>{
+                        return item.blueprint.toString()==nextBlueprintDoc._id.toString();
+                      
+                    });
+                    if(nextProject!=null){
+                        resolve();
+                        return;
+                    }
+                    
                     vision.project_schedule[scheduleIndex].next_project.push({ blueprint: nextBlueprintDoc._id });
                     vision.save((err) => {
                         if (err) {
@@ -645,8 +673,11 @@ let UpdateNextBlueprint_SaveVision=function(vision_name,blueprints,nextBlueprint
 };
 exports.UpdateNextBlueprint = function (vision_name, baseBlueprint, nextBlueprint) {
     return new Promise((resolve, reject) => {
-        blueprintControl
-            .getBlueprints({ $or: [{ name: baseBlueprint }, { name: nextBlueprint }] })
+        let lockName=`UpdateNextBlueprint = function (${vision_name}, ${baseBlueprint}, ${nextBlueprint})`;
+        lockControl.Aquire(lockName)
+            .then(()=>{
+                return blueprintControl.getBlueprints({ $or: [{ name: baseBlueprint }, { name: nextBlueprint }] });
+            })            
             .then(blueprints => {
                 //check if baseblueprint and nextblueprint are valid
                 return new Promise((resolve, reject) => {                    
@@ -669,19 +700,23 @@ exports.UpdateNextBlueprint = function (vision_name, baseBlueprint, nextBlueprin
                 return UpdateNextBlueprint_SaveVision(vision_name,blueprints,nextBlueprint,baseBlueprint);
             })
             .then(()=>{
+                lockControl.Release(lockName);
+            })
+            .then(()=>{
                 resolve();
             })
             .catch(err => {
-                reject(err);
+                lockControl.Release(lockName)
+                    .then(()=>{
+                        reject(err);
+                    })
+                
             });
     });
 };
 exports.putNextBlueprint = function (req, res) {
-    checkVisionNameValid(req.params.vision_name)
-        .then((vision) => {
-            //initialize schedule
-            return exports.CreateNewBlueprintSchedule(vision, req.params.blueprint);
-        })
+
+    return exports.CreateNewBlueprintSchedule(req.params.vision_name, req.params.blueprint)
         .then(() => {
             //update next blueprint
             return exports.UpdateNextBlueprint(req.params.vision_name, req.params.blueprint, req.params.next);

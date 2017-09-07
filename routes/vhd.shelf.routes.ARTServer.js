@@ -52,6 +52,69 @@ router.get('/shelf/vhd/upload_path',validate(vhdValidation.getUploadPath),functi
 });
 
 
+router.get('/shelf/vhd/series',function(req,res){
+    //get all series name
+    vhdControl.getSeriesInfo()
+        .then((seriesList)=>{
+            res.json(seriesList);
+        })
+        .catch(err=>{
+            res.status(err.status).json(err);
+        });
+});
+router.get('/shelf/vhd/series/:name',validate(vhdValidation.getNewSeries),function(req,res){
+    //get series with specific name
+    vhdControl.getSeriesInfo(req.params.name)
+        .then((seriesList)=>{
+            res.json(seriesList);
+        })
+        .catch(err=>{
+            res.status(err.status).json(err);
+        });
+});
+
+router.put('/shelf/vhd/series/:name/slot/:number',validate(vhdValidation.updateSeriesVHDSlot),function(req,res){
+    //get series with specific name
+    let name=req.params.name;
+    let number=req.params.number;
+
+    vhdControl.updateSeriesVHDSlot(name,number)
+        .then(()=>{
+            res.json();
+        })
+        .catch(err=>{
+            res.status(err.status).json(err);
+        });
+});
+
+router.put('/shelf/vhd/series/:name/subscriber/:vision',validate(vhdValidation.addSeriesSubscriber),function(req,res){
+    //add a subscriber vision into the subscriber list
+    //input is vision name
+    vhdControl.addSeriesSubscriber(req.params.name,req.params.vision)
+        .then(()=>{
+            res.json();
+        })
+        .catch(err=>{
+            res.status(err.status).json(err);
+        });
+});
+
+router.get('/shelf/subscriber/:vision',validate(vhdValidation.addSeriesSubscriber),function(err,res){
+    //get the vision subscribed, at the same time, update the timestamp if we find anything new in the queue
+});
+
+router.delete('/shelf/vhd/series/:name/subscriber/:vision',validate(vhdValidation.delSeriesSubscriber),function(req,res){
+    //delete a subscriber vision, the input is vision name
+    vhdControl.delSeriesSubscriber(req.params.name,req.params.vision)
+        .then(()=>{
+            res.json();
+        })
+        .catch(err=>{
+            res.status(err.status).json(err);
+        });
+});
+
+
 router.get('/shelf/vhd',extendTimeout,function(req,res){
     //it shall all available image information
     vhdControl.getVHD()
@@ -78,6 +141,15 @@ router.get('/shelf/vhd/:id',extendTimeout,function(req,res){
             res.status(err.status).json(err);
         });    
     
+});
+
+router.put('/shelf/vhd/:id/keeper',extendTimeout,function(req,res){
+ 
+    
+});
+router.put('/shelf/vhd/:id/dumper',extendTimeout,function(req,res){
+    
+       
 });
 router.get('/shelf/vhd/download/:id',validate(vhdValidation.getVHDDownload),function(req,res){
     //it shall download the image id specified
@@ -126,7 +198,16 @@ router.post('/shelf/vhd',extendTimeout,upload.single('file'),function(req,res){
 
 });
 
-
+router.post('/shelf/vhd/series/:name',validate(vhdValidation.postNewSeries),function(req,res){
+    //create a new series, if there is existing series with the same name, then return error
+    vhdControl.postSeries(req.params.name)
+        .then(()=>{
+            res.json();
+        })
+        .catch(err=>{
+            res.status(err.status).json(err);
+        });
+});
 
 
 module.exports=router;

@@ -418,3 +418,74 @@ describe('put /dorm/:dormName/vm/:size_mb',()=>{
     })
 })
 
+describe('delete dorm/:dormName',()=>{
+    beforeEach((done)=>{
+        dormModel.remove({},()=>{done()});
+    });     
+    it('shall delete dorm when there is sth existed',done=>{
+        dormSupport.PostDorm(dormSupport.dorm1)
+            .then(()=>{
+                return dormSupport.PostDorm(dormSupport.dorm2);
+            })
+            .then(()=>{
+                return dormSupport.DeleteDorm(dormSupport.dorm1.name);
+            })
+            .then(()=>{
+                //there dorm 2 shall be gone while dorm 1 still remains
+                dormModel.find({})
+                    .then(dormList=>{
+                        let dorm1Instance=dormList.find(item=>{return item.name==dormSupport.dorm1.name});
+                        let dorm2Instance=dormList.find(item=>{return item.name==dormSupport.dorm2.name});
+                        if(dorm1Instance!=null){
+                            assert(false,'dorm1 shall be gone');                            
+                        }
+                        if(dorm2Instance==null){
+                            assert(false,'dorm2 shall be still here');                            
+                        }                        
+                        done();
+                    })                    
+            });
+    });
+    it('shall return error when dorm name is empty',done=>{
+        dormSupport.PostDorm(dormSupport.dorm1)
+            .then(()=>{
+                return dormSupport.PostDorm(dormSupport.dorm2);
+            })
+            .then(()=>{
+                return dormSupport.DeleteDorm('');
+            })
+            .then(()=>{
+                //there dorm 2 shall be gone while dorm 1 still remains
+                assert(false,'it shall not return pass');
+                done();
+            })
+            .catch(err=>{
+                assert.equal(err.status,404);
+                done();
+            })
+    });
+    it('shall not return error when we cannot find the dorm',done=>{
+        dormSupport.PostDorm(dormSupport.dorm1)
+            .then(()=>{
+                return dormSupport.PostDorm(dormSupport.dorm2);
+            })
+            .then(()=>{
+                return dormSupport.DeleteDorm('dormSupport.dorm1.name');
+            })
+            .then(()=>{
+                //there dorm 2 shall be gone while dorm 1 still remains
+                dormModel.find({})
+                    .then(dormList=>{
+                        let dorm1Instance=dormList.find(item=>{return item.name==dormSupport.dorm1.name});
+                        let dorm2Instance=dormList.find(item=>{return item.name==dormSupport.dorm2.name});
+                        if(dorm1Instance==null){
+                            assert(false,'dorm1 shall be here');                            
+                        }
+                        if(dorm2Instance==null){
+                            assert(false,'dorm2 shall be still here');                            
+                        }                        
+                        done();
+                    })                    
+            });         
+    });
+});

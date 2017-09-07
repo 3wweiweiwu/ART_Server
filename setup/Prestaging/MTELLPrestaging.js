@@ -181,6 +181,15 @@ describe('Add new vision APM Prestaging',()=>{
               
             })
             .then(()=>{
+                //setting for the vhd checkin
+                return new Promise((resolve)=>{
+                    registrySupport.postRegistry(registrySupport.Keys.Template,blueprintMediaPreparationObj.name,taskSupport.sampleVHDCheckin.name,'vhd_serie','2016 MTELL V10.0.3 VHD')
+                        .then(()=>{
+                            resolve();
+                        });
+                });
+            })            
+            .then(()=>{
                 done();
             })
             .catch((err)=>{

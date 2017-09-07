@@ -14,6 +14,7 @@ $taskName=$Task.installMedia
     $Product_Verification=Load-Setting -sARTServerUri $sARTUri -project $blueprint -task $taskName -key 'Product_Verification'
     $lsCurrentSchedule=([array](Load-Setting -sARTServerUri $sARTUri -vision $vision -task $Task.mediaDetection -key current_schedule))
     $Installation_File=$lsCurrentSchedule[$lsCurrentSchedule.Length-1]
+    $iEstimatedProductInstallationTimeInHour=3 #estimated installation time is 3 hours, if it takes more than 3 horus and haven't finished, then restart the machine
 #test installation file, if this is 
 
 
@@ -130,10 +131,16 @@ $sLocal_Media_Path=Join-Path -Path $Local_Media_Storage -ChildPath (Split-Path -
         }
 
     }
+    #If installation take more than time limit, then restart the machine
+    $silkStartTime=Get-Date
     while ((Get-Process|where{$_.ProcessName -eq 'partner'}) -ne $null)
     {
-        $i+=10
-        $i|Out-File c:\installation.txt
+        $silkElapsedTime=(((Get-Date)-$silkStartTime).TotalHours)
+        if($silkElapsedTime -gt $iEstimatedProductInstallationTimeInHour)
+        {
+            Restart-Computer -Force
+            Start-Sleep -Seconds 3600
+        }
         Start-Sleep -Seconds 10
     }
 

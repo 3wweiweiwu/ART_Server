@@ -397,6 +397,34 @@ describe('put /vision', () => {
                     });
             })
     });
+    it('shall specify server ask when hit it for 100 timeswith /vision/:vision_name/project_schedule/blueprint/:blueprint/server_ask/:ask/group/:group', (done) => {
+        taskSupport.postTaskAPMNewMediaDetection()
+            .then(taskSupport.posttaskAPMInstall)
+            .then(projectSupport.postProjectBlueprintAPMPrestaging)
+            .then(visionSupport.PostVisionAPMChef)
+            .then(() => {
+                let taskList=[];
+                for(let i=0;i<100;i++){
+                    taskList.push(visionSupport.putBlueprintServerAsk(visionSupport.visionAPMChef.name, projectSupport.projectAPMPrestaging.name, i));
+                }
+                return Promise.all(taskList);
+                
+            })
+            .then(() => {
+                visionModel.findOne({ name: visionSupport.visionAPMChef.name })
+                    .populate('project_schedule.project_blueprint')
+                    .exec((err, vision) => {
+                        if (err) {
+                            assert(false, 'incorrect response');
+                            done();
+                        }
+                        else {
+                            assert.equal(vision.project_schedule.length, 1);
+                            done();
+                        }
+                    });
+            })
+    });    
     it('shall return error for invalid blueprint name with /vision/:vision_name/project_schedule/blueprint/:blueprint/server_ask/:ask/group/:group', (done) => {
         taskSupport.postTaskAPMNewMediaDetection()
             .then(taskSupport.posttaskAPMInstall)
@@ -532,6 +560,42 @@ describe('put /vision', () => {
             })
 
     });
+    it('shall add append project into project list with /vision/:vision_name/project_schedule/blueprint/:blueprint/next/:next', done => {
+        
+        taskSupport.postTaskAPMNewMediaDetection()
+            .then(taskSupport.posttaskAPMInstall)
+            .then(projectSupport.postProjectBlueprintAPMPrestaging)
+            .then(projectSupport.postProjectBlueprintAESPrestaging1)
+            .then(visionSupport.PostVisionAPMChef)
+            .then(() => {
+                return dormSupport.PostDorm(dormSupport.dorm1)
+            })
+            .then(() => {
+                let taskList=[];
+                for(let i=0;i<20;i++){
+                    taskList.push(visionSupport.putNextBlueprint(visionSupport.visionAPMChef.name, projectSupport.projectAPMPrestaging.name, projectSupport.projectAPMPrestaging1.name));
+                }
+                return Promise.all(taskList);
+            })
+            .then(() => {
+                visionModel.find({ name: visionSupport.visionAPMChef.name })
+                    .populate('project_schedule.machine_demand.dorm')
+                    .populate('project_schedule.project_blueprint')
+                    .populate('project_schedule.next_project.blueprint')
+                    .exec((err, visionList) => {
+                        
+                        if (err) {
+                            assert(false, 'incorrect response');
+                            done();
+                        }
+                        else {
+                            assert.equal(visionList[0].project_schedule[0].next_project.length,1);
+                            done();
+                        }
+                    });
+            })
+
+    });    
     it('shall throw error when initial blueprint is invlaid list with /vision/:vision_name/project_schedule/blueprint/:blueprint/next/:next',done=>{
         taskSupport.postTaskAPMNewMediaDetection()
             .then(taskSupport.posttaskAPMInstall)

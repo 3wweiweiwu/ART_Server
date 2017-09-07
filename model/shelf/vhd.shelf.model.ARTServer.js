@@ -4,8 +4,9 @@ let Schema=mongoose.Schema;
 let vhdModel=new Schema({
     created:{
         By:{type:String},
-        at:{type:Date},
-        intro:{type:String}      
+        at:{type:Date,default:Date.now()},
+        intro:{type:String},
+        is_testing:{type:Boolean,default:false}    
     },
     content:{        
         os:{type:String},
@@ -17,7 +18,8 @@ let vhdModel=new Schema({
         }],
         installed_media:{
             name:{type:String}
-        }
+        },
+        is_keeper:{type:Boolean}
     },
     storage:{        
         destination:{type:String},

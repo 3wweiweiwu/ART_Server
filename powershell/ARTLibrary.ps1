@@ -17,6 +17,25 @@ $Task=@{
 
 }
 
+function Remove-Dorm($sARTUri,$dormName)
+{
+    $url=Join-Url -parentPath $sARTUri -childPath "/api/dorm/$dormName"
+    while($true)
+    {
+        try
+        {
+            Invoke-RestMethod -Method Delete -Uri $url
+            break
+        }
+        catch
+        {
+            Write-Warning "Remove-Dorm($sARTUri,$dormName)"
+            Resolve-RestError
+            
+        }
+    }
+}
+
 function Resolve-RestError()
 {
     $result=@{
@@ -30,7 +49,7 @@ function Resolve-RestError()
         Start-Sleep -Milliseconds ($iTimeout*50)
         
     }
-    Write-Warning -Object "$((Get-Date).tostring()) # $($Error[0].ToString())"
+    Write-Host -Object "$((Get-Date).tostring()) # $($Error[0].ToString())" -ForegroundColor Red
     Start-Sleep -Milliseconds ($iTimeout*50)
     $Error.Clear()
     return $result
@@ -287,9 +306,8 @@ function Write-Setting($sARTServerUri,$vision="Template",$project="Template",$ta
             break
         }
         catch
-        {
-            Start-Sleep -Milliseconds $iTimeout
-            Resolve-Error
+        {            
+            Resolve-RestError
         }
         
     }
@@ -638,7 +656,7 @@ function Get-Project($sARTUri,$projectId)
         catch
         {
             Write-Warning -Message "Get-Project($sARTUri,$projectId)"            
-            Resolve-Error
+            Resolve-RestError
         }
     }
 }
@@ -657,7 +675,7 @@ function New-ClientSideProjectBasedOnTask($sARTUri,$visionName,$vmName,$blueprin
         {
             Write-Warning -Message "New-ClientSideProjectBasedOnTask($sARTUri,$visionName,$vmName,$blueprintName,$taskName)"
             
-            Resolve-Error
+            Resolve-RestError
         }
     }
 }

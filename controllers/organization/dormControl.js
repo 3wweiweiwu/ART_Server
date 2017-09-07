@@ -337,6 +337,19 @@ exports.AllocateVMSpaceFromDorm=function(dormDoc,vmSizeMb,driveLetter){
         
     });
 }
+exports.DeleteDorm=function(dormName){
+    return new Promise((resolve,reject)=>{
+        dormModel.remove({name:dormName})
+            .then(result=>{
+                resolve(result);
+            })
+            .catch(err=>{
+                reject(CreateStandardError(err,500));   
+            });
+
+    });
+
+}
 exports.PutVMToDorm=function(req,res,next){
     //allocate space for the vm in the dorm specified
     let lockName=`Allocate VM in ${req.params.dormName}`;

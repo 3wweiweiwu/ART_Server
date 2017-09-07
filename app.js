@@ -28,7 +28,7 @@ var app = express();
 
 //mongoose ODM
 var mongoose=require('mongoose');
-mongoose.connect(config.dbAddress);
+mongoose.connect(config.testdbAddress);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

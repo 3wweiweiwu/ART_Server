@@ -56,6 +56,10 @@ if((Test-Path -Path $sVHD_Local_Folder) -eq $false)
     New-Item -Path $sVHD_Local_Folder -ItemType Directory
 }
 
+#clean up dorm info in the server
+Remove-Dorm -sARTUri $sARTUri -dormName $sVMClientId
+
+
 #clean up related vm if any
 Write-Host -Object "$((Get-Date).tostring())#clean up related vm if any"
 $VM=$null
@@ -73,6 +77,8 @@ if($VM -ne $null){
     
 }
 
+
+#clean up dorm information for the related vm
 
 
 #copy vhd to local vhd folder
@@ -109,7 +115,7 @@ if((Test-Path -Path $sArt_VHD) -eq $false)
 }
 
 
-#copy detected from hqfiler to drive
+#copy detected media from hqfiler to drive
 Write-Host -Object "$((Get-Date).tostring())#copy detected from hqfiler to drive"
 Wait-FileAvailable -TimeOut 3600 -Path $Installation_File
 $Local_Media_Storage=Join-Path -Path $sDriverLetter -ChildPath p4
@@ -118,7 +124,7 @@ if((Test-Path -Path $Local_Media_Storage) -eq $false)
     md $Local_Media_Storage
 }
 
-Copy-Item -Path $Installation_File -Destination $Local_Media_Storage -Force|Out-Host -Verbose
+Copy-Item -Path $Installation_File -Destination $Local_Media_Storage -Force -Verbose
 $sLocal_Media_Path=Join-Path -Path $Local_Media_Storage -ChildPath (Split-Path -Path $Installation_File -Leaf)
 
 

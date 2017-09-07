@@ -8,6 +8,11 @@ module.exports={
             diskProfile:Joi.array().required()
         }
     },
+    DeleteDorm:{
+        params:{
+            dormName:Joi.string().required()
+        }
+    },
     PutVMToDorm:{
         params:{
             dormName:Joi.string().required(),

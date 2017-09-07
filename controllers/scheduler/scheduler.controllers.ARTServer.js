@@ -16,29 +16,37 @@ const IncreaseVMGroupNumberForBlueprint=function(visionDoc,blueprintDoc){
     //increase the current_group_number by 1
     //this function is used to choose which vm group to schedule
     return new Promise((resolve,reject)=>{
+        // visionModel.findOneAndUpdate({
+        //     'info.project_schedule.vid_group_info.current_group_number'
+        // },{},{upsert:true},((err,doc)=>{
+
+        // })
+
+        
+        visionModel.inser
         let infoIndex=visionDoc.info.project_schedule.findIndex(item=>{
             return item.vid_group_info.project_blueprint._id.toString()==blueprintDoc._id.toString();
         });
         if(infoIndex==-1){
             //create new group info
-            visionDoc.info.project_schedule.push({
+            visionDoc.info.project_schedule=[{
                 vid_group_info:{
                     project_blueprint:blueprintDoc._id.toString(),
                     current_group_number:1
-                }
-            });
+                }}];
         }
         else{
             //increase the current_group_number count
-            visionDoc.info.project_schedule[infoIndex].vid_group_info.current_group_number++;
+            visionDoc.info.project_schedule[infoIndex].vid_group_info.current_group_number=visionDoc.info.project_schedule[infoIndex].vid_group_info.current_group_number+1;
+
         }
         visionDoc.save(err=>{
             if(err){
                 //if it is version error, then we are going to redo this operation again with updated document
                 if(err.name=='VersionError'){
                     visionControl.getVision({_id:visionDoc._id})
-                        .then(visionDoc=>{
-                            return IncreaseVMGroupNumberForBlueprint(visionDoc[0],blueprintDoc);
+                        .then(newVision=>{
+                            return IncreaseVMGroupNumberForBlueprint(newVision[0],blueprintDoc);
                         })
                         .then(()=>{
                             resolve();
@@ -167,8 +175,12 @@ exports.ScheduleBlueprint=function(vision,blueprint){
     //atomically schedule each individual project
     //if dorm is scheduled correctly, then change project status to scheduled, otherwise change staus to waiting   
     
-    return new Promise((resolve,reject)=>{
-        visionControl.IsBlueprintInProjectScheduleValid(vision,blueprint)            
+    return new Promise((resolve,reject)=>{        
+        let lockName=`ScheduleBlueprint(${vision},${blueprint})`;
+        lock.Aquire(lockName)
+            .then(()=>{
+                return visionControl.IsBlueprintInProjectScheduleValid(vision,blueprint)            
+            })
             .then(vision=>{
                 
                 //mark all project that is made based on blueprint pending retire
@@ -179,15 +191,22 @@ exports.ScheduleBlueprint=function(vision,blueprint){
                         return blueprintControl.isBlueprintValid(blueprint);
                     })
                     .then((blueprintDoc)=>{
-                        return IncreaseVMGroupNumberForBlueprint(vision,blueprintDoc);
+                        IncreaseVMGroupNumberForBlueprint(vision,blueprintDoc);
                     });
                     
             })
-            .then((result)=>{
+            .then(()=>{
+                return lock.Release(lockName);
+            })
+            .then(()=>{
                 resolve();
             })
             .catch(err=>{
-                reject(err);
+                lock.Release(lockName)
+                    .then(()=>{
+                        reject(err);
+                    })
+                
             });
       
     });
@@ -373,6 +392,25 @@ exports.ScheduleNextProject=function(visionName,projectId){
                 
                 //mark current project as pending retire
                 projectControl.UpdateProjectStatus(projectId,projectStatus.pendingRetire.id)
+                    .then(()=>{
+                        //for the project that we are going to schedule, mark existing project as pending retire
+                        //because it doesn't make sense to execute same project a second time.
+                        //if we decide to schedule it, it means there is something wrong
+                        return new Promise((resolve,reject)=>{
+                            let futureBluePrintList=[];
+                            currentSchedule.next_project.forEach(item=>{
+                                futureBluePrintList.push(exports.MarkProjectPendingRetire(visionName,item.blueprint.name));
+                            });
+                            Promise.all(futureBluePrintList)
+                                .then(()=>{
+                                    resolve();
+                                })
+                                .catch(err=>{
+                                    reject(standardError(err,500));
+                                });
+                        });
+
+                    })
                     .then(()=>{
                     //find current schedule
                     

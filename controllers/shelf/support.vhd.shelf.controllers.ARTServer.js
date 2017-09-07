@@ -1,129 +1,264 @@
-
-let chai = require('chai');
-let chaiHttp = require('chai-http');
+let request=require('supertest');
 let app = require('../../app.js');
-chai.use(chaiHttp);
+
+let Constant={
+    TestSeries:'testSeries'
+};
+let inbuiltJson={
+    upload1:{
+        created_by:'me',
+        os:'10',
+        series:'test',
+        installed_products:[
+            {
+                name:'a+',
+                version:'10',
+                build:50
+            },
+            {
+                name:'hysys',
+                version:'10',
+                build:55
+            }
+        ],
+        installed_media:'AspenONE50'
+
+    },
+    upload2:{
+        created_by:'me',
+        os:'10',
+        series:'test',
+        installed_products:[
+            {
+                name:'a+',
+                version:'10.1',
+                build:50
+            },
+            {
+                name:'hysys',
+                version:'10.1',
+                build:55
+            }
+        ],
+        installed_media:'AspenONE50'
+
+    },   
+    upload3:{
+        created_by:'me',
+        os:'10',
+        series:'test',
+        installed_products:[
+            {
+                name:'a+',
+                version:'10.2',
+                build:50
+            },
+            {
+                name:'hysys',
+                version:'10.2',
+                build:55
+            }
+        ],
+        installed_media:'AspenONE50'
+
+    },      
+    upload4:{
+        created_by:'me',
+        os:'10',
+        series:'test',
+        installed_products:[
+            {
+                name:'a+',
+                version:'10.3',
+                build:50
+            },
+            {
+                name:'hysys',
+                version:'10.3',
+                build:55
+            }
+        ],
+        installed_media:'AspenONE50'
+
+    },          
+};
 
 
-exports.getUploadPath=(query,cb=()=>{})=>{
+let getUploadPath=function(fieldInfo,filePath){
     return new Promise((resolve,reject)=>{
-        chai
-            .request(app)
-            .get('/api/shelf/vhd/upload_path')
-            .send(query)
-            .end((err, res) => {            
-                if(err) {
+        request(app)
+            .post('/api/shelf/vhd')
+            .field('created_by',fieldInfo.created_by)
+            .field('os',fieldInfo.os)
+            .field('series',Constant.TestSeries)
+            .field('installed_products',JSON.stringify(fieldInfo.installed_products))
+            .field('installed_media',JSON.stringify(fieldInfo.installed_media))
+            .attach('file',filePath)
+            .end((err,res)=>{
+                if(err){
                     reject(err);
-                    return cb(err);
                 }
-                else {
+                else{
                     resolve(res);
-                    return cb(null,res);
                 }
-            });   
+            });
+    });
+
+};
+
+let getVHD=function(){
+    return new Promise((resolve,reject)=>{
+        request(app)
+            .get('/api/shelf/vhd')
+            .end((err,res)=>{
+                if(err){
+                    reject(err);
+                }
+                else{
+                    resolve(res);
+                }
+            });
+    });
+
+};
+
+
+let getVHDDownload=function(id){
+    return new Promise((resolve,reject)=>{
+        request(app)
+            .get(`/api/shelf/vhd/download/${id}`)
+            .end((err,res)=>{
+                if(err){
+                    reject(err);
+                }
+                else{
+                    resolve(res);
+                }
+            });
+    });
+
+};
+let postSeries=function(name){
+    return new Promise((resolve,reject)=>{
+        request(app)
+            .post(`/api/shelf/vhd/series/${name}`)
+            .end((err,res)=>{
+                if(err){
+                    reject(err);
+                }
+                else{
+                    resolve(res);
+                }
+            });
+    });
+
+};
+
+let getAllSeries=function(){
+    return new Promise((resolve,reject)=>{
+        request(app)
+            .get('/api/shelf/vhd/series')
+            .end((err,res)=>{
+                if(err){
+                    reject(err);
+                }
+                else{
+                    resolve(res);
+                }
+            });
+    });
+
+};
+
+let getSeriesInfo=function(name){
+    return new Promise((resolve,reject)=>{
+        request(app)
+            .get(`/api/shelf/vhd/series/${name}`)
+            .end((err,res)=>{
+                if(err){
+                    reject(err);
+                }
+                else{
+                    resolve(res);
+                }
+            });
+    });
+
+};
+
+let updateSeriesVHDSlot=function(seriesName,slotNumber){
+    return new Promise((resolve,reject)=>{
+        request(app)
+            .put(`/api/shelf/vhd/series/${seriesName}/slot/${slotNumber}`)
+            .end((err,res)=>{
+                if(err){
+                    reject(err);
+                }
+                else{
+                    resolve(res);
+                }
+            });
+    });
+
+};
+
+let addSeriesSubscriber=function(seriesName,visionName){
+    return new Promise((resolve,reject)=>{
+        request(app)
+            .put(`/api/shelf/vhd/series/${seriesName}/subscriber/${visionName}`)
+            .end((err,res)=>{
+                if(err){
+                    reject(err);
+                }
+                else{
+                    resolve(res);
+                }
+            });
+    });
+
+};
+
+let getShelfSubscription=function(visionName){
+    return new Promise((resolve,reject)=>{
+        request(app)
+            .put(`/api/shelf/subscriber/${visionName}`)
+            .end((err,res)=>{
+                if(err){
+                    reject(err);
+                }
+                else{
+                    resolve(res);
+                }
+            });
     });
 };
 
-exports.jsonUploadPath={
-    created_by:'wuwei1',   
-    size_byte:'9096',
-    os:'windows 10',
-    installed_products:[
-        {
-            name:'Aspen Plus',
-            version:'V10',
-            build:'2323'
-        },
-        {
-            name:'Aspen HYSYS',
-            version:'V11',
-            build:'3423'
-        }        
-    ]       
+let delSeriesSubscriber=function(seriesName,visionName){
+    return new Promise((resolve,reject)=>{
+        request(app)
+            .delete(`/api/shelf/vhd/series/${seriesName}/subscriber/${visionName}`)
+            .end((err,res)=>{
+                if(err){
+                    reject(err);
+                }
+                else{
+                    resolve(res);
+                }
+            });
+    });
 };
 
-exports.jsonUploadPath={
-    created_by:'wuwei1',   
-    size_byte:'9096',
-    os:'windows 10',
-    installed_products:[
-        {
-            name:'Aspen Plus',
-            version:'V10',
-            build:'2323'
-        },
-        {
-            name:'Aspen HYSYS',
-            version:'V11',
-            build:'3423'
-        }        
-    ]       
-};
-
-exports.jsonUploadPath_EmptyCreatedBy={
-    size_byte:'9096',
-    os:'windows 10',
-    installed_products:[
-        {
-            name:'Aspen Plus',
-            version:'V10',
-            build:'2323'
-        },
-        {
-            name:'Aspen HYSYS',
-            version:'V11',
-            build:'3423'
-        }        
-    ]       
-};
-
-exports.jsonUploadPath_EmptySize={
-    created_by:'wuwei1',   
-    os:'windows 10',
-    installed_products:[
-        {
-            name:'Aspen Plus',
-            version:'V10',
-            build:'2323'
-        },
-        {
-            name:'Aspen HYSYS',
-            version:'V11',
-            build:'3423'
-        }        
-    ]       
-};
-
-exports.jsonUploadPath_EmptyOS={
-    created_by:'wuwei1',   
-    size_byte:'9096',
-    installed_products:[
-        {
-            name:'Aspen Plus',
-            version:'V10',
-            build:'2323'
-        },
-        {
-            name:'Aspen HYSYS',
-            version:'V11',
-            build:'3423'
-        }        
-    ]       
-};
-
-exports.jsonUploadPath_EmptyName={
-    created_by:'wuwei1',   
-    size_byte:'9096',
-    os:'windows 10',
-    installed_products:[
-        {
-            name:'Aspen Plus',
-            version:'V10',
-            build:'2323'
-        },
-        {
-            version:'V11',
-            build:'3423'
-        }        
-    ]       
+module.exports={
+    getUploadPath:getUploadPath,
+    getVHD:getVHD,
+    getVHDDownload:getVHDDownload,
+    inbuiltJson:inbuiltJson,
+    Constant:Constant,
+    postSeries:postSeries,
+    getAllSeries:getAllSeries,
+    getSeriesInfo:getSeriesInfo,
+    updateSeriesVHDSlot:updateSeriesVHDSlot,
+    addSeriesSubscriber:addSeriesSubscriber,
+    getShelfSubscription:getShelfSubscription,
+    delSeriesSubscriber:delSeriesSubscriber,
 };

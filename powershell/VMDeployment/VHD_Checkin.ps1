@@ -7,6 +7,10 @@ iex ((New-Object System.Net.WebClient).DownloadString("$sARTUri/api/ps/CommonHea
 
 #load installed products from the install_media tas
     $installed_products=Load-Setting -sARTServerUri $sARTUri -project $blueprint -task $Task.installMedia -key InstalledProductInfo
+    $vhd_serie=Load-Setting -sARTServerUri $sARTUri -project $blueprint -task $Task.taskVHDCheckin -key vhd_serie
+    
+#modify the installed series based on check in info
+    $installed_products.series=$vhd_serie
     Write-Host -Object "The installation product info are $installed_products"
 
 #If vm is not off, then wait for 1 minutes and turn it of
