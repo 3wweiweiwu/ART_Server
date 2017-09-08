@@ -1,6 +1,6 @@
 var mongoose=require('mongoose'),
-    Schema=mongoose.Schema,
-    mType=Schema.Types;
+    Schema=mongoose.Schema;
+    
 
 
 

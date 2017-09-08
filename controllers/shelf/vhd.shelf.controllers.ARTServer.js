@@ -6,10 +6,76 @@ let fs=require('fs');
 let visionControl=require('../vision/vision.controllers.ARTServer');
 let visionModel=require('../../model/vision/vision.model.ARTServer');
 let lockControl=require('../common/lock.common.controllers.ARTServer');
+let path=require('path');
 let vhdControl=function(){
 
     let getUploadPath=function(createdBy,os,productList,mediaList,storageInfo,series){
+        let _removeOldVHD=function(series){
+            return new Promise((resolve,reject)=>{
+                //get respective series manager to get max inventory
+                let todo=[];
+                todo.push(shelfManagerModel.findOne({series:series}));
+                
+                //push the vhd
+                todo.push(vhdModel.find({
+                    $and:[
+                        {'content.series':series},
+                        {$or:[
+                            {'content.is_keeper':false},
+                            {'content.is_keeper':null},
+                        ]}
+                    ]})
+                    .sort('-created.at')
+                );
+                Promise.all(todo)
+                    .then((result)=>{
+                        //get the max inventory from series with default value of 3
+                        let series=result[0];
+                        let maxInventory=3;
+                        if(series!=null){
+                            maxInventory=series.max_inventory;
+                        }
+
+                        //if the vhd count is greater than our inventory, then delete early ones
+                        let vhdList=result[1];
+                        let pendingDelete=[];
+                        if(vhdList.length>maxInventory){
+                            for(let i=maxInventory;i<vhdList.length;i++){
+                                
+                                //delete file
+                                pendingDelete.push(new Promise((resolve)=>{
+                                    let filePath=vhdList[i].storage.path;
+                                    fs.unlink(filePath,err=>{
+                                        if(err){
+                                            console.log(err);
+                                        }
+                                        resolve();
+                                    });
+                                }));
+
+                                //delete record
+                                pendingDelete.push(vhdModel.remove({_id:vhdList[i]._id.toString()}));
+                            }
+                        }
+                        else{
+                            //vhd count is less than inventory maximum, we are all good
+                            resolve();
+                        }
+                        
+                        return Promise.all(pendingDelete);
+
+                    })
+                    .then((result)=>{
+                        resolve(result);
+                    })
+                    .catch(err=>{
+                        reject(StandardError(err,500));
+                    });
+            });
+        };
+        
         return new Promise((resolve,reject)=>{
+            //create a new vhd record
             storageInfo.username=config.shelf.user_name;
             storageInfo.password=config.shelf.password;
             let vhdDoc=new vhdModel({
@@ -26,17 +92,19 @@ let vhdControl=function(){
                 },
                 storage:storageInfo
             });            
-            vhdDoc.save(err=>{
-                //check if newly saved item is there
-
-                if(err){
+            vhdDoc.save()
+                .then(()=>{
+                    return _removeOldVHD(series);
+                })
+                .then(()=>{
+                    resolve(vhdDoc._id);
+                    return;
+                })
+                .catch(err=>{
                     reject(StandardError(err,500));
                     return;
-                }
-                else{                    
-                    resolve();
-                }
-            });
+                });
+
         });
     };
     let getVHDDownload=function(id){
@@ -76,7 +144,7 @@ let vhdControl=function(){
         });
 
         return results;
-    }
+    };
     let getVHD=function(query){
         return new Promise((resolve,reject)=>{
             vhdModel.find(query)
@@ -232,7 +300,7 @@ let vhdControl=function(){
                                 reject(StandardError(err,500));
                             });                    
                     });
-            })
+            });
     
     
     
@@ -312,7 +380,7 @@ let vhdControl=function(){
         return new Promise((resolve,reject)=>{
             let todoList=[];
             todoList.push(getSeriesInfo(seriesName));
-            todoList.push(visionModel.findOne({name:visionName}))
+            todoList.push(visionModel.findOne({name:visionName}));
             Promise.all(todoList)
                 .then(result=>{
                     return _updateLastVisitedTime(result,seriesName,visionName);
@@ -345,9 +413,31 @@ let vhdControl=function(){
 
     };
     let delSeriesSubscriber=function(seriesName,visionId){
-
+        //why do I need to delte that? If I use it, it is useful, if not..who cares...
+        if(visionId){
+            visionId++;
+        }
     };
-
+    let updateVHDKeeperInfo=function(vhdId,isKeeper){
+        return new Promise((resolve,reject)=>{
+            vhdModel.findOneAndUpdate({_id:vhdId},{'content.is_keeper':isKeeper},((err,result)=>{
+                if(err){
+                    reject(StandardError(err,500));
+                    return;
+                }
+                else{
+                    if(result==null){
+                        //there is nothing found, then return error
+                        reject(StandardError(`unable to find vhd with ${vhdId}`,400));
+                    }
+                    else{
+                        resolve(result);
+                    }
+                }
+            }));
+        
+        });
+    };
 
     return {
         getUploadPath:getUploadPath,
@@ -358,7 +448,8 @@ let vhdControl=function(){
         addSeriesSubscriber:addSeriesSubscriber,
         delSeriesSubscriber:delSeriesSubscriber,
         getSeriesInfo:getSeriesInfo,
-        getSubscription:getSubscription
+        getSubscription:getSubscription,
+        updateVHDKeeperInfo:updateVHDKeeperInfo
     };
 };
 

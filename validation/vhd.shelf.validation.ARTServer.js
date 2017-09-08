@@ -10,6 +10,11 @@ module.exports={
             installed_products:Joi.array().required()            
         }
     },
+    updateVHDKeeperInfo:{
+        params:{
+            id:Joi.string().required()
+        }        
+    },
     getVHDDownload:{
         params:{
             id:Joi.string().required()

@@ -151,12 +151,26 @@ router.get('/shelf/vhd/:id',extendTimeout,function(req,res){
     
 });
 
-router.put('/shelf/vhd/:id/keeper',extendTimeout,function(req,res){
- 
-    
+router.put('/shelf/vhd/:id/keeper',validate(vhdValidation.getVHDDownload),function(req,res){
+    vhdControl.updateVHDKeeperInfo(req.params.id,true)
+        .then((result)=>{
+            res.json(result);
+        })
+        .catch(err=>{
+            if(err.status==undefined){
+                err.status=500;
+            }
+            res.status(err.status).json(err);
+        });       
 });
 router.put('/shelf/vhd/:id/dumper',extendTimeout,function(req,res){
-    
+    vhdControl.updateVHDKeeperInfo(req.params.id,false)
+        .then((result)=>{
+            res.json(result);
+        })
+        .catch(err=>{
+            res.status(err.status).json(err);
+        });      
        
 });
 router.get('/shelf/vhd/download/:id',validate(vhdValidation.getVHDDownload),function(req,res){

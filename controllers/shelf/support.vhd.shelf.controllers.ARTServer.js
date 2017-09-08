@@ -247,7 +247,34 @@ let delSeriesSubscriber=function(seriesName,visionName){
             });
     });
 };
-
+let markVHDKeeper=function(vhdId){
+    return new Promise((resolve,reject)=>{
+        request(app)
+            .put(`/api/shelf/vhd/${vhdId}/keeper`)
+            .end((err,res)=>{
+                if(err){
+                    reject(err);
+                }
+                else{
+                    resolve(res);
+                }
+            });
+    });
+};
+let markVHDDumper=function(vhdId){
+    return new Promise((resolve,reject)=>{
+        request(app)
+            .put(`/api/shelf/vhd/${vhdId}/dumper`)
+            .end((err,res)=>{
+                if(err){
+                    reject(err);
+                }
+                else{
+                    resolve(res);
+                }
+            });
+    });
+};
 module.exports={
     getUploadPath:getUploadPath,
     getVHD:getVHD,
@@ -261,4 +288,6 @@ module.exports={
     addSeriesSubscriber:addSeriesSubscriber,
     getShelfSubscription:getShelfSubscription,
     delSeriesSubscriber:delSeriesSubscriber,
+    markVHDKeeper:markVHDKeeper,
+    markVHDDumper:markVHDDumper
 };
