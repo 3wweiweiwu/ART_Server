@@ -13,7 +13,252 @@ var projectBlueprintModel = require('../../model/project/projectBlueprint.model.
 var projectModel = require('../../model/project/project.model.ARTServer');
 let dormModel = require('../../model/organization/dormModel');
 var taskImageDeployment = require('../../model/task/imageDeploy.model.ARTServer');
-let visionSupport=require('../vision/support.vision.controllers.ARTServer')
+let visionSupport=require('../vision/support.vision.controllers.ARTServer');
+
+describe('get /shelf/vhd/series/:name/subscriber/:vision/feed',()=>{
+    beforeEach((done) => {
+        taskModel.remove({})
+            .then(()=>{
+                return taskImageDeployment.remove({});
+            })
+            .then(()=>{
+                return projectBlueprintModel.remove({});
+            })
+            .then(()=>{
+                return projectModel.remove({});
+            })
+            .then(()=>{
+                return visionModel.remove({});
+            })
+            .then(()=>{
+                return dormModel.remove({});
+            })
+            .then(()=>{
+                return vhdModel.find({'content.series':vhdSupport.Constant.TestSeries});
+            })
+            .then((vhdList)=>{
+                return new Promise((resolve,reject)=>{
+                    vhdList.forEach(vhd=>{
+                        let vhdpath=path.join(vhd.storage.destination,vhd.storage.filename);
+                        fs.unlink(vhdpath,err=>{
+                            if(err){
+                                reject(err);
+                            }                            
+                        });                        
+                    });
+                    resolve();
+                    
+                });
+            })
+            .then(()=>{
+                return vhdModel.remove({'content.series':vhdSupport.Constant.TestSeries});
+            })
+            .then(()=>{
+                return shelfManagerModel.remove({});
+            })
+            .then(()=>{
+                done();
+            });
+    });     
+       
+
+    it('shall get the vhd list for the new vision and update the time stamp specified',done=>{
+        vhdSupport.postSeries(vhdSupport.Constant.TestSeries)
+            .then(()=>{
+                return visionSupport.postNewVision(visionSupport.visionAESChef);
+            })
+            .then(()=>{
+                return vhdSupport.addSeriesSubscriber(vhdSupport.Constant.TestSeries,visionSupport.visionAESChef.name);
+            })
+            .then(()=>{
+                return vhdSupport.getUploadPath(vhdSupport.inbuiltJson.upload1,'./controllers/shelf/testfile/test.avhdx');
+            })
+            .then(()=>{
+                return vhdSupport.getUploadPath(vhdSupport.inbuiltJson.upload1,'./controllers/shelf/testfile/asdf.txt');
+            })            
+            .then(()=>{
+                return vhdSupport.getShelfSubscription(vhdSupport.Constant.TestSeries,visionSupport.visionAESChef.name);
+            })
+            .then(result=>{
+                assert.equal(result.status,200);
+                assert.equal(result.body.length,2);
+                let test=result.body.find(item=>{
+                    return item.storage.originalname=='test.avhdx';
+                });
+
+                let asdf=result.body.find(item=>{
+                    return item.storage.originalname=='asdf.txt';
+                });
+
+                assert.notEqual(test,null);
+                assert.notEqual(asdf,null);
+
+                done();
+            })
+            .catch(err=>{
+                assert(false,err);
+            });
+    });
+    it('shall not return vhd that is submitted earilier than its last visisted date',done=>{
+        vhdSupport.getUploadPath(vhdSupport.inbuiltJson.upload1,'./controllers/shelf/testfile/asdf.txt')
+            .then(()=>{
+                return visionSupport.postNewVision(visionSupport.visionAESChef);
+            })
+            .then(()=>{
+                return vhdSupport.postSeries(vhdSupport.Constant.TestSeries);
+            })               
+            .then(()=>{
+                return vhdSupport.addSeriesSubscriber(vhdSupport.Constant.TestSeries,visionSupport.visionAESChef.name);
+            })
+            .then(()=>{
+                return vhdSupport.getUploadPath(vhdSupport.inbuiltJson.upload1,'./controllers/shelf/testfile/test.avhdx');
+            })          
+            .then(()=>{
+                return vhdSupport.getShelfSubscription(vhdSupport.Constant.TestSeries,visionSupport.visionAESChef.name);
+            })           
+            .then(result=>{
+                assert.equal(result.status,200);
+                assert.equal(result.body.length,1);
+                let test=result.body.find(item=>{
+                    return item.storage.originalname=='test.avhdx';
+                });
+
+                let asdf=result.body.find(item=>{
+                    return item.storage.originalname=='asdf.txt';
+                });
+                assert.notEqual(test,null);
+                assert.equal(asdf,null);
+
+                done();
+            })
+            .catch(err=>{
+                assert(false,err);
+            });        
+    });
+    it('shall update the last visited time every time when we ping the web address',done=>{
+        vhdSupport.postSeries(vhdSupport.Constant.TestSeries)
+            .then(()=>{
+                return visionSupport.postNewVision(visionSupport.visionAESChef);
+            })
+            .then(()=>{
+                return vhdSupport.addSeriesSubscriber(vhdSupport.Constant.TestSeries,visionSupport.visionAESChef.name);
+            })
+            .then(()=>{
+                return vhdSupport.getUploadPath(vhdSupport.inbuiltJson.upload1,'./controllers/shelf/testfile/test.avhdx');
+            })           
+            .then(()=>{
+                return vhdSupport.getShelfSubscription(vhdSupport.Constant.TestSeries,visionSupport.visionAESChef.name);
+            })
+            .then(()=>{
+                return vhdSupport.getUploadPath(vhdSupport.inbuiltJson.upload1,'./controllers/shelf/testfile/asdf.txt');
+            })
+            .then(()=>{
+                return vhdSupport.getShelfSubscription(vhdSupport.Constant.TestSeries,visionSupport.visionAESChef.name);
+            })                         
+            .then(result=>{
+                assert.equal(result.status,200);
+                assert.equal(result.body.length,1);
+                let test=result.body.find(item=>{
+                    return item.storage.originalname=='test.avhdx';
+                });
+
+                let asdf=result.body.find(item=>{
+                    return item.storage.originalname=='asdf.txt';
+                });
+
+                assert.equal(test,null);
+                assert.notEqual(asdf,null);
+
+                done();
+            })
+            .catch(err=>{
+                assert(false,err);
+            });        
+    });
+    it('shall return 400 error when series is invalid',done=>{
+        vhdSupport.postSeries(vhdSupport.Constant.TestSeries)
+            .then(()=>{
+                return visionSupport.postNewVision(visionSupport.visionAESChef);
+            })
+            .then(()=>{
+                return vhdSupport.addSeriesSubscriber(vhdSupport.Constant.TestSeries,visionSupport.visionAESChef.name);
+            })
+            .then(()=>{
+                return vhdSupport.getUploadPath(vhdSupport.inbuiltJson.upload1,'./controllers/shelf/testfile/test.avhdx');
+            })
+            .then(()=>{
+                return vhdSupport.getUploadPath(vhdSupport.inbuiltJson.upload1,'./controllers/shelf/testfile/asdf.txt');
+            })            
+            .then(()=>{
+                return vhdSupport.getShelfSubscription('vhdSupport.Constant.TestSeries',visionSupport.visionAESChef.name);
+            })
+            .then(result=>{
+                assert.equal(result.status,400);
+                done();
+            })
+            .catch(err=>{
+                assert(false,err);
+                done();
+            });
+    });
+    it('shall have a performance of less than 500ms/request when we have 100 request coming at the same time',done=>{
+        vhdSupport.postSeries(vhdSupport.Constant.TestSeries)
+            .then(()=>{
+                return visionSupport.postNewVision(visionSupport.visionAESChef);
+            })
+            .then(()=>{
+                return vhdSupport.addSeriesSubscriber(vhdSupport.Constant.TestSeries,visionSupport.visionAESChef.name);
+            })
+            .then(()=>{
+                return vhdSupport.getUploadPath(vhdSupport.inbuiltJson.upload1,'./controllers/shelf/testfile/test.avhdx');
+            })
+            .then(()=>{
+                return vhdSupport.getUploadPath(vhdSupport.inbuiltJson.upload1,'./controllers/shelf/testfile/asdf.txt');
+            })            
+            .then(()=>{
+                let todo=[];
+                for(let i=0;i<100;i++){
+                    todo.push(vhdSupport.getShelfSubscription(vhdSupport.Constant.TestSeries,visionSupport.visionAESChef.name));                
+                }
+                
+                return Promise.all(todo);
+            })
+            .then(()=>{
+                
+                done();
+            })
+            .catch(err=>{
+                assert(false,err);
+            });        
+    });
+    it('shall return error when vision name is invalid',done=>{
+        vhdSupport.postSeries(vhdSupport.Constant.TestSeries)
+            .then(()=>{
+                return visionSupport.postNewVision(visionSupport.visionAESChef);
+            })
+            .then(()=>{
+                return vhdSupport.addSeriesSubscriber(vhdSupport.Constant.TestSeries,visionSupport.visionAESChef.name);
+            })
+            .then(()=>{
+                return vhdSupport.getUploadPath(vhdSupport.inbuiltJson.upload1,'./controllers/shelf/testfile/test.avhdx');
+            })
+            .then(()=>{
+                return vhdSupport.getUploadPath(vhdSupport.inbuiltJson.upload1,'./controllers/shelf/testfile/asdf.txt');
+            })            
+            .then(()=>{
+                return vhdSupport.getShelfSubscription(vhdSupport.Constant.TestSeries,'visionSupport.visionAESChef.name');
+            })
+            .then(result=>{
+                assert.equal(result.status,400);
+                done();
+            })
+            .catch(err=>{
+                assert(false,err);
+                done();
+            });        
+    });
+});
+
 
 describe('post /shelf/vhd/series/:name',()=>{
     beforeEach((done) => {
@@ -380,7 +625,7 @@ describe('put /shelf/vhd/series/:name/slot/:number',()=>{
             })
             .catch(err=>{
                 assert(false,err);
-                done
+                done;
             });
     });
     
@@ -435,7 +680,7 @@ describe('put /shelf/vhd/series/:name/subscriber/:vision',()=>{
     it('shall add a subscriber vision to series',done=>{
         vhdSupport.postSeries('series1')
             .then(()=>{
-                return visionSupport.postNewVision(visionSupport.visionAESChef)
+                return visionSupport.postNewVision(visionSupport.visionAESChef);
             })
             .then(()=>{
                 return vhdSupport.addSeriesSubscriber('series1',visionSupport.visionAESChef.name);
@@ -457,7 +702,7 @@ describe('put /shelf/vhd/series/:name/subscriber/:vision',()=>{
         let actions=[];
         vhdSupport.postSeries('series1')
             .then(()=>{
-                return visionSupport.postNewVision(visionSupport.visionAESChef)
+                return visionSupport.postNewVision(visionSupport.visionAESChef);
             })
             .then(()=>{
                 return vhdSupport.addSeriesSubscriber('series1',visionSupport.visionAESChef.name);
@@ -469,7 +714,7 @@ describe('put /shelf/vhd/series/:name/subscriber/:vision',()=>{
                 for(let i=0;i<10;i++){
                     actions.push(vhdSupport.addSeriesSubscriber('series1',visionSupport.visionAESChef.name));
                 }
-                return Promise.all(actions)
+                return Promise.all(actions);
             })
             .then(()=>{
                 shelfManagerModel.findOne({series:'series1'})
@@ -486,7 +731,7 @@ describe('put /shelf/vhd/series/:name/subscriber/:vision',()=>{
     it('shall return error when series name is invalid',done=>{
         vhdSupport.postSeries('series1')
             .then(()=>{
-                return visionSupport.postNewVision(visionSupport.visionAESChef)
+                return visionSupport.postNewVision(visionSupport.visionAESChef);
             })
             .then(()=>{
                 return vhdSupport.addSeriesSubscriber('seriesx',visionSupport.visionAESChef.name);
@@ -503,7 +748,7 @@ describe('put /shelf/vhd/series/:name/subscriber/:vision',()=>{
     it('shall return error when vision name is invalid',done=>{
         vhdSupport.postSeries('series1')
             .then(()=>{
-                return visionSupport.postNewVision(visionSupport.visionAESChef)
+                return visionSupport.postNewVision(visionSupport.visionAESChef);
             })
             .then(()=>{
                 return vhdSupport.addSeriesSubscriber('series1','visionSupport.visionAESChef.name');
@@ -519,23 +764,17 @@ describe('put /shelf/vhd/series/:name/subscriber/:vision',()=>{
     });
 });
 
-describe('get /shelf/subscriber/:vision',()=>{
-    it('shall get the vhd list for the new vision and update the time stamp specified');
-    it('shall not update timestamp when there is nothing new posted');
-    it('shall have a performance of less than 500ms/request when we have 100 request coming at the same time');
-    it('shall return error when vision name is invalid');
-});
 describe('delete /shelf/vhd/series/:name/subscriber/:vision',()=>{
     it('shall return error when series name is invalid');
     it('shall deelte the vision name specified');
 });
 describe('put /shelf/vhd/:id/keeper',()=>{
     it('shall mark specific id as keeper');
-    it('shall return status 400 when id is invalid')
+    it('shall return status 400 when id is invalid');
 });
 describe('put /shelf/vhd/:id/dumper',()=>{
     it('shall mark specific id as dumper');
-    it('shall return status 400 when id is invalid')
+    it('shall return status 400 when id is invalid');
 });
 
 
@@ -599,8 +838,8 @@ describe('post /shelf/vhd',()=>{
             });
     });
 
-    it('When # of non-keeper vhd exceed shelf manager max inventory count, then delete the oldest non-keeper')
-    it('it shall not delete keepr when # of vhd exceed maximum inventory count')
+    it('When # of non-keeper vhd exceed shelf manager max inventory count, then delete the oldest non-keeper');
+    it('it shall not delete keepr when # of vhd exceed maximum inventory count');
     it('shall upload right amount of file when we have 100 upload happened at the same time',done=>{
         let promiseList=[];
         for(let i=0;i<100;i++){

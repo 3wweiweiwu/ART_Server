@@ -218,10 +218,10 @@ let addSeriesSubscriber=function(seriesName,visionName){
 
 };
 
-let getShelfSubscription=function(visionName){
+let getShelfSubscription=function(seriesName,visionName){
     return new Promise((resolve,reject)=>{
         request(app)
-            .put(`/api/shelf/subscriber/${visionName}`)
+            .get(`/api/shelf/vhd/series/${seriesName}/subscriber/${visionName}/feed`)
             .end((err,res)=>{
                 if(err){
                     reject(err);

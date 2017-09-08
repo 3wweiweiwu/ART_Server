@@ -31,6 +31,12 @@ module.exports={
             number:Joi.number().required()
         }
     },
+    getSubscription:{
+        params:{
+            name:Joi.string().required(),
+            vision:Joi.string().required()
+        }
+    },
     addSeriesSubscriber:{
         params:{
             name:Joi.string().required(),

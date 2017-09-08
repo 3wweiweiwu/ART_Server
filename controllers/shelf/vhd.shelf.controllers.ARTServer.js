@@ -4,6 +4,7 @@ let config=require('../../config');
 let StandardError=require('../common/error.controllers.ARTServer');
 let fs=require('fs');
 let visionControl=require('../vision/vision.controllers.ARTServer');
+let visionModel=require('../../model/vision/vision.model.ARTServer');
 let lockControl=require('../common/lock.common.controllers.ARTServer');
 let vhdControl=function(){
 
@@ -65,18 +66,29 @@ let vhdControl=function(){
 
         });
     };
+    let _sanitizeVHDInfo=function(vhdInfoList){
+        let results=vhdInfoList;
+        
+        results.forEach(item=>{
+            let tempOriginalName=item.storage.originalname;
+            item.storage='';
+            item.storage.originalname=tempOriginalName;
+        });
+
+        return results;
+    }
     let getVHD=function(query){
         return new Promise((resolve,reject)=>{
             vhdModel.find(query)
                 .then(results=>{
                     //sanitize result, remove all storage info except for size
-                    results.forEach(item=>{
-                        let tempOriginalName=item.storage.originalname;
-                        item.storage='';
-                        item.storage.originalname=tempOriginalName;
-                    });
-                    
-                    resolve(results);
+                    // results.forEach(item=>{
+                    //     let tempOriginalName=item.storage.originalname;
+                    //     item.storage='';
+                    //     item.storage.originalname=tempOriginalName;
+                    // });
+                    let cleanResult=_sanitizeVHDInfo(results);
+                    resolve(cleanResult);
                 })
                 .catch(err=>{
                     reject(StandardError(err,err.status));
@@ -137,7 +149,7 @@ let vhdControl=function(){
         }
         
         return new Promise((resolve,reject)=>{
-            shelfManagerModel.find(query)
+            shelfManagerModel.find(query)                
                 .then(seriesList=>{
                     resolve(seriesList);
                 })            
@@ -173,7 +185,12 @@ let vhdControl=function(){
             return shelfManagerModel.update(
                 {series:seriesName},                        
                 {
-                    $push:{'subscribers':{vision:visionId}}                            
+                    $push:{
+                        'subscribers':{
+                            vision:visionId,
+                            last_visited:Date.now()
+                        }
+                    }                            
                 },
                 {multi:true}
             );        
@@ -246,6 +263,87 @@ let vhdControl=function(){
         
     };
 
+    let getSubscription=function(seriesName,visionName){
+        let _updateLastVisitedTime=function(result,seriesName,visionName){
+            return new Promise((resolve,reject)=>{
+                let seriesList=result[0];
+                if(seriesList==null || seriesList.length==0){
+                    //series is invalid
+                    reject(StandardError(`unable to find series name ${seriesName}`,400));
+                    return;
+                }
+                else if(seriesList.length!=1){
+                    //more than 1 instance error
+                    reject(StandardError(`internal error when series name ${seriesName}. More than 1 instance`,500));
+                    return;
+                }
+    
+                let seriesObj=seriesList[0];
+    
+                let vision=result[1];
+                if(vision==null){
+                    reject(StandardError(`unable to find vision ${visionName}`));
+                    return;
+                }
+                
+                let subscriberIndex=seriesObj.subscribers.findIndex(item=>{
+                    return item.vision.toString()==vision._id.toString();
+                });
+                let last=seriesObj.subscribers[subscriberIndex].last_visited;
+                
+                //update last visited time
+                seriesObj.subscribers[subscriberIndex].last_visited=Date.now();
+    
+                seriesObj.save(err=>{
+                    if(err){
+                        reject(StandardError(err,500));
+                    }
+                    else
+                    {
+                        resolve(last);
+                    }
+                });
+    
+                
+            });
+        };            
+
+
+        return new Promise((resolve,reject)=>{
+            let todoList=[];
+            todoList.push(getSeriesInfo(seriesName));
+            todoList.push(visionModel.findOne({name:visionName}))
+            Promise.all(todoList)
+                .then(result=>{
+                    return _updateLastVisitedTime(result,seriesName,visionName);
+                })
+                .then(last_visited=>{
+                    //find out series that is created after the last visited time
+                    return vhdModel.find(
+                        {
+                            'content.series':seriesName,
+                            'created.at':{$gte:last_visited}
+                        }
+                    );
+                    //return vhdModel.find({'content.series':seriesName});
+                })
+                .then(result=>{
+                    let cleanResult=_sanitizeVHDInfo(result);
+                    resolve(cleanResult);
+                })
+                .catch(err=>{
+                    if(err.status==undefined){
+                        reject(StandardError(err,500));
+                    }
+                    else{
+                        reject(err);
+                    }
+                });
+            
+
+        });
+
+    };
     let delSeriesSubscriber=function(seriesName,visionId){
 
     };
@@ -260,6 +358,7 @@ let vhdControl=function(){
         addSeriesSubscriber:addSeriesSubscriber,
         delSeriesSubscriber:delSeriesSubscriber,
         getSeriesInfo:getSeriesInfo,
+        getSubscription:getSubscription
     };
 };
 

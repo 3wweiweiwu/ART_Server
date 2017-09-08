@@ -62,6 +62,17 @@ router.get('/shelf/vhd/series',function(req,res){
             res.status(err.status).json(err);
         });
 });
+
+router.get('/shelf/vhd/series/:name/subscriber/:vision/feed',validate(vhdValidation.getSubscription),function(req,res){
+    //get the vision subscribed, at the same time, update the timestamp if we find anything new in the queue
+    vhdControl.getSubscription(req.params.name,req.params.vision)
+        .then((result)=>{
+            res.json(result);
+        })
+        .catch(err=>{
+            res.status(err.status).json(err);
+        });
+});
 router.get('/shelf/vhd/series/:name',validate(vhdValidation.getNewSeries),function(req,res){
     //get series with specific name
     vhdControl.getSeriesInfo(req.params.name)
@@ -99,9 +110,6 @@ router.put('/shelf/vhd/series/:name/subscriber/:vision',validate(vhdValidation.a
         });
 });
 
-router.get('/shelf/subscriber/:vision',validate(vhdValidation.addSeriesSubscriber),function(err,res){
-    //get the vision subscribed, at the same time, update the timestamp if we find anything new in the queue
-});
 
 router.delete('/shelf/vhd/series/:name/subscriber/:vision',validate(vhdValidation.delSeriesSubscriber),function(req,res){
     //delete a subscriber vision, the input is vision name
