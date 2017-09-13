@@ -5,6 +5,10 @@ module.exports={
         storage_path:'\\\\mvf1\\e$\\temp',
         user_name:'corp\\qapart',
         password:'QQQaaa000'
+    },
+    powershell:{
+        current_server:'mvf1:3000',
+        development_list:['mvf1:3000']
     }
 
 };
