@@ -64,7 +64,8 @@ function Invoke-LocalProject($sARTUri,$Project,$diskProfile){
     else
     {
         #if we are in the debug mode, we will launch powershell instead of 
-        $processId=Invoke-NewPowershellConsoleFromUri -uri $task.task.task_script_path
+        $url=Join-Url -parentPath $sARTUri -childPath $task.task.task_script_path
+        $processId=Invoke-NewPowershellConsoleFromUri -uri $url
 
         
     }

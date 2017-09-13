@@ -10,19 +10,19 @@ chai.use(chaiHttp);
 exports.taskMediaDetection={
     name:'Media_Detection',
     note:'Detect Media',
-    task_script_path:'http://mvf1:3000/api/ps/MediaDetector.ps1',
+    task_script_path:'/api/ps/MediaDetector.ps1',
     setting_type:'NULL'    
 };
 exports.taskDeployStandardVHDImage={
     name:'taskDeployStandardVHDImage',
     note:'Deploy media',
-    task_script_path:'http://mvf1:3000/api/ps/VMDeployment.ps1',
+    task_script_path:'/api/ps/VMDeployment.ps1',
     setting_type:'NULL'        
 };
 exports.taskVMDeployment={
     name:'VM_Deployment',
     note:'Deploy VHD to local hyper-v Host',
-    task_script_path:'http://mvf1:3000/api/ps/VMDeployment.ps1',
+    task_script_path:'/api/ps/VMDeployment.ps1',
     setting_type:'NULL'    
 };
 exports.taskMediaInstallation={
@@ -59,45 +59,46 @@ exports.taskMissingNote={
 exports.sampleDeployStandardVHDImage={
     name:'taskDeployStandardVHDImage',
     note:'Deploy media',
-    task_script_path:'http://mvf1:3000/api/ps/VMDeployment@VMDeployment.ps1',
+    task_script_path:'/api/ps/VMDeployment@VMDeployment.ps1',
     setting_type:'NULL'        
 };
+
 exports.sampleUninstallProduct={
     name:'Uninstall_Products',
     note:'Uninstall product from the machine',
-    task_script_path:'http://mvf1:3000/api/ps/MediaInstallation@Uninstall_Products.ps1',
+    task_script_path:'/api/ps/MediaInstallation@Uninstall_Products.ps1',
     setting_type:'NULL'
 };
 exports.sampleInstallMedia={
     name:'Install_Media',
     note:'Install selected media',
-    task_script_path:'http://mvf1:3000/api/ps/MediaInstallation@Install_Media.ps1',
+    task_script_path:'/api/ps/MediaInstallation@Install_Media.ps1',
     setting_type:'NULL'    
 };
 
 exports.sampleWait={
     name:'Client_Wait',
     note:'Install selected media',
-    task_script_path:'http://mvf1:3000/api/ps/ClientSideMachineManagement@wait.ps1',
+    task_script_path:'/api/ps/ClientSideMachineManagement@wait.ps1',
     setting_type:'NULL'    
 };
 exports.sampleVHDCheckin={
     name:'VHD_Checkin',
     note:'Install selected media',
-    task_script_path:'http://mvf1:3000/api/ps/VMDeployment@VHD_Checkin.ps1',
+    task_script_path:'/api/ps/VMDeployment@VHD_Checkin.ps1',
     setting_type:'NULL'    
 };
 
 exports.sampleRestart={
     name:'Client_Restart',
     note:'Install selected media',
-    task_script_path:'http://mvf1:3000/api/ps/ClientSideMachineManagement@Restart.ps1',
+    task_script_path:'/api/ps/ClientSideMachineManagement@Restart.ps1',
     setting_type:'NULL'    
 };
 exports.sampleShutdown={
     name:'Client_Shutdown',
     note:'Install selected media',
-    task_script_path:'http://mvf1:3000/api/ps/ClientSideMachineManagement@Shutdown.ps1',
+    task_script_path:'/api/ps/ClientSideMachineManagement@Shutdown.ps1',
     setting_type:'NULL'    
 };
 

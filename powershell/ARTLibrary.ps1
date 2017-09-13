@@ -680,6 +680,27 @@ function New-ClientSideProjectBasedOnTask($sARTUri,$visionName,$vmName,$blueprin
     }
 }
 
+function Get-VHDFeedForVision($sARTUri,$seriesName,$visionName)
+{
+    while($true)
+    {
+        try
+        {
+            
+            Join-Url -parentPath $sARTUri -childPath ("api/shelf/vhd/series/$seriesName/subscriber/$visionName/feed")
+            $response=Invoke-RestMethod -Method Post -Uri "$sARTUri/api/schedule/vision/$visionName/vm/$vmName/blueprint/$blueprintName/task/$taskName"
+            Start-Sleep -Milliseconds $iTimeout
+            return $response   
+        }
+        catch
+        {
+            Write-Warning -Message "Get-VHDFeedForVision($sARTUri,$seriesName,$visionName)"
+            
+            Resolve-RestError
+        }
+    }
+}
+
 function Resolve-Error ($ErrorRecord=$Error[0])
 {
    $ErrorRecord | Format-List * -Force
