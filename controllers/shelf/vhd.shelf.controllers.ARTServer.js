@@ -7,8 +7,16 @@ let visionControl=require('../vision/vision.controllers.ARTServer');
 let visionModel=require('../../model/vision/vision.model.ARTServer');
 let lockControl=require('../common/lock.common.controllers.ARTServer');
 let path=require('path');
+let multer=require('multer');
+let vhdValidation=require('../../validation/vhd.shelf.validation.ARTServer');
 let vhdControl=function(){
-
+    let upload=multer({
+        dest:config.shelf.storage_path,
+        limits:{
+            fileSize:9999999999999,        
+        },
+        fileFilter:vhdValidation.upload
+    });
     let getUploadPath=function(createdBy,os,productList,mediaList,storageInfo,series){
         let _removeOldVHD=function(series){
             return new Promise((resolve,reject)=>{
@@ -438,7 +446,11 @@ let vhdControl=function(){
         
         });
     };
-
+    function extendMulterUploadTimeout (req, res, next) {
+        res.setTimeout(480000, function () { /* Handle timeout */ });
+        next();
+    
+    }
     return {
         getUploadPath:getUploadPath,
         getVHDDownload:getVHDDownload,
@@ -449,7 +461,9 @@ let vhdControl=function(){
         delSeriesSubscriber:delSeriesSubscriber,
         getSeriesInfo:getSeriesInfo,
         getSubscription:getSubscription,
-        updateVHDKeeperInfo:updateVHDKeeperInfo
+        updateVHDKeeperInfo:updateVHDKeeperInfo,
+        multerUpload:upload,
+        extendMulterUploadTimeout:extendMulterUploadTimeout
     };
 };
 

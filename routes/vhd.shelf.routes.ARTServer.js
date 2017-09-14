@@ -5,21 +5,21 @@ let vhdValidation=require('../validation/vhd.shelf.validation.ARTServer');
 var validate = require('express-validation');
 let vhdControl=require('../controllers/shelf/vhd.shelf.controllers.ARTServer');
 let StandardError=require('../controllers/common/error.controllers.ARTServer');
-
+let config=require('../config')
 //multer configuration
-let multer=require('multer');
-let upload=multer({
-    dest:'e:\\temp\\',
-    limits:{
-        fileSize:9999999999999,        
-    },
-    fileFilter:vhdValidation.upload
-});
-function extendTimeout (req, res, next) {
-    res.setTimeout(480000, function () { /* Handle timeout */ });
-    next();
+// let multer=require('multer');
+// let upload=multer({
+//     dest:config.shelf.storage_path,
+//     limits:{
+//         fileSize:9999999999999,        
+//     },
+//     fileFilter:vhdValidation.upload
+// });
+// function extendTimeout (req, res, next) {
+//     res.setTimeout(480000, function () { /* Handle timeout */ });
+//     next();
 
-}
+// }
 router.get('/shelf/vhd/upload_path',validate(vhdValidation.getUploadPath),function(req,res){
     //it shall return upload path for the task you want to upload
     req.checkBody('installed_products').eachIsNotEmpty('name');
@@ -123,7 +123,7 @@ router.delete('/shelf/vhd/series/:name/subscriber/:vision',validate(vhdValidatio
 });
 
 
-router.get('/shelf/vhd',extendTimeout,function(req,res){
+router.get('/shelf/vhd',function(req,res){
     //it shall all available image information
     vhdControl.getVHD()
         .then((result)=>{
@@ -134,7 +134,7 @@ router.get('/shelf/vhd',extendTimeout,function(req,res){
         });    
     
 });
-router.get('/shelf/vhd/:id',extendTimeout,function(req,res){
+router.get('/shelf/vhd/:id',function(req,res){
     //it shall all available image information
     let query={};
     if(req.params.id!=undefined){
@@ -163,7 +163,7 @@ router.put('/shelf/vhd/:id/keeper',validate(vhdValidation.getVHDDownload),functi
             res.status(err.status).json(err);
         });       
 });
-router.put('/shelf/vhd/:id/dumper',extendTimeout,function(req,res){
+router.put('/shelf/vhd/:id/dumper',function(req,res){
     vhdControl.updateVHDKeeperInfo(req.params.id,false)
         .then((result)=>{
             res.json(result);
@@ -185,7 +185,7 @@ router.get('/shelf/vhd/download/:id',validate(vhdValidation.getVHDDownload),func
 });
 
 
-router.post('/shelf/vhd',extendTimeout,upload.single('file'),function(req,res){    
+router.post('/shelf/vhd',vhdControl.extendMulterUploadTimeout,vhdControl.multerUpload.single('file'),function(req,res){    
     //upload vhd to shelf here is a template
 
 
