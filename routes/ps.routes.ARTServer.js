@@ -6,7 +6,7 @@ var validate = require('express-validation')
 var scheduleValidation=require('../validation/scheduler.validation.ARTServer')
 var fs = require('fs');
 let config=require('../config');
-
+let os=require('os');
 router.get('/ps/Library.ps1',(req,res)=>{
     fs.readFile( '\\\\nhqa-w81-q10\\v6\\wwwErrorAnalysis.ps1', function (err, data) {
         if (err) {
@@ -22,7 +22,7 @@ router.get('/ps/Library.ps1',(req,res)=>{
 
 router.get('/ps/:psname',(req,res)=>{
     let relativePath=req.params.psname.replace('@','\\');
-    let dest=`C:\\Users\\Administrator\\ARTServer\\Powershell\\${relativePath}`;
+    let dest=`.\\powershell\\${relativePath}`;
     fs.readFile(dest,(err,data)=>{
         if(err){
             res.status(500).send(err);
@@ -32,7 +32,7 @@ router.get('/ps/:psname',(req,res)=>{
             //loop through the file, replace all develop server with target server's address
             let text='';
             config.powershell.development_list.forEach(item=>{
-                text=data.toString().replace(item,config.powershell.current_server);
+                text=data.toString().replace(item,`${os.hostname()}:${config.express.port}`);
             });
             res.status(200).send(text);
             return;

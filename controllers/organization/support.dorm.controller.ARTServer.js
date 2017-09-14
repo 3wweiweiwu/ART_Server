@@ -116,7 +116,26 @@ exports.MVF1={
         ]
     }    
 };
-
+exports.MVF2={
+    name:'MVF2',
+    system_resource:{
+        CPU:38,
+        total_memory_mb:99096,
+        free_memory_mb:90000,
+        disk_total:[
+            {
+                drive_letter:'c',
+                total_disk_space_mb:9096,
+                free_disk_space_mb:3084
+            },
+            {
+                drive_letter:'d',
+                total_disk_space_mb:19096,
+                free_disk_space_mb:33084
+            }
+        ]
+    }    
+};
 exports.dorm1={
     name:'test_dorm1',
     system_resource:{

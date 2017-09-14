@@ -394,6 +394,12 @@ exports.PostVisionAPMChefoffline=()=>{
 };
 exports.sampleMtell={
     name:'MTELL_Prestaging',
-    note:'Prepare daily APM image',
+    note:'Prepare daily Mtell image',
     status:'online'
 };
+
+exports.sampleMtellDeployment={
+    name:'MTELL_Deployment',
+    note:'Install daily Mtell image to multiple clients',
+    status:'online'
+}
