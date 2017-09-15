@@ -220,6 +220,17 @@ router.post('/shelf/vhd',vhdControl.extendMulterUploadTimeout,vhdControl.multerU
 
 });
 
+router.get('/shelf/vhd/:id/size',validate(vhdValidation.getVHDSize),function(req,res){
+    vhdControl.getVHDSize(req.params.id)
+        .then((size)=>{
+            res.json({size:size});
+        })
+        .catch(err=>{
+            res.status(err.status).json(err);
+        })
+
+});
+
 router.post('/shelf/vhd/series/:name',validate(vhdValidation.postNewSeries),function(req,res){
     //create a new series, if there is existing series with the same name, then return error
     vhdControl.postSeries(req.params.name)

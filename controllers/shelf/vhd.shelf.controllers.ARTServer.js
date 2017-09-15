@@ -451,6 +451,35 @@ let vhdControl=function(){
         next();
     
     }
+    function getVHDSize(vhdId){
+        return new  Promise((resolve,reject)=>{
+            vhdModel.findById(vhdId)
+                .then(vhd=>{
+                    if(vhd!=null){
+                        fs.stat(vhd.storage.path,(err,stat)=>{
+                            if(err){
+                                reject(err);
+                                return;
+                            }
+                            else{
+                                resolve(stat.size);
+                                return;
+                            }
+                        });
+                    }
+                    else{
+                        reject(StandardError(`unable to access file specified for ${vhdId}`,500));
+                        return;
+                    }
+                    
+                })
+                .catch(err=>{
+                    reject(StandardError(err,500));
+                });
+        });
+        
+
+    }
     return {
         getUploadPath:getUploadPath,
         getVHDDownload:getVHDDownload,
@@ -463,7 +492,8 @@ let vhdControl=function(){
         getSubscription:getSubscription,
         updateVHDKeeperInfo:updateVHDKeeperInfo,
         multerUpload:upload,
-        extendMulterUploadTimeout:extendMulterUploadTimeout
+        extendMulterUploadTimeout:extendMulterUploadTimeout,
+        getVHDSize:getVHDSize
     };
 };
 

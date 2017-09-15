@@ -261,6 +261,20 @@ let markVHDKeeper=function(vhdId){
             });
     });
 };
+let getVHDSize=function(vhdId){
+    return new Promise((resolve,reject)=>{
+        request(app)
+            .get(`/api/shelf/vhd/${vhdId}/size`)
+            .end((err,res)=>{
+                if(err){
+                    reject(err);
+                }
+                else{
+                    resolve(res);
+                }
+            });
+    });
+};
 let markVHDDumper=function(vhdId){
     return new Promise((resolve,reject)=>{
         request(app)
@@ -289,5 +303,6 @@ module.exports={
     getShelfSubscription:getShelfSubscription,
     delSeriesSubscriber:delSeriesSubscriber,
     markVHDKeeper:markVHDKeeper,
-    markVHDDumper:markVHDDumper
+    markVHDDumper:markVHDDumper,
+    getVHDSize:getVHDSize
 };

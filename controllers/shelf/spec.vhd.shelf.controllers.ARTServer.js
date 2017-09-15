@@ -15,6 +15,82 @@ let dormModel = require('../../model/organization/dormModel');
 var taskImageDeployment = require('../../model/task/imageDeploy.model.ARTServer');
 let visionSupport=require('../vision/support.vision.controllers.ARTServer');
 
+describe('get /shelf/vhd/:id/size',()=>{
+    beforeEach((done) => {
+        taskModel.remove({})
+            .then(()=>{
+                return taskImageDeployment.remove({});
+            })
+            .then(()=>{
+                return projectBlueprintModel.remove({});
+            })
+            .then(()=>{
+                return projectModel.remove({});
+            })
+            .then(()=>{
+                return visionModel.remove({});
+            })
+            .then(()=>{
+                return dormModel.remove({});
+            })
+            .then(()=>{
+                return vhdModel.find({'content.series':vhdSupport.Constant.TestSeries});
+            })
+            .then((vhdList)=>{
+                return new Promise((resolve,reject)=>{
+                    vhdList.forEach(vhd=>{
+                        let vhdpath=path.join(vhd.storage.destination,vhd.storage.filename);
+                        fs.unlink(vhdpath,err=>{
+                            if(err){
+                                reject(err);
+                            }                            
+                        });                        
+                    });
+                    resolve();
+                    
+                });
+            })
+            .then(()=>{
+                return vhdModel.remove({'content.series':vhdSupport.Constant.TestSeries});
+            })
+            .then(()=>{
+                return shelfManagerModel.remove({});
+            })
+            .then(()=>{
+                done();
+            });
+    });     
+    it('shall return the size of vhd',(done)=>{
+        vhdSupport.getUploadPath(vhdSupport.inbuiltJson.upload1,'./controllers/shelf/testfile/test.avhdx')
+            .then((result)=>{
+                return vhdSupport.getVHDSize(result.body);
+            })
+            .then((result)=>{
+                assert.equal(result.body.size,4194304);
+                done();
+            })
+            .catch(err=>{
+                assert(false,err);
+                done();
+            });
+        
+    });
+    it('shall return 500 when id is invalid',(done)=>{
+        vhdSupport.getUploadPath(vhdSupport.inbuiltJson.upload1,'./controllers/shelf/testfile/test.avhdx')
+            .then((result)=>{
+                return vhdSupport.getVHDSize('result.body');
+            })
+            .then((result)=>{
+                assert.equal(result.status,500);
+                done();
+            })
+            .catch(err=>{
+                assert(false,err);
+                done();
+            });
+        
+    });
+});
 
 describe('post /shelf/vhd',()=>{
     beforeEach((done) => {
@@ -72,6 +148,7 @@ describe('post /shelf/vhd',()=>{
                     })
                     .catch(err=>{
                         assert(false,err);
+                        done();
                     });
             });
     });

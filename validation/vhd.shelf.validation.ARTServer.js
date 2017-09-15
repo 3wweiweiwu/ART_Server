@@ -25,6 +25,11 @@ module.exports={
             name:Joi.string().required()
         }
     },
+    getVHDSize:{
+        params:{
+            id:Joi.string().required()
+        }
+    },
     getNewSeries:{
         params:{
             name:Joi.string().required()
