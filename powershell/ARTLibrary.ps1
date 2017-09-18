@@ -1,6 +1,5 @@
-﻿
-$sParentFolder=[System.IO.Path]::GetDirectoryName($myInvocation.MyCommand.Definition)
-$sARTUri='http://mvf1:3000'
+﻿$sParentFolder=[System.IO.Path]::GetDirectoryName($myInvocation.MyCommand.Definition)
+$sARTUri='http://MVF2:3000'
 $iTimeout=500 #set global timeout for rest api call to be # ms
 $ProcessSetting=@{
     InitializationKey='Initialization'    
@@ -114,13 +113,24 @@ function Get-AllVHDInShelf($sARTUri)
 
 function Get-VHDSize($sARTUri,$vhdID)
 {
-    Start-Sleep -Seconds 1
-    $url = Join-Url -parentPath $sARTUri -childPath "/api/shelf/vhd/download/$vhdID"
-    $clnt = [System.Net.WebRequest]::Create($url)
-    $resp = $clnt.GetResponse()
-    $fileSize = $resp.ContentLength
-    Start-Sleep -Milliseconds $iTimeout
-    return $fileSize
+    #Start-Sleep -Seconds 1
+    $url = Join-Url -parentPath $sARTUri -childPath "/api/shelf/vhd/$vhdID/size"
+    while($true)
+    {
+        try
+        {
+            $reponse=Invoke-RestMethod -Method Get -Uri $url
+            return $reponse.size
+        }
+        catch
+        {
+            Write-Warning -Message "Get-VHDSize($sARTUri,$vhdID)"
+            Resolve-RestError
+        }
+        Start-Sleep -Milliseconds $iTimeout
+    }  
+    
+    
 }
 
 function Get-VHDFromServer($sARTUri,$vhdID)
