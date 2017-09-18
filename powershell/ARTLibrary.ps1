@@ -632,6 +632,11 @@ function Return-VHDSpace($sARTUri,$machine,$vhd_Path){
 
     while($true)
     {
+        if((Test-Path -Path $vhd_Path) -eq $false)
+        {
+            return
+        }
+        
         try
         {
             $VHD=Hyper-V\Get-VHD -Path $vhd_Path
