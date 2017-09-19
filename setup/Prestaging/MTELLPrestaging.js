@@ -5,6 +5,7 @@ var taskModel = require('../../model/task/task.model.ARTServer');
 var taskImageDeployment = require('../../model/task/imageDeploy.model.ARTServer');
 var projectBlueprintModel = require('../../model/project/projectBlueprint.model.ARTServer');
 var projectModel = require('../../model/project/project.model.ARTServer');
+let vhdSupport=require('../../controllers/shelf/support.vhd.shelf.controllers.ARTServer')
 //let projectStatus=require('../../controllers/project/status.project.controllers.ARTServer');
 let dormSupport = require('../../controllers/organization/support.dorm.controller.ARTServer');
 let dormModel = require('../../model/organization/dormModel');
@@ -21,7 +22,7 @@ chai.use(chaiHttp);
 
 var registrySupport = require('../../controllers/registry/support.registry.controllers.ARTServer');
 
-let SettingKit=function(){
+let SettingKit=function{
     let Mtell_Template_Creator=function(){
         return new Promise((resolve,reject)=>{
             let visionObj=visionSupport.sampleMtell;
@@ -177,20 +178,7 @@ let SettingKit=function(){
         })
     };
     let Mtell_Media_Deployer=function(){
-        projectSupport.PostNewBlueprint(projectSupport.sampleMtellDeployment)
-            .then(()=>{
-                return visionSupport.postNewVision(visionSupport.sampleMtellDeployment);
-            })
-            .then(()=>{
-                return dormSupport.PostDorm(dormSupport.MVF1);
-            })
-            .then(()=>{
-                //add machine MVF1 into server
-                return dormSupport.PostDorm(dormSupport.MVF2);
-            })
-            .then(()=>{
-                return visionSupport.putBlueprintMachineInstance(visionSupport.sampleMtellDeployment.name, projectSupport.sampleMtellDeployment.name, dormSupport.MVF2.name, 1,[{vid:'mvt2-mtell-2'}]);
-            })
+
     }
     return {
         Mtell_Template_Creator:Mtell_Template_Creator,
