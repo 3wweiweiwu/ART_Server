@@ -1,4 +1,15 @@
-﻿#this is media detector, it will detect new media and schedule the media when time permits
+﻿param(
+    [string]$sRemoteVmPath="",
+    [int]$iVmMemorySize=4096,
+    [int]$iCPUCores=4,
+    [string]$VM_Username="administrator",
+    [string]$VM_Pass="Aspen100",
+    [array]$lsCurrentSchedule=@(),
+    [string]$sVMClientId="mvt"
+
+)
+
+#this is media detector, it will detect new media and schedule the media when time permits
 $sARTUri="http://mvf1:3000"
 $sARTServerUri=$sARTUri
 $taskMediaDetection="Media_Detection"
@@ -29,19 +40,26 @@ if($DebugPreference -eq "Continue"){
 
 
 #load information for current vm
-iex ((New-Object System.Net.WebClient).DownloadString("$sARTUri/api/ps/CommonHeader.ps1"))
 
 
 
+if($sRemoteVmPath -eq "")
+{
+    iex ((New-Object System.Net.WebClient).DownloadString("$sARTUri/api/ps/CommonHeader.ps1"))
+    $sRemoteVmPath=Load-Setting -sARTServerUri $sARTServerUri -project $blueprint -task $taskVMDeployment -key base_vhd_path
+    $iVmMemorySize=Load-Setting -sARTServerUri $sARTServerUri -project $blueprint -task $taskVMDeployment -key memory_size
+    $iCPUCores=Load-Setting -sARTServerUri $sARTServerUri -project $blueprint -task $taskVMDeployment -key cpu_cores
+    $VM_Username=Load-Setting -sARTServerUri $sARTServerUri -project $blueprint -task $taskVMDeployment -key VM_Username
+    $VM_Pass=Load-Setting -sARTServerUri $sARTServerUri -project $blueprint -task $taskVMDeployment -key VM_Pass
+    $lsCurrentSchedule=([array](Load-Setting -sARTServerUri $sARTUri -vision $vision -task $Task.mediaDetection -key current_schedule))
+    $Installation_File=$lsCurrentSchedule[$lsCurrentSchedule.Length-1]
+}
+else
+{
+    $Installation_File=$null
+}
 
-$sRemoteVmPath=Load-Setting -sARTServerUri $sARTServerUri -project $blueprint -task $taskVMDeployment -key base_vhd_path
-$iVmMemorySize=Load-Setting -sARTServerUri $sARTServerUri -project $blueprint -task $taskVMDeployment -key memory_size
-$iCPUCores=Load-Setting -sARTServerUri $sARTServerUri -project $blueprint -task $taskVMDeployment -key cpu_cores
-$VM_Username=Load-Setting -sARTServerUri $sARTServerUri -project $blueprint -task $taskVMDeployment -key VM_Username
-$VM_Pass=Load-Setting -sARTServerUri $sARTServerUri -project $blueprint -task $taskVMDeployment -key VM_Pass
 
-$lsCurrentSchedule=([array](Load-Setting -sARTServerUri $sARTUri -vision $vision -task $Task.mediaDetection -key current_schedule))
-$Installation_File=$lsCurrentSchedule[$lsCurrentSchedule.Length-1]
 
 
 #chose right space for VHD deployment
@@ -116,23 +134,28 @@ if((Test-Path -Path $sArt_VHD) -eq $false)
 
 
 #copy detected media from hqfiler to drive
-Write-Host -Object "$((Get-Date).tostring())#copy detected from hqfiler to drive"
-Wait-FileAvailable -TimeOut 3600 -Path $Installation_File
-$Local_Media_Storage=Join-Path -Path $sDriverLetter -ChildPath p4
-if((Test-Path -Path $Local_Media_Storage) -eq $false)
+if($Installation_File -ne $null -and (Test-Path -Path $Installation_File))
 {
-    md $Local_Media_Storage
+    Write-Host -Object "$((Get-Date).tostring())#copy detected from hqfiler to drive"
+    Wait-FileAvailable -TimeOut 3600 -Path $Installation_File
+    $Local_Media_Storage=Join-Path -Path $sDriverLetter -ChildPath p4
+    if((Test-Path -Path $Local_Media_Storage) -eq $false)
+    {
+        md $Local_Media_Storage
+    }
+
+    Copy-Item -Path $Installation_File -Destination $Local_Media_Storage -Force -Verbose
+    $sLocal_Media_Path=Join-Path -Path $Local_Media_Storage -ChildPath (Split-Path -Path $Installation_File -Leaf)
 }
 
-Copy-Item -Path $Installation_File -Destination $Local_Media_Storage -Force -Verbose
-$sLocal_Media_Path=Join-Path -Path $Local_Media_Storage -ChildPath (Split-Path -Path $Installation_File -Leaf)
+
 
 
 $VMSetting=@{
     ND_User="corp\svc-mvfwAdmin"
     ND_Password='7by$O3qI'
-    VM_Username="Administrator"
-    VM_Password="Aspen100"
+    VM_Username=$VM_Username
+    VM_Password=$VM_Pass
     VM_Name=$sVMClientId
 }
 $sVMSettingPath=Join-Path -Path $sArt_VHD -ChildPath setting.json
