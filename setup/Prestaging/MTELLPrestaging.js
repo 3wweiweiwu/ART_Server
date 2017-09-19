@@ -68,7 +68,7 @@ let SettingKit=function(){
                 })
                 .then(()=>{
                     //update machine ask for media deployment
-                    return visionSupport.putBlueprintMachineInstance(visionObj.name, blueprintMediaPreparationObj.name, dormSupport.MVF1.name, 1,[{vid:'mvt2-mtell-1'}]);
+                    return visionSupport.putBlueprintMachineInstance(visionObj.name, blueprintMediaPreparationObj.name, dormSupport.MVF1.name, 1,[{vid:'mvt2-mtell-2'}]);
                 })
                 .then(()=>{
                     //update the project sequence execute deployment after media detection
