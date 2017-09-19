@@ -43,7 +43,10 @@ describe('Add new vision APM Prestaging.',()=>{
                 return visionSupport.putNextBlueprint(visionSupport.sampleMtellDeployment.name,visionSupport.sampleMtellDeployment.name,visionSupport.sampleMtellDeployment.name);                    
             })
             .then(()=>{
-                //add setting for me
+                //add setting for vhd detection
+            })
+            .then(()=>{
+                //add setting for vhd deployment
             })
             .then(()=>{
                 done();
