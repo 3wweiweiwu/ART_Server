@@ -1,7 +1,7 @@
 ﻿param(
     [string]$sRemoteVmPath="",
-    [int]$iVmMemorySize=4096,
-    [int]$iCPUCores=4,
+    [int64]$iVmMemorySize=4*1024*1024*1024,
+    [int64]$iCPUCores=4,
     [string]$VM_Username="administrator",
     [string]$VM_Pass="Aspen100",
     [array]$lsCurrentSchedule=@(),
