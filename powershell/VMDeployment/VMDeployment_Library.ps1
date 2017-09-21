@@ -29,6 +29,8 @@ function Get-VirtualSwitch()
 {
     
     #if there is existing ART virtual switch, then we are going to quit
+    $ART_Switch_Name="ART_Switch"
+    
     $ART_Switch=(Get-NetAdapter|where{$_.DriverDescription -eq "Hyper-V Virtual Ethernet Adapter"}|Select-Object -First 1)
     if($ART_Switch -ne $null)
     {
@@ -38,6 +40,8 @@ function Get-VirtualSwitch()
     $ethernet=Get-NetAdapter -Name Ethernet
     
     $ART_Switch=New-VMSwitch -Name $ART_Switch_Name -NetAdapterName $ethernet.Name -AllowManagementOS $true
+    
+    return $ART_Switch
 
 }
 
