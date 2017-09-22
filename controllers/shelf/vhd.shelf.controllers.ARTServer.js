@@ -403,8 +403,8 @@ let vhdControl=function(){
                                         {'content.series':seriesName},
                                         {'content.series':`"${seriesName}"`}
                                     ]
-                                },
-                                {
+                                }
+                                ,{
                                     'created.at':{$gte:last_visited}
                                 }
                                 
