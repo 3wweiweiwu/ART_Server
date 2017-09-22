@@ -125,12 +125,20 @@ exports.sampleMtellDeployment={
     tasks:[taskSupport.sampleDeployStandardVHDImage.name,taskSupport.sampleUninstallProduct.name,taskSupport.sampleRestart.name,taskSupport.sampleWait.name,taskSupport.sampleInstallMedia.name,taskSupport.sampleRestart.name,taskSupport.sampleWait.name,taskSupport.sampleVHDCheckin.name],
     next:[]       
 };
+exports.sampleMTELLVHDDetection={
+    name:'Mtell VHD Detection',
+    note:'Detect Mtell VHD whenever it is posted',
+    memory_usage_mb:1,
+    disk_usage_mb:1,
+    tasks:[taskSupport.sampleVHDDetection.name],
+    next:[]       
+};
 exports.sampleMtellVHDDeployment={
     name:'Mtell VHD Deployment',
     note:'Deploy Mtell VHD whenever it is posted',
     memory_usage_mb:6*1024,
     disk_usage_mb:10*1024,
-    tasks:[taskSupport.sampleVHDDetection.name,taskSupport.sampleDeployStandardVHDImage.name],
+    tasks:[taskSupport.sampleDeployStandardVHDImage.name],
     next:[]       
 };
 exports.sampleAPMDeployment={

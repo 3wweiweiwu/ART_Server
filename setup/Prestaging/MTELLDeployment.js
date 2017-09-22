@@ -25,18 +25,24 @@ describe('Add new vision APM Prestaging.',()=>{
 
     it('shall Add APM prestaging into the project',done=>{
         let visionObj=visionSupport.sampleMtellDeployment;
+        let blueprintVHDDetection=projectSupport.sampleMTELLVHDDetection;
         let blueprintVHDDeployment=projectSupport.sampleMtellVHDDeployment;
         //let blueprintMediaPreparationObj=projectSupport.sampleMtellDeployment;        
         taskSupport.PostTask(taskSupport.sampleVHDDetection)        
             .then(()=>{
+                return projectSupport.PostNewBlueprint(blueprintVHDDetection);
+            })
+            .then(()=>{
                 return projectSupport.PostNewBlueprint(blueprintVHDDeployment);
-            })        
+            })            
             .then(()=>{
                 return visionSupport.postNewVision(visionObj);
             })
             .then(()=>{
-                return visionSupport.putBlueprintMachineInstance(visionObj.name, blueprintVHDDeployment.name, dormSupport.MVF1.name, 1,[{vid:'mvt2-mtell-d1'},{vid:'mvt2-mtell-d2'}]);
-                
+                return visionSupport.putBlueprintMachineInstance(visionObj.name, blueprintVHDDetection.name, dormSupport.MVF1.name, 1);                
+            })            
+            .then(()=>{
+                return visionSupport.putBlueprintMachineInstance(visionObj.name, blueprintVHDDeployment.name, dormSupport.MVF1.name, 1,[{vid:'mvt2-mtell-d1'},{vid:'mvt2-mtell-d2'}]);                
             })
             .then(()=>{
                 return vhdSupport.postSeries(vhdSupport.Constant.Mtell_V1001_Win16);
@@ -47,11 +53,15 @@ describe('Add new vision APM Prestaging.',()=>{
             })
             .then(()=>{
                 //update the project sequence execute deployment after media deployment is ready
-                return visionSupport.putNextBlueprint(visionObj.name,blueprintVHDDeployment.name,blueprintVHDDeployment.name);                    
+                return visionSupport.putNextBlueprint(visionObj.name,blueprintVHDDetection.name,blueprintVHDDetection.name);                    
             })
+            .then(()=>{
+                //update the project sequence execute deployment after media deployment is ready
+                return visionSupport.putNextBlueprint(visionObj.name,blueprintVHDDetection.name,blueprintVHDDeployment.name);                    
+            })            
             .then(()=>{                
                 //initialize media detection project
-                return scheduleSupport.postScheduleFromBlueprint(visionObj.name,blueprintVHDDeployment.name);
+                return scheduleSupport.postScheduleFromBlueprint(visionObj.name,blueprintVHDDetection.name);
             })
             .then(()=>{
                 //schedule project into machine
@@ -60,7 +70,7 @@ describe('Add new vision APM Prestaging.',()=>{
             .then(()=>{
                 //add setting for vhd detection
                 return new Promise(resolve=>{
-                    registrySupport.postRegistry(registrySupport.Keys.Template,blueprintVHDDeployment.name,taskSupport.sampleVHDDetection.name,'series','2016 MTELL V10.0.3 VHD')
+                    registrySupport.postRegistry(registrySupport.Keys.Template,blueprintVHDDetection.name,taskSupport.sampleVHDDetection.name,'series','2016 MTELL V10.0.3 VHD')
                         .then(()=>{
                             resolve();
                         });

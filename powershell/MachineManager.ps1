@@ -8,7 +8,7 @@ iex ((New-Object System.Net.WebClient).DownloadString("$sARTServerUri/api/ps/Lib
 iex ((New-Object System.Net.WebClient).DownloadString("$sARTServerUri/api/ps/ARTLibrary.ps1"))
 iex ((New-Object System.Net.WebClient).DownloadString("$sARTServerUri/api/ps/MachineManagerLibrary.ps1"))
 
-$windowTitle="ART2 Machine Manager - $($env:COMPUTERNAME)"
+$windowTitle="ART2 Machine Manager - Server: $sARTUri"
 
 $Host.UI.RawUI.WindowTitle =$windowTitle
 
