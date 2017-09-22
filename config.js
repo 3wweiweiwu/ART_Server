@@ -10,7 +10,7 @@ module.exports={
         password:'QQQaaa000'
     },
     powershell:{        
-        development_list:['mvf1:3000']
+        development_list:['mvf1:3000','MVF1:3000']
     }
 
 };
