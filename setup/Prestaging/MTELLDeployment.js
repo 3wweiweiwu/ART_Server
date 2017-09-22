@@ -24,36 +24,76 @@ var registrySupport = require('../../controllers/registry/support.registry.contr
 describe('Add new vision APM Prestaging.',()=>{
 
     it('shall Add APM prestaging into the project',done=>{
+        let visionObj=visionSupport.sampleMtellDeployment;
+        let blueprintVHDDeployment=projectSupport.sampleMtellVHDDeployment;
+        //let blueprintMediaPreparationObj=projectSupport.sampleMtellDeployment;        
         taskSupport.PostTask(taskSupport.sampleVHDDetection)        
             .then(()=>{
-                return projectSupport.PostNewBlueprint(projectSupport.sampleMtellVHDDeployment);
+                return projectSupport.PostNewBlueprint(blueprintVHDDeployment);
             })        
             .then(()=>{
-                return visionSupport.postNewVision(visionSupport.sampleMtellDeployment);
+                return visionSupport.postNewVision(visionObj);
             })
             .then(()=>{
-                return visionSupport.putBlueprintMachineInstance(visionSupport.sampleMtellDeployment.name, projectSupport.sampleMtellDeployment.name, dormSupport.MVF1.name, 1,[{vid:'mvt2-mtell-d1'}]);
+                return visionSupport.putBlueprintMachineInstance(visionObj.name, blueprintVHDDeployment.name, dormSupport.MVF1.name, 1,[{vid:'mvt2-mtell-d1'}]);
+                
+            })
+            .then(()=>{
+                return vhdSupport.postSeries(vhdSupport.Constant.Mtell_V1001_Win16);
             })
             .then(()=>{
             //add vision into watch list for the mtell prestaging
-                return vhdSupport.addSeriesSubscriber(vhdSupport.Constant.Mtell_V1001_Win16,visionSupport.sampleMtellDeployment.name);
+                return vhdSupport.addSeriesSubscriber(vhdSupport.Constant.Mtell_V1001_Win16,visionObj.name);
             })
             .then(()=>{
                 //update the project sequence execute deployment after media deployment is ready
-                return visionSupport.putNextBlueprint(visionSupport.sampleMtellDeployment.name,visionSupport.sampleMtellDeployment.name,visionSupport.sampleMtellDeployment.name);                    
+                return visionSupport.putNextBlueprint(visionObj.name,blueprintVHDDeployment.name,blueprintVHDDeployment.name);                    
             })
+            .then(()=>{                
+                //initialize media detection project
+                return scheduleSupport.postScheduleFromBlueprint(visionObj.name,blueprintVHDDeployment.name);
+            })
+            .then(()=>{
+                //schedule project into machine
+                return scheduleSupport.postScheduleSignal(visionObj.name);
+            })              
             .then(()=>{
                 //add setting for vhd detection
-            })
+                return new Promise(resolve=>{
+                    registrySupport.postRegistry(registrySupport.Keys.Template,blueprintVHDDeployment.name,taskSupport.sampleVHDDetection.name,'series','2016 MTELL V10.0.3 VHD')
+                        .then(()=>{
+                            resolve();
+                        });
+                });
+                
+            })          
             .then(()=>{
                 //add setting for vhd deployment
+                return new Promise((resolve)=>{
+                    registrySupport.postRegistry(registrySupport.Keys.Template,blueprintVHDDeployment.name,taskSupport.sampleDeployStandardVHDImage.name,'base_vhd_path','599c85c9a758ba2afcc18df9')
+                        .then(()=>{
+                            return registrySupport.postRegistry(registrySupport.Keys.Template,blueprintVHDDeployment.name,taskSupport.sampleDeployStandardVHDImage.name,'memory_size',6*1024*1024*1024);
+                        })
+                        .then(()=>{
+                            return registrySupport.postRegistry(registrySupport.Keys.Template,blueprintVHDDeployment.name,taskSupport.sampleDeployStandardVHDImage.name,'cpu_cores',4);
+                        })
+                        .then(()=>{
+                            return registrySupport.postRegistry(registrySupport.Keys.Template,blueprintVHDDeployment.name,taskSupport.sampleDeployStandardVHDImage.name,'VM_Username','administrator');
+                        })
+                        .then(()=>{
+                            return registrySupport.postRegistry(registrySupport.Keys.Template,blueprintVHDDeployment.name,taskSupport.sampleDeployStandardVHDImage.name,'VM_Pass','Aspen100');
+                        })                        
+                        .then(()=>{
+                            resolve();
+                        });
+                });                
             })
             .then(()=>{
                 done();
             })
             .catch(err=>{
-                console.log(err);
-            })
+                done();
+            });
 
     });       
 });

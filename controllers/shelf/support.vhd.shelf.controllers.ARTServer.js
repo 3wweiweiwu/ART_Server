@@ -2,7 +2,8 @@ let request=require('supertest');
 let app = require('../../app.js');
 
 let Constant={
-    TestSeries:'testSeries'
+    TestSeries:'testSeries',
+    Mtell_V1001_Win16:'2016 MTELL V10.0.3 VHD'
 };
 let inbuiltJson={
     upload1:{

@@ -96,9 +96,12 @@ while($true){
             iex ((New-Object System.Net.WebClient).DownloadString("$sARTServerUri/api/ps/VMDeployment@VHD_Checkin.ps1"))
             Set-NextProject -sARTServerUri $sARTUri -vision $vision -project $projectId
         }
-        elseif($lsTasks[0] -eq $Task.taskVHDSeriesManagement)
+        elseif($lsTasks[0] -eq $Task.taskVHDDetection)
         {
-            #schedule VHD Series management
+            #schedule VHD detection
+            Write-Host -Object "#schedule VHD detection" -ForegroundColor DarkMagenta -BackgroundColor White
+            iex ((New-Object System.Net.WebClient).DownloadString("$sARTServerUri/api/ps/VMDeployment@VHD_Detection.ps1"))
+            Set-NextProject -sARTServerUri $sARTUri -vision $vision -project $projectId
         }
         else
         {

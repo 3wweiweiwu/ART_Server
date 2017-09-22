@@ -102,6 +102,12 @@ exports.sampleShutdown={
     setting_type:'NULL'    
 };
 
+exports.sampleVHDDetection={
+    name:'VHD Detection',
+    note:'Detect specific vhd series and see if it is posted',
+    task_script_path:'/api/ps/VMDeployment@VHD_Detection.ps1',
+    setting_type:'NULL' 
+}
 
 exports.PostTask=(Json,cb=()=>{})=>{
     var prom= new Promise((resolve,reject)=>{

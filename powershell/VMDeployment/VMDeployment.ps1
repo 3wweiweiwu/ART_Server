@@ -178,18 +178,21 @@ Start-Sleep -Seconds 1
 $VM|Hyper-V\Start-VM
 #wait until VM is off so that we can change the switch
 Write-Host -Object "$((Get-Date).tostring())#Configuring VM name"
+
+$startDate=Get-Date
 while($VM.State -ne "Off")
 {
        
     Start-Sleep -Seconds 10        
-    Write-Host -Object "Wait until VM is off"
+    $Duration=((Get-Date)-$startDate).TotalMinutes
+    Write-Progress -Activity "Waiting for VM to be off. Have been waiting for $Duration min"
 
 }
 
 #connect to virtual switch and make it online
 Write-Host -Object "$((Get-Date).tostring())#connect to virtual switch and make it online"
-$VM_Switch=Get-VMSwitch
-Connect-VMNetworkAdapter -VMName $sVMClientId -SwitchName $VM_Switch.Name
+$VM_Switch=Get-VirtualSwitch
+Connect-VMNetworkAdapter -VMName $sVMClientId -SwitchName "ART_Switch"
 $VM|Hyper-V\Start-VM
 
 

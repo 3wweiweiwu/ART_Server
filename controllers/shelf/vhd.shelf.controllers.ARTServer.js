@@ -397,11 +397,22 @@ let vhdControl=function(){
                     //find out series that is created after the last visited time
                     return vhdModel.find(
                         {
-                            'content.series':seriesName,
-                            'created.at':{$gte:last_visited}
+                            $and:[
+                                {
+                                    $or:[
+                                        {'content.series':seriesName},
+                                        {'content.series':`"${seriesName}"`}
+                                    ]
+                                },
+                                {
+                                    'created.at':{$gte:last_visited}
+                                }
+                                
+                            ]
+                            
                         }
                     );
-                    //return vhdModel.find({'content.series':seriesName});
+                    // return vhdModel.find({'content.series':seriesName});
                 })
                 .then(result=>{
                     let cleanResult=_sanitizeVHDInfo(result);

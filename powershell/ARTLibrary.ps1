@@ -1,5 +1,5 @@
 ﻿$sParentFolder=[System.IO.Path]::GetDirectoryName($myInvocation.MyCommand.Definition)
-$sARTUri='http://MVF2:3000'
+$sARTUri='http://MVF1:3000'
 $iTimeout=500 #set global timeout for rest api call to be # ms
 $ProcessSetting=@{
     InitializationKey='Initialization'    
@@ -12,7 +12,8 @@ $Task=@{
     taskVHDSeriesManagement='VHD_Series_Management'
     taskVMDeployment="taskDeployStandardVHDImage"
     taskNewCheckPoint="New_CheckPoint"
-    taskVHDCheckin="VHD_Checkin" 
+    taskVHDCheckin="VHD_Checkin"
+    taskVHDDetection='VHD Detection'
 
 }
 
@@ -702,8 +703,8 @@ function Get-VHDFeedForVision($sARTUri,$seriesName,$visionName)
         try
         {
             
-            Join-Url -parentPath $sARTUri -childPath ("api/shelf/vhd/series/$seriesName/subscriber/$visionName/feed")
-            $response=Invoke-RestMethod -Method Post -Uri "$sARTUri/api/schedule/vision/$visionName/vm/$vmName/blueprint/$blueprintName/task/$taskName"
+            $url=Join-Url -parentPath $sARTUri -childPath ("api/shelf/vhd/series/$seriesName/subscriber/$visionName/feed")
+            $response=Invoke-RestMethod -Method Get -Uri $url
             Start-Sleep -Milliseconds $iTimeout
             return $response   
         }
