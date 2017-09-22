@@ -32,7 +32,7 @@ router.get('/ps/:psname',(req,res)=>{
             //loop through the file, replace all develop server with target server's address
             let text='';
             config.powershell.development_list.forEach(item=>{
-                text=data.toString().replace(item,`${os.hostname()}:${config.express.port}`);
+                text=data.toString().replace(item,`${os.hostname()}.qae.aspentech.com:${config.express.port}`);
             });
             res.status(200).send(text);
             return;
