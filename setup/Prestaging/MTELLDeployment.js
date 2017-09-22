@@ -35,7 +35,7 @@ describe('Add new vision APM Prestaging.',()=>{
                 return visionSupport.postNewVision(visionObj);
             })
             .then(()=>{
-                return visionSupport.putBlueprintMachineInstance(visionObj.name, blueprintVHDDeployment.name, dormSupport.MVF1.name, 1,[{vid:'mvt2-mtell-d1'}]);
+                return visionSupport.putBlueprintMachineInstance(visionObj.name, blueprintVHDDeployment.name, dormSupport.MVF1.name, 1,[{vid:'mvt2-mtell-d1'},{vid:'mvt2-mtell-d2'}]);
                 
             })
             .then(()=>{
@@ -72,7 +72,7 @@ describe('Add new vision APM Prestaging.',()=>{
                 return new Promise((resolve)=>{
                     registrySupport.postRegistry(registrySupport.Keys.Template,blueprintVHDDeployment.name,taskSupport.sampleDeployStandardVHDImage.name,'base_vhd_path','599c85c9a758ba2afcc18df9')
                         .then(()=>{
-                            return registrySupport.postRegistry(registrySupport.Keys.Template,blueprintVHDDeployment.name,taskSupport.sampleDeployStandardVHDImage.name,'memory_size',6*1024*1024*1024);
+                            return registrySupport.postRegistry(registrySupport.Keys.Template,blueprintVHDDeployment.name,taskSupport.sampleDeployStandardVHDImage.name,'memory_size',4*1024*1024*1024);
                         })
                         .then(()=>{
                             return registrySupport.postRegistry(registrySupport.Keys.Template,blueprintVHDDeployment.name,taskSupport.sampleDeployStandardVHDImage.name,'cpu_cores',4);
