@@ -27,6 +27,7 @@ describe('Add new vision APM Prestaging.',()=>{
         let visionObj=visionSupport.sampleMtellDeployment;
         let blueprintVHDDetection=projectSupport.sampleMTELLVHDDetection;
         let blueprintVHDDeployment=projectSupport.sampleMtellVHDDeployment;
+        let dormObj=dormSupport.qe_mtell_01;
         //let blueprintMediaPreparationObj=projectSupport.sampleMtellDeployment;        
         taskSupport.PostTask(taskSupport.sampleVHDDetection)        
             .then(()=>{
@@ -39,10 +40,10 @@ describe('Add new vision APM Prestaging.',()=>{
                 return visionSupport.postNewVision(visionObj);
             })
             .then(()=>{
-                return visionSupport.putBlueprintMachineInstance(visionObj.name, blueprintVHDDetection.name, dormSupport.MVF1.name, 1);                
+                return visionSupport.putBlueprintMachineInstance(visionObj.name, blueprintVHDDetection.name, dormObj.name, 1);                
             })            
             .then(()=>{
-                return visionSupport.putBlueprintMachineInstance(visionObj.name, blueprintVHDDeployment.name, dormSupport.MVF1.name, 1,[{vid:'mvt2-mtell-d1'},{vid:'mvt2-mtell-d2'}]);                
+                return visionSupport.putBlueprintMachineInstance(visionObj.name, blueprintVHDDeployment.name, dormObj.name, 1,[{vid:'mvt2-mtell-d1'},{vid:'mvt2-mtell-d2'}]);                
             })
             .then(()=>{
                 return vhdSupport.postSeries(vhdSupport.Constant.Mtell_V1001_Win16);
