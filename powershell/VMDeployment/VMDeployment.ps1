@@ -192,7 +192,10 @@ while($VM.State -ne "Off")
 #connect to virtual switch and make it online
 Write-Host -Object "$((Get-Date).tostring())#connect to virtual switch and make it online"
 $VM_Switch=Get-VirtualSwitch
-$switchName=$VM_Switch.Name.Replace("vEthernet (","").Replace(")","")
+$switchName=($VM_Switch.Name -replace "vEthernet (\w*)","")
+$iLength=$switchName.Length
+$switchName=$switchName.Substring(1,$iLength-2)
+
 Connect-VMNetworkAdapter -VMName $sVMClientId -SwitchName $switchName
 $VM|Hyper-V\Start-VM
 
