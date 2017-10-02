@@ -509,7 +509,7 @@ exports.GetProjectsInMachine=function(machineName){
                             return false;
                         }
                         else{
-                            return project._project.host.name==machineName;    
+                            return project._project.host.name.toLowerCase()==machineName.toLowerCase();    
                         }
                         
                     }).forEach(item=>{
