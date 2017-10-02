@@ -43,7 +43,7 @@ describe('Add new vision APM Prestaging.',()=>{
                 return visionSupport.putBlueprintMachineInstance(visionObj.name, blueprintVHDDetection.name, dormObj.name, 1);                
             })            
             .then(()=>{
-                return visionSupport.putBlueprintMachineInstance(visionObj.name, blueprintVHDDeployment.name, dormObj.name, 1,[{vid:'mvt2-mtell-d1'},{vid:'mvt2-mtell-d2'}]);                
+                return visionSupport.putBlueprintMachineInstance(visionObj.name, blueprintVHDDeployment.name, dormObj.name, 1,[{vid:'mvt2-mtell-d3'},{vid:'mvt2-mtell-d4'}]);                
             })
             .then(()=>{
                 return vhdSupport.postSeries(vhdSupport.Constant.Mtell_V1001_Win16);
