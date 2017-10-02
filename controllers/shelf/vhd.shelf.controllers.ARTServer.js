@@ -278,7 +278,7 @@ let vhdControl=function(){
                 //aquire lock before we add subscriber
                 lockControl.Aquire(lockName)
                     .then(()=>{
-                        return shelfManagerModel.findOne({series:seriesName});
+                        return shelfManagerModel.findOne({series:seriesName}).populate('subscribers.vision');
                     })
                     .then((series)=>{
                         

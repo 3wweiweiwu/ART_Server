@@ -35,7 +35,8 @@ var visionModel=new Schema({
             instance:{type:Number},
             vid_list:[{
                 vid:String,
-                group_number:Number
+                group_number:Number,
+                isPaused:Boolean
             }]
             
         }],

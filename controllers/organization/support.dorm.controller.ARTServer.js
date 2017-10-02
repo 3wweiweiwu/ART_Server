@@ -96,6 +96,26 @@ exports.Disk1={
         }
     ]
 };
+exports.qe_mtell_01={
+    name:'qe-mtell-01',
+    system_resource:{
+        CPU:38,
+        total_memory_mb:99096,
+        free_memory_mb:90000,
+        disk_total:[
+            {
+                drive_letter:'c',
+                total_disk_space_mb:90960,
+                free_disk_space_mb:90840
+            },
+            {
+                drive_letter:'3',
+                total_disk_space_mb:909096,
+                free_disk_space_mb:200000
+            }
+        ]
+    }    
+};
 exports.MVF1={
     name:'MVF1',
     system_resource:{

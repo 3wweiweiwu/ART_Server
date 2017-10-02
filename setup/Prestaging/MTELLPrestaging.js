@@ -28,6 +28,7 @@ let SettingKit=function(){
             let visionObj=visionSupport.sampleMtell;
             let blueprintMediaDetectionObj=projectSupport.sampleBP_MtellMediaDetection;
             let blueprintMediaPreparationObj=projectSupport.sampleMtellDeployment;
+            let dormObj=dormSupport.qe_mtell_01;
             taskSupport.PostTask(taskSupport.taskMediaDetection)
                 .then(()=>{
                     return taskSupport.PostTask(taskSupport.sampleDeployStandardVHDImage);
@@ -61,15 +62,15 @@ let SettingKit=function(){
                 })
                 .then(()=>{
                     //add machine MVF1 into server
-                    return dormSupport.PostDorm(dormSupport.MVF1);
+                    return dormSupport.PostDorm(dormObj);
                 })
                 .then(()=>{
                     //update machien ask for media detection
-                    return visionSupport.putBlueprintMachineInstance(visionObj.name, blueprintMediaDetectionObj.name, dormSupport.MVF1.name, 1);
+                    return visionSupport.putBlueprintMachineInstance(visionObj.name, blueprintMediaDetectionObj.name, dormObj.name, 1);
                 })
                 .then(()=>{
                     //update machine ask for media deployment
-                    return visionSupport.putBlueprintMachineInstance(visionObj.name, blueprintMediaPreparationObj.name, dormSupport.MVF1.name, 1,[{vid:'mvt2-mtell-2'}]);
+                    return visionSupport.putBlueprintMachineInstance(visionObj.name, blueprintMediaPreparationObj.name, dormObj.name, 1,[{vid:'mvt2-mtell-2'}]);
                 })
                 .then(()=>{
                     //update the project sequence execute deployment after media detection
