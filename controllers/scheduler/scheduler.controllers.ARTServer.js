@@ -297,6 +297,7 @@ exports.ScheduleVision=function(vision){
                         //check the machine status. If current free memory  lower than what current project expect, then just continue
                         if(vision.current_projects[i]._project.host.system_resource.free_memory_mb < vision.current_projects[i]._project._bluePrint.memory_usage_mb)
                         {
+                            console.log(`unable to schedule task because of low memory in the target machine for project ${vision.current_projects[i]._project._bluePrint.name}`)
                             continue;
                         }
                         //TODO: check the disk usage. if current free disk is lower than what the project expect, then just continue
