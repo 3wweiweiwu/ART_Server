@@ -97,7 +97,7 @@ exports.Disk1={
     ]
 };
 exports.qe_mtell_01={
-    name:'qe-mtell-01',
+    name:'QE-MTELL-01',
     system_resource:{
         CPU:38,
         total_memory_mb:99096,
