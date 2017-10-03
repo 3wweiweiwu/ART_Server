@@ -40,7 +40,7 @@ while($true){
     
     #Check _project that are in ready to run state, schedule them if we have enough resource
     #pull the project every 5 second
-    Start-Sleep -Seconds 15
+    Start-Sleep -Milliseconds ($iTimeout*30)
     Write-Host -Object "Waiting for task from server"
     $lsCurrentMachineProjects=[array](Get-ProjectsInMachine -sARTServerUri $sARTUri)
     
@@ -59,7 +59,7 @@ while($true){
                 Write-Warning "We are unable to find blueprint $($Project._project._bluePrint.name) with PID $recordedProcessId. Restart it"
                 #if task is found, then start the script in the task
                 $sPID=Invoke-LocalProject -Project $project -sARTUri $sARTServerUri        
-                Start-Sleep -Seconds 10
+                Start-Sleep -Milliseconds ($iTimeout*20)
             }
         }
     
@@ -70,7 +70,7 @@ while($true){
         foreach($project in $lsRetiredProject){            
             #KILL process based on process id
             Get-Process -Id $Project._project.pid|Stop-Process -Force
-            Start-Sleep -Seconds 10
+            Start-Sleep -Milliseconds ($iTimeout*20)
             #TODO- kill VM based on VID
             #TODO- release VM Disk Space in registry
 
@@ -90,7 +90,7 @@ while($true){
         
             #if task is found, then start the script in the task
             $sPID=Invoke-LocalProject -Project $project -sARTUri $sARTServerUri -diskProfile $diskProfile
-            Start-Sleep -Seconds 5
+            Start-Sleep -Milliseconds ($iTimeout*10)
 
         }
 
