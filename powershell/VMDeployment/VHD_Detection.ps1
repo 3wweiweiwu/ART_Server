@@ -30,7 +30,7 @@ while($true)
     #detect new vhd,then schedule it and move forward
     $vhdFeed=$lsVhdFeed[$iFeedLength-1]
     Write-Host -Object "new VHD:[$($vhdFeed._id)] is detected for series [$seriesName]" -ForegroundColor DarkGreen
-    Write-Setting -sARTServerUri $sARTUri -project $blueprint -task $Task.taskVMDeployment -key base_vhd_path -value $vhdFeed._id
+    Write-Setting -sARTServerUri $sARTUri -vision $vision -task $Task.taskVMDeployment -key base_vhd_path -value $vhdFeed._id
     Write-Setting -sARTServerUri $sARTUri -vision $vision -task $Task.mediaDetection -key current_schedule -value ""
     Set-NextProject -vision $vision -project $projectId -sARTServerUri $sARTUri
     break
