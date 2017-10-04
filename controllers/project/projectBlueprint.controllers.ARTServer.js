@@ -1,10 +1,10 @@
 var projectBlueprintModel=require('../../model/project/projectBlueprint.model.ARTServer');
 var taskModel=require('../../model/task/task.model.ARTServer.js');
-let taskControl=require('../task/task.controllers.ARTServer')
+let taskControl=require('../task/task.controllers.ARTServer');
 var EventEmitter=require('events');
 var async=require('async');
-let standardError=require('../common/error.controllers.ARTServer')
-class bluePrintClass extends EventEmitter{};
+let standardError=require('../common/error.controllers.ARTServer');
+class bluePrintClass extends EventEmitter{}
 
 
 
@@ -21,12 +21,12 @@ exports.getBlueprints = function (blueprintQuery,cb=()=>{}) {
                 }
                 else{
                     resolve(res);
-                    return cb(null,res)
+                    return cb(null,res);
                 }
-            })
+            });
         
     });
-}
+};
 
 
 
@@ -40,7 +40,7 @@ const newBlueprint=(req,res,next)=>{
             next:req.body.next
         });
         
-        let taskList=[]
+        let taskList=[];
         req.body.tasks.forEach(function(taskItem) {
             taskList.push(taskControl.isTaskValid(taskItem));            
         });
@@ -57,56 +57,56 @@ const newBlueprint=(req,res,next)=>{
                     else{
                         resolve();
                     }
-                })
+                });
             })
             .catch(err=>{
                 reject(standardError(err,500));
-            })
+            });
 
     });
 
 
 
-}
+};
 
 exports.queryBlueprint=function(blueprint,cb=()=>{}){
     return new Promise((resolve,reject)=>{
         projectBlueprintModel.findOne({name:blueprint})
-        .exec((err,query)=>{
-            if(err){
-                let result={
-                    status:500,
-                    err:err
+            .exec((err,query)=>{
+                if(err){
+                    let result={
+                        status:500,
+                        err:err
+                    };
+                    reject(result);
+                    return cb({result});
                 }
-                reject(result);
-                return cb({result});
-            }
-            else{
-                resolve(query)
-                return cb(null,query);
-            }
-        });
+                else{
+                    resolve(query);
+                    return cb(null,query);
+                }
+            });
     });
-}
+};
 
 exports.isBlueprintValid=function(blueprint,cb=()=>{}){
     return new Promise((resolve,reject)=>{
         exports.queryBlueprint(blueprint)
-        .then((blueprint)=>{
-            if(blueprint==null)
-            {
-                reject(standardError('blueprint is invalid',400))
-                return cb(standardError('blueprint is invalid',400));
+            .then((blueprint)=>{
+                if(blueprint==null)
+                {
+                    reject(standardError('blueprint is invalid',400));
+                    return cb(standardError('blueprint is invalid',400));
+                }
+                else{
+                    resolve(blueprint);
+                    return cb(null,blueprint);
             }
-            else{
-                resolve(blueprint);
-                return cb(null,blueprint);;
-            }
-        })
-        .catch(err=>{
-            reject(err);
-            return cb(err);
-        })
+            })
+            .catch(err=>{
+                reject(err);
+                return cb(err);
+            });
 
     });
 };
@@ -122,11 +122,11 @@ exports.createBlueprint=(req,res,next)=>{
                 });
             });
     });
-}
+};
 
 exports.getBlueprint=(req,res,next,query)=>{
     projectBlueprintModel.find(query)
-    .exec((err,query)=>{
-        res.json(query);
-    });
-}
+        .exec((err,query)=>{
+            res.json(query);
+        });
+};
