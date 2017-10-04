@@ -107,15 +107,21 @@ exports.sampleVHDDetection={
     note:'Detect specific vhd series and see if it is posted',
     task_script_path:'/api/ps/VMDeployment@VHD_Detection.ps1',
     setting_type:'NULL' 
-}
+};
 
 exports.samplePlanGeneration={
     name:'Plan_Generation',
     note:'Sync up required file and then generate plan file based on the demand',
     task_script_path:'/api/ps/MVT@wwwGeneratePlanFile.ps1',
     setting_type:'NULL'    
-}
+};
 
+exports.sampleResume={
+    name:'Resume',
+    note:'Resume current execution',
+    task_script_path:'/api/ps/MVT@ExecutionControl.ps1',
+    setting_type:'NULL'    
+};
 exports.PostTask=(Json,cb=()=>{})=>{
     var prom= new Promise((resolve,reject)=>{
         chai

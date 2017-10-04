@@ -15,6 +15,7 @@ $Task=@{
     taskVHDCheckin="VHD_Checkin"
     taskVHDDetection='VHD Detection'
     taskPlanGeneration="Plan_Generation"
+    taskResume="Resume"
 }
 
 function Remove-Dorm($sARTUri,$dormName)

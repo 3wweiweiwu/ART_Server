@@ -1,12 +1,12 @@
 ﻿$sARTUri='http://mvf1:3000'
-$taskName="Plan_Generation"
+
 $DebugPreference="Continue"
 $DebugPreference='SilentlyContinue'
 iex ((New-Object System.Net.WebClient).DownloadString("$sARTUri/api/ps/ARTLibrary.ps1"))
 iex ((New-Object System.Net.WebClient).DownloadString("$sARTUri/api/ps/MediaInstallation@MediaInstallationLibrary.ps1"))
 iex ((New-Object System.Net.WebClient).DownloadString("$sARTUri/api/ps/Library.ps1"))
 iex ((New-Object System.Net.WebClient).DownloadString("$sARTUri/api/ps/CommonHeader.ps1"))
-$taskName=$Task.installMedia
+$taskName=$Task.taskPlanGeneration
 
 
 
@@ -19,14 +19,15 @@ $sResultFolder=$sParentFolder
     $bTestMode=$false
     
     
-    $Subtestcase_Detection=Load-Setting -sARTServerUri $sARTUri -project $blueprint -task $taskName -key Subtestcase_Detection
-    $P4_Project_Support=[array](Load-Setting -sARTServerUri $sARTUri -project $blueprint -task $taskName -key P4_Project_Support)
-    $P4_Work_Space_Folder=Load-Setting -sARTServerUri $sARTUri -project $blueprint -task $taskName -key P4_Work_Space_Folder
+    $Subtestcase_Detection=Load-Setting -sARTServerUri $sARTUri -project $blueprint -key Subtestcase_Detection
+    
+    $P4_Project_Support=[array](Load-Setting -sARTServerUri $sARTUri -project $blueprint -key P4_Project_Support)
+    $P4_Work_Space_Folder=Load-Setting -sARTServerUri $sARTUri -project $blueprint -key P4_Work_Space_Folder
 
-    $P4_Username=Load-Setting -sARTServerUri $sARTUri -project $blueprint -task $taskName -key P4_Username
-    $P4_Password=Load-Setting -sARTServerUri $sARTUri -project $blueprint -task $taskName -key P4_Password
-    $P4_WorkSpaceName=Load-Setting -sARTServerUri $sARTUri -project $blueprint -task $taskName -key P4_WorkSpaceName    
-    $P4_Server=Load-Setting -sARTServerUri $sARTUri -project $blueprint -task $taskName -key P4_Server
+    $P4_Username=Load-Setting -sARTServerUri $sARTUri -project $blueprint -key P4_Username
+    $P4_Password=Load-Setting -sARTServerUri $sARTUri -project $blueprint -key P4_Password
+    $P4_WorkSpaceName=Load-Setting -sARTServerUri $sARTUri -project $blueprint -key P4_WorkSpaceName    
+    $P4_Server=Load-Setting -sARTServerUri $sARTUri -project $blueprint -key P4_Server
     
     
     
@@ -142,14 +143,19 @@ $lsScriptCQ=[array](Get-CQList -lsProjectScript $lsProjectScript)
 
 
 #Map CQ from sln file
-
+$lsSlnPath=@()
+$sSlnPathList=""
 foreach($item in $P4_Project_Support)
 {
-    $lsSlnPath+=@((Get-ChildItem -Path $item -Recurse|where{$_.Name.tolower() -like "*.sln"}).FullName)        
+    $lsSlnPath+=@((Get-ChildItem -Path $item -Recurse|where{$_.Name.tolower() -like "*.sln"}).FullName)
 }
+
+$lsSlnPath=$lsSlnPath|where{$_ -ne $null}
 $lsSlnPath|foreach{$sSlnPathList+=","+$_}
 $CSharp_Sln_List=$lsSlnPath|select -Unique
-Write-Setting -sARTServerUri $sARTUri -project $blueprint -task $taskName -key CSharp_Sln_List -value $sSlnPathList
+Write-Setting -sARTServerUri $sARTUri -project $blueprint -key CSharp_Sln_List -value $sSlnPathList
+
+
 
 
 
@@ -317,4 +323,4 @@ foreach($record in $lsRecord)
 #Get the Product and Build Information
 #Output csv file as a record
     $lsRecord|Sort-Object -Property Sub_TestCase -Unique|Export-Csv -Path (Join-Path -Path $sResultFolder -ChildPath Progress.csv)
-
+    Set-NextProject -sARTServerUri $sARTUri -vision $vision -project $blueprint
