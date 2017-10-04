@@ -109,7 +109,7 @@ exports.qe_mtell_01={
                 free_disk_space_mb:90840
             },
             {
-                drive_letter:'3',
+                drive_letter:'e',
                 total_disk_space_mb:909096,
                 free_disk_space_mb:200000
             }
