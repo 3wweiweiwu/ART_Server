@@ -46,7 +46,7 @@ if($DebugPreference -eq "Continue"){
 if($sRemoteVmPath -eq "")
 {
     iex ((New-Object System.Net.WebClient).DownloadString("$sARTUri/api/ps/CommonHeader.ps1"))
-    $sRemoteVmPath=Load-Setting -sARTServerUri $sARTServerUri -vision $vision -task $taskVMDeployment -task $taskVMDeployment -key base_vhd_path    
+    $sRemoteVmPath=Load-Setting -sARTServerUri $sARTServerUri -vision $vision -task $taskVMDeployment -key base_vhd_path    
     $iVmMemorySize=Load-Setting -sARTServerUri $sARTServerUri -project $blueprint -task $taskVMDeployment -key memory_size
     $iCPUCores=Load-Setting -sARTServerUri $sARTServerUri -project $blueprint -task $taskVMDeployment -key cpu_cores
     $VM_Username=Load-Setting -sARTServerUri $sARTServerUri -project $blueprint -task $taskVMDeployment -key VM_Username
