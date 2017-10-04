@@ -1,7 +1,7 @@
 ﻿$sARTUri='http://mvf1:3000'
 $taskName="Install_Media"
 $DebugPreference="Continue"
-
+$DebugPreference='SilentlyContinue'
 iex ((New-Object System.Net.WebClient).DownloadString("$sARTUri/api/ps/MediaInstallation@MediaInstallationLibrary.ps1"))
 iex ((New-Object System.Net.WebClient).DownloadString("$sARTUri/api/ps/Library.ps1"))
 iex ((New-Object System.Net.WebClient).DownloadString("$sARTUri/api/ps/CommonHeader.ps1"))

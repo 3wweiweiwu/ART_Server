@@ -52,6 +52,21 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Mtell MVT",
+            "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
+            "args": [
+                "-u",
+                "tdd",
+                "--timeout",
+                "999999999",
+                "--colors",
+                "${workspaceRoot}\\**\\Mtell_PlanGeneration_Setting.js"
+            ],
+            "internalConsoleOptions": "openOnSessionStart"
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "Mtell Deployment Preparation",
             "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
             "args": [

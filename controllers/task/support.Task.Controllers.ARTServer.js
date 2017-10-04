@@ -109,6 +109,13 @@ exports.sampleVHDDetection={
     setting_type:'NULL' 
 }
 
+exports.samplePlanGeneration={
+    name:'Plan_Generation',
+    note:'Sync up required file and then generate plan file based on the demand',
+    task_script_path:'/api/ps/MVT@wwwGeneratePlanFile.ps1',
+    setting_type:'NULL'    
+}
+
 exports.PostTask=(Json,cb=()=>{})=>{
     var prom= new Promise((resolve,reject)=>{
         chai

@@ -402,4 +402,10 @@ exports.sampleMtellDeployment={
     name:'MTELL_Deployment',
     note:'Install daily Mtell image to multiple clients',
     status:'online'
-}
+};
+
+exports.sampleMtellMVT={
+    name:'MTELL_MVT',
+    note:'Perform MVT on mtell',
+    status:'online'    
+};
