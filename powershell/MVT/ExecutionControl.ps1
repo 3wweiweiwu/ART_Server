@@ -842,7 +842,7 @@ if (($lsRecord|where ($_.Result -eq "")).Length -eq 0)
     
     $lsRecord|Export-Csv -Path (Join-Path -Path $sResultFolder -ChildPath "ExecutionResult.csv")
     
-    Set-NextProject -sARTServerUri $sARTUri -vision $vision -project $blueprint
+    Set-NextProject -sARTServerUri $sARTUri -vision $vision -project $projectId
     #Write-ValueToSetting -Path $sParentFolder -Key "Status" -Value "Idle"   
     #&powershell.exe "$(Join-Path -Path $sParentFolder -ChildPath ClientPrep.ps1)"
 }

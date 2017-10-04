@@ -323,4 +323,4 @@ foreach($record in $lsRecord)
 #Get the Product and Build Information
 #Output csv file as a record
     $lsRecord|Sort-Object -Property Sub_TestCase -Unique|Export-Csv -Path (Join-Path -Path $sResultFolder -ChildPath Progress.csv)
-    Set-NextProject -sARTServerUri $sARTUri -vision $vision -project $blueprint
+    Set-NextProject -sARTServerUri $sARTUri -vision $vision -project $projectId
