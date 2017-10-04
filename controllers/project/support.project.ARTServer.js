@@ -133,6 +133,7 @@ exports.sampleMTELLVHDDetection={
     tasks:[taskSupport.sampleVHDDetection.name],
     next:[]       
 };
+
 exports.sampleMtellVHDDeployment={
     name:'Mtell VHD Deployment',
     note:'Deploy Mtell VHD whenever it is posted',
@@ -141,6 +142,14 @@ exports.sampleMtellVHDDeployment={
     tasks:[taskSupport.sampleDeployStandardVHDImage.name],
     next:[]       
 };
+exports.sampleMtellMVT={
+    name:'Mtell MVT',
+    note:'Validate Mtell MVT whenever it is posted',
+    memory_usage_mb:6*1024,
+    disk_usage_mb:10*1024,
+    tasks:[taskSupport.sampleDeployStandardVHDImage.name,taskSupport.samplePlanGeneration.name],
+    next:[]           
+}
 exports.sampleAPMDeployment={
     name:'APM_Media_Deployment',
     note:'Install APM media whenever it is posted',
