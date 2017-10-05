@@ -11,7 +11,10 @@ $taskName=$Task.taskPlanGeneration
 
 
 #Including
-$sParentFolder=[System.IO.Path]::GetDirectoryName($myInvocation.MyCommand.Definition)
+
+#$sParentFolder=[System.IO.Path]::GetDirectoryName($myInvocation.MyCommand.Definition)
+$sParentFolder="c:\mvt2\mvt"
+New-Item -Path $sParentFolder -ItemType directory
 $sResultFolder=$sParentFolder
 
 #Input

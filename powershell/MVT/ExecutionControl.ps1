@@ -13,7 +13,7 @@ $taskName=$Task.taskResume
 
 
 #Including
-$sParentFolder=[System.IO.Path]::GetDirectoryName($myInvocation.MyCommand.Definition)
+$sParentFolder="c:\mvt2\mvt"
 $sResultFolder=$sParentFolder
 
 
