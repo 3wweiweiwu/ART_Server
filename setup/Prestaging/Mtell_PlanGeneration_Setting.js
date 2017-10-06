@@ -36,7 +36,7 @@ describe('Add new vision APM Prestaging.',()=>{
                 return new Promise((resolve)=>{
                     registrySupport.postRegistry(registrySupport.Keys.Template,blueprintMVT.name,taskSupport.sampleDeployStandardVHDImage.name,'base_vhd_path','599c85c9a758ba2afcc18df9')
                         .then(()=>{
-                            return registrySupport.postRegistry(registrySupport.Keys.Template,blueprintMVT.name,taskSupport.sampleDeployStandardVHDImage.name,'memory_size',2*1024*1024*1024);
+                            return registrySupport.postRegistry(registrySupport.Keys.Template,blueprintMVT.name,taskSupport.sampleDeployStandardVHDImage.name,'memory_size',8*1024*1024*1024);
                         })
                         .then(()=>{
                             return registrySupport.postRegistry(registrySupport.Keys.Template,blueprintMVT.name,taskSupport.sampleDeployStandardVHDImage.name,'cpu_cores',4);
