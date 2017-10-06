@@ -18,7 +18,7 @@ let scheduler=require('./routes/scheduler.routes.ARTServer');
 let powershell=require('./routes/ps.routes.ARTServer');
 let registry=require('./routes/registry.routes.ARTServer');
 let shelf=require('./routes/vhd.shelf.routes.ARTServer');
-
+let mail=require('./routes/mail.routes.ARTServer');
 
 
 var app = express();
@@ -78,6 +78,7 @@ app.use('/api',scheduler);
 app.use('/api',powershell);
 app.use('/api',registry);
 app.use('/api',shelf);
+app.use('/api',mail);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
