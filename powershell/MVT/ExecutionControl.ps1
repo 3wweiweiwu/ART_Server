@@ -15,7 +15,7 @@ $taskName=$Task.taskResume
 #Including
 $sParentFolder="c:\mvt2\mvt"
 $sResultFolder=$sParentFolder
-
+$localSetting=Join-Path -Path $sParentFolder -ChildPath localsetting.ini
 
 #Initialization
     
@@ -28,8 +28,8 @@ $sResultFolder=$sParentFolder
     $P4_Project_Support=[array](Load-Setting -sARTServerUri $sARTUri -project $blueprint -key P4_Project_Support)
     $P4_Work_Space_Folder=Load-Setting -sARTServerUri $sARTUri -project $blueprint -key P4_Work_Space_Folder
     $CSharp_Sln_List=Load-Setting -sARTServerUri $sARTUri -project $blueprint -key CSharp_Sln_List
-
-    
+    $Email_List=Load-Setting -sARTServerUri $sARTUri -project $blueprint -task $taskName -key 'Email_List'
+    $vhdId=Load-Setting -sARTServerUri $sARTUri -project $blueprint -task $Task.taskVMDeployment -key "base_vhd_path"
     
 
 
@@ -841,6 +841,11 @@ if (($lsRecord|where ($_.Result -eq "")).Length -eq 0)
     Write-Setting -sARTServerUri $sARTUri -project $blueprint -key ExecutionResult -value $json
     
     $lsRecord|Export-Csv -Path (Join-Path -Path $sResultFolder -ChildPath "ExecutionResult.csv")
+    $startTime=Load-ValueFromSetting -SettingPath $sARTUri -Value Plan_Generation_Time
+    
+    $vhdInfo=Get-VHDFromServer -sARTUri $sARTUri -vhdID $vhdId
+    $html=generateHTMLfromCSV -media ($vhdInfo.content.installed_media.name) -startTime $startTime -endTime (Get-Date) -resultsFile (Join-Path -Path $sResultFolder -ChildPath "ExecutionResult.csv") -clientConfig $((Get-WmiObject -Class Win32_OperatingSystem).Name) -clientName $env:COMPUTERNAME
+    Send-ARTMail -sARTUri $sARTUri -From "weiwei.wu@aspentech.com" -To $Email_List -Subject $blueprint -Body $html -filePath (Join-Path -Path $sResultFolder -ChildPath "ExecutionResult.csv")
     
     Set-NextProject -sARTServerUri $sARTUri -vision $vision -project $projectId
     #Write-ValueToSetting -Path $sParentFolder -Key "Status" -Value "Idle"   
