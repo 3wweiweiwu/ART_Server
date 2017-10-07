@@ -170,7 +170,7 @@ function Get-AllVHDInShelf($sARTUri)
     catch
     {
         Write-Warning -Message "Get-All($sARTUri)"
-        Get-All -sARTUri $sARTUri
+        Get-AllVHDInShelf -sARTUri $sARTUri
     }
     
     

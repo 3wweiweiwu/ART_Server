@@ -1,6 +1,6 @@
 var taskModel=require('../../model/task/task.model.ARTServer.js');
 var taskImageDeploy=require('../../model/task/imageDeploy.model.ARTServer.js');
-let StandardError=require('../common/error.controllers.ARTServer')
+let StandardError=require('../common/error.controllers.ARTServer');
 let taskControl=function(){
     let CreateNewTask=(req,res,next)=>{
         
@@ -22,7 +22,7 @@ let taskControl=function(){
                     resolve();
                 });
             }
-            else if(req.body.setting_type==="Task.ImageDeploy"){
+            else if(req.body.setting_type==='Task.ImageDeploy'){
                 //if it is Task.ImageDeploy, then 
                 let imageDeploy=new taskImageDeploy({
                     memory_size_mb:req.body.memory_size_mb,
@@ -44,7 +44,7 @@ let taskControl=function(){
 
         
 
-    }
+    };
 
     let create=function(req,res,next){
         taskModel.findOne({name:req.body.name},(err,query)=>{
@@ -54,21 +54,21 @@ let taskControl=function(){
             {
                 taskModel.remove({name:req.body.name}, (err) => { 
                     taskImageDeploy.remove({_id:query._settings},(err)=>{                    
-                    })
+                    });
                     
                 });            
             }
             
             
             CreateNewTask(req,res,next)
-            .then(()=>{
-                res.writeHead(200);
-                res.end();
-            })
+                .then(()=>{
+                    res.writeHead(200);
+                    res.end();
+                });
             
             
         });
-    }
+    };
 
   
     let isTaskValid=function(taskName){
@@ -76,8 +76,8 @@ let taskControl=function(){
             taskModel.findOne({name:taskName})
                 .then(task=>{
                     if(task==null){
-                        reject(StandardError('unable to find task specified',500))
-                        return
+                        reject(StandardError('unable to find task specified',500));
+                        return;
                     }
                     else{
                         resolve(task);
@@ -86,32 +86,32 @@ let taskControl=function(){
                 })
                 .catch(err=>{
                     reject(err);
-                })
+                });
         });
 
-    }
+    };
     
 
     let get=function(req,res,next,searchCriteria){
         
         //
         taskModel.find(searchCriteria)    
-        .populate('_settings')
-        .exec((err,query)=>{
-            if(err)
-                res.send(err);
-            res.json(query);
-        })
+            .populate('_settings')
+            .exec((err,query)=>{
+                if(err)
+                    res.send(err);
+                res.json(query);
+            });
 
         
-    }
+    };
 
     return {
         create:create,
         isTaskValid:isTaskValid,
         get:get
-    }
+    };
 
-}
+};
 
 module.exports=taskControl();
