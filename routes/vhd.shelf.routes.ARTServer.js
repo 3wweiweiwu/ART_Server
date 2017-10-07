@@ -6,20 +6,7 @@ var validate = require('express-validation');
 let vhdControl=require('../controllers/shelf/vhd.shelf.controllers.ARTServer');
 let StandardError=require('../controllers/common/error.controllers.ARTServer');
 let config=require('../config')
-//multer configuration
-// let multer=require('multer');
-// let upload=multer({
-//     dest:config.shelf.storage_path,
-//     limits:{
-//         fileSize:9999999999999,        
-//     },
-//     fileFilter:vhdValidation.upload
-// });
-// function extendTimeout (req, res, next) {
-//     res.setTimeout(480000, function () { /* Handle timeout */ });
-//     next();
 
-// }
 router.get('/shelf/vhd/upload_path',validate(vhdValidation.getUploadPath),function(req,res){
     //it shall return upload path for the task you want to upload
     req.checkBody('installed_products').eachIsNotEmpty('name');

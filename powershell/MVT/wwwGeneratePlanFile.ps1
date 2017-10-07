@@ -14,7 +14,10 @@ $taskName=$Task.taskPlanGeneration
 
 #$sParentFolder=[System.IO.Path]::GetDirectoryName($myInvocation.MyCommand.Definition)
 $sParentFolder="c:\mvt2\mvt"
+
 New-Item -Path $sParentFolder -ItemType directory
+$localSetting=Join-Path -Path $sParentFolder -ChildPath localsetting.ini
+Write-ValueToSetting -Path $localSetting -Key "Plan_Generation_Time" -Value (Get-Date).ToString()
 $sResultFolder=$sParentFolder
 
 #Input

@@ -11,7 +11,27 @@ let chai = require('chai');
 let chaiHttp = require('chai-http');
 let should = chai.should();
 chai.use(chaiHttp);
-
+exports.postVisionWithCheck=function(visionObj){
+    visionModel.findOne({name:visionObj.name})
+        .then(vision=>{
+            return new Promise((resolve,reject)=>{
+                //while there is no vision with the same name, then post new vision
+                if(vision==null){
+                    exports.postNewVision(visionObj)
+                        .then((info)=>{
+                            resolve(info);
+                        })
+                        .catch(err=>{
+                            reject(err);
+                        });
+                }
+                else{
+                    //while there is existing vision with the same name, then stop
+                    resolve();
+                }
+            })
+        })
+}
 exports.postNewVision=function(visionObj,cb=()=>{}){
     return new Promise((resolve,reject)=>{
         chai

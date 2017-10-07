@@ -17,6 +17,70 @@ $Task=@{
     taskPlanGeneration="Plan_Generation"
     taskResume="Resume"
 }
+function Send-ARTMail($sARTUri,$From,$To,$Subject,$Body,$filePath)
+{
+
+    function main()
+    {
+        $url = Join-Url -parentPath $sARTUri -childPath "/api/mail"
+        
+        $otherFieldInfo=@{
+            Subject=$Subject;
+            From=$From;
+            To=$To;
+            Body=$Body
+        }
+        #convert otherfieldinfo to object
+        $otherFieldInfo=$otherFieldInfo|ConvertTo-Json|ConvertFrom-Json
+
+        #start upload
+            Add-Type -AssemblyName 'System.Net.Http'
+
+            $client = New-Object System.Net.Http.HttpClient
+            $client.Timeout=[timespan]::FromHours(8)
+            $content = New-Object System.Net.Http.MultipartFormDataContent
+            $fileStream = [System.IO.File]::OpenRead($filePath)
+            $fileName = [System.IO.Path]::GetFileName($filePath)
+            $fileContent = New-Object System.Net.Http.StreamContent($fileStream)
+        
+
+            #add respective field information
+            foreach($key in ($otherFieldInfo|Get-Member|where{$_.MemberType -eq "NoteProperty"}).Name){
+
+                $value=[string]($otherFieldInfo.$key)
+                $MultipartContent=New-Object System.Net.Http.StringContent($value)
+                $content.Add($MultipartContent,$key)
+            }
+        
+            $content.Add($fileContent, 'file', $fileName)
+            $result = $client.PostAsync($url, $content).Result
+            $result.EnsureSuccessStatusCode()
+
+        #final cleanup
+    
+        if ($MultipartContent -ne $null) {$MultipartContent.Dispose() }
+        if ($client -ne $null) { $client.Dispose() }
+        if ($content -ne $null) { $content.Dispose() }
+        if ($fileStream -ne $null) { $fileStream.Dispose() }
+        if ($fileContent -ne $null) { $fileContent.Dispose() }
+    }
+
+    while($true)
+    {
+        try
+        {
+            main
+            break
+        }
+        catch
+        {
+            Resolve-RestError
+            Write-Warning -Message "Send-ARTMail($sARTUri,$From,$To,$Subject,$Body,$filePath)"
+        }
+    }
+
+        
+}
 
 function Remove-Dorm($sARTUri,$dormName)
 {
@@ -106,7 +170,7 @@ function Get-AllVHDInShelf($sARTUri)
     catch
     {
         Write-Warning -Message "Get-All($sARTUri)"
-        Get-All -sARTUri $sARTUri
+        Get-AllVHDInShelf -sARTUri $sARTUri
     }
     
     

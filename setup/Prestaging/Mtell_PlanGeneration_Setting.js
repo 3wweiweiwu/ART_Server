@@ -14,6 +14,7 @@ let scheduleSupport=require('../../controllers/scheduler/support.scheduler.contr
 //var visionControl = require('../../controllers/vision/vision.controllers.ARTServer')
 let projectSupport = require('../../controllers/project/support.project.ARTServer');
 let taskSupport = require('../../controllers/task/support.Task.Controllers.ARTServer');
+let resumeSetup=require('../task/resume.task.setup.ARTServer');
 let chai = require('chai');
 let chaiHttp = require('chai-http');
 
@@ -37,7 +38,7 @@ describe('Add new vision APM Prestaging.',()=>{
                     registrySupport.postRegistry(registrySupport.Keys.Template,blueprintMVT.name,taskSupport.sampleDeployStandardVHDImage.name,'base_vhd_path','599c85c9a758ba2afcc18df9')
                         .then(()=>{
                             return registrySupport.postRegistry(registrySupport.Keys.Template,blueprintMVT.name,taskSupport.sampleDeployStandardVHDImage.name,'memory_size',8*1024*1024*1024);
-                        })
+                        })                      
                         .then(()=>{
                             return registrySupport.postRegistry(registrySupport.Keys.Template,blueprintMVT.name,taskSupport.sampleDeployStandardVHDImage.name,'cpu_cores',4);
                         })
@@ -85,26 +86,8 @@ describe('Add new vision APM Prestaging.',()=>{
             
             })          
             .then(()=>{
-            //add setting for resume
-                return new Promise(resolve=>{
-                    let taskName=taskSupport.sampleResume.name;
-                    registrySupport.postRegistry(registrySupport.Keys.Template,blueprintMVT.name,taskName,'iSelenium_MultiThreading_Count','1')
-                        .then(()=>{
-                            return registrySupport.postRegistry(registrySupport.Keys.Template,blueprintMVT.name,taskName,'iRestartAfterScripts','15');
-                        })
-                        .then(()=>{
-                            return registrySupport.postRegistry(registrySupport.Keys.Template,blueprintMVT.name,taskName,'iMaxTrial','1');
-                        })  
-                        .then(()=>{
-                            return registrySupport.postRegistry(registrySupport.Keys.Template,blueprintMVT.name,taskName,'iErrTestCasePerPlan','3');
-                        })  
-                        .then(()=>{
-                            return registrySupport.postRegistry(registrySupport.Keys.Template,blueprintMVT.name,taskName,'iTimeout','60');
-                        })  
-                        .then(()=>{
-                            resolve();
-                        });
-                });
+                //update setting for the mtell resume
+                return resumeSetup.updateSetting(blueprintMVT.name,resumeSetup.Constant.mtellSetting);
             })        
             .then(()=>{
                 return taskSupport.PostTask(taskSupport.samplePlanGeneration);
@@ -122,7 +105,7 @@ describe('Add new vision APM Prestaging.',()=>{
             .then(()=>{
             //post new vision and link blueprint to vision
                 return new Promise(resolve=>{
-                    visionSupport.postNewVision(visionObj)
+                    visionSupport.postVisionWithCheck(visionObj)
                         .then(()=>{
                             //add vision into watch list for the mtell prestaging
                             return vhdSupport.addSeriesSubscriber(vhdSupport.Constant.Mtell_V1001_Win16,visionObj.name);
