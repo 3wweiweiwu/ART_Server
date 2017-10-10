@@ -8,7 +8,7 @@ router.post('/mail',mailControl.multerUpload.single('file'),function(req,res){
             res.json();
         })
         .catch(err=>{
-            res.status(err.status).json(err);
+            res.status(err.status||500).json(err);
         });
 });
 

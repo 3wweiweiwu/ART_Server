@@ -19,35 +19,50 @@ let mailControl=function(){
                 port:25,      
                 secure: false, // true for 465, false for other ports
             });
-          
             let mailOptions = {
                 from: from, // sender address
                 to: to, // list of receivers
                 subject: subject, // Subject line
                 text: 'Hello world?', // plain text body
-                html: body, // html body            
-                attachments:[
+                html: body,
+                tls:{
+                    rejectUnauthorized:false
+                }
+            };
+            if(storage!=undefined){
+                mailOptions.attachments=[
                     {
                         filename:storage.originalname,
                         path:storage.path
                     }
-                ]
-            };
+                ];
+            }
+
           
             // send mail with defined transport object
             transporter.sendMail(mailOptions, (error, info) => {
                 //remove file in the storage
                 if (error) {
-                    
-                    fs.unlink(storage.path,()=>{                        
-                        reject(StandardError(error,500));    
+                    if(storage!=undefined){
+                        fs.unlink(storage.path,()=>{                        
+                            reject(StandardError(error,500));    
+                            return;
+                        });                    
+                    }
+                    else
+                    {
+                        reject(StandardError(error,500));
                         return;
-                    });                    
+                    }
+
                 }
-                fs.unlink(storage.path,()=>{                        
-                    resolve(info);
-                    return;
-                });                    
+                if(storage!=undefined){
+                    fs.unlink(storage.path,()=>{                        
+                        resolve(info);
+                        return;
+                    });   
+                }
+                 
                 
           
                 
