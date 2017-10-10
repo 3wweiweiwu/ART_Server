@@ -47,6 +47,7 @@ if($sRemoteVmPath -eq "")
 {
     iex ((New-Object System.Net.WebClient).DownloadString("$sARTUri/api/ps/CommonHeader.ps1"))
     $sRemoteVmPath=Load-Setting -sARTServerUri $sARTServerUri -vision $vision -task $taskVMDeployment -key base_vhd_path    
+    $Email_List=Load-Setting -sARTServerUri $sARTServerUri -vision $vision -task $taskVMDeployment -key Email_List -LoadOnce
     $iVmMemorySize=Load-Setting -sARTServerUri $sARTServerUri -project $blueprint -task $taskVMDeployment -key memory_size
     $iCPUCores=Load-Setting -sARTServerUri $sARTServerUri -project $blueprint -task $taskVMDeployment -key cpu_cores
     $VM_Username=Load-Setting -sARTServerUri $sARTServerUri -project $blueprint -task $taskVMDeployment -key VM_Username
@@ -199,5 +200,18 @@ $switchName=$switchName.Substring(1,$iLength-2)
 Connect-VMNetworkAdapter -VMName $sVMClientId -SwitchName $switchName
 $VM|Hyper-V\Start-VM
 
+#vm deployment is done, send out email notification
+$content="
+Hello All,
+
+Thank you very much for using automatic media deployment service from quality team. The media image is deployed successfully at [$sVMClientId]. You can log in right now.
+
+Best,
+
+Automation Team
+
+"
+
+Send-MailMessage -From "weiwei.wu@aspentech.com" -SmtpServer "smtp.aspentech.local" -Subject "VM Deployment is ready for $blueprint" -Body $content -To $Email_List
 
 
