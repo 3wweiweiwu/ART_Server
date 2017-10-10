@@ -15,7 +15,7 @@ let mailControl=function(){
     let SendMail=function(from,to,subject,body,storage){
         return new Promise((resolve,reject)=>{
             let transporter = nodemailer.createTransport({
-                host: 'atmr01.aspentech.com',      
+                host: 'smtp.aspentech.local',      
                 port:25,      
                 secure: false, // true for 465, false for other ports
             });
