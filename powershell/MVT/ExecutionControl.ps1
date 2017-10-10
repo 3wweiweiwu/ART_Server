@@ -845,7 +845,8 @@ if (($lsRecord|where ($_.Result -eq "")).Length -eq 0)
     
     $vhdInfo=Get-VHDFromServer -sARTUri $sARTUri -vhdID $vhdId
     $html=generateHTMLfromCSV -media ($vhdInfo.content.installed_media.name) -startTime $startTime -endTime (Get-Date) -resultsFile (Join-Path -Path $sResultFolder -ChildPath "ExecutionResult.csv") -clientConfig $((Get-WmiObject -Class Win32_OperatingSystem).Name) -clientName $env:COMPUTERNAME
-    Send-ARTMail -sARTUri $sARTUri -From "weiwei.wu@aspentech.com" -To $Email_List -Subject $blueprint -Body $html -filePath (Join-Path -Path $sResultFolder -ChildPath "ExecutionResult.csv")
+    $attachmentPath=(Join-Path -Path $sResultFolder -ChildPath "ExecutionResult.csv")
+    Send-MailMessage -Attachments @($attachmentPath) -From "weiwei.wu@aspentech.com" -To $Email_List -Subject $blueprint -Body $html -SmtpServer smtp.aspentech.local
     
     Set-NextProject -sARTServerUri $sARTUri -vision $vision -project $projectId
     #Write-ValueToSetting -Path $sParentFolder -Key "Status" -Value "Idle"   
