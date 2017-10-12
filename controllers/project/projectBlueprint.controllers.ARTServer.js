@@ -28,7 +28,72 @@ exports.getBlueprints = function (blueprintQuery,cb=()=>{}) {
     });
 };
 
+const getOrCreateBlueprint=function(name){
+    //create a new blueprint with name specified
+    return new Promise((resolve,reject)=>{
+        
+        projectBlueprintModel.findOne({name:name})
+            .then((blueprint)=>{
+                if(blueprint==null){
+                    let projectBlueprint=new projectBlueprintModel({
+                        name:name
+                    });        
+                    projectBlueprint.save((err)=>{
+                        if(err){
+                            reject(standardError(err,500));
+                        }
+                        else{
+                            resolve(projectBlueprint);
+                        }            
+                    });
+                }
+                else{
+                    resolve(blueprint)
+                }
+            });
+      
+    });
+}
 
+const updateBlueprint=function(name,note,memory_usage_mb,disk_usage_mb,next,tasks){
+    return new Promise((resolve,reject)=>{
+        getOrCreateBlueprint(name)
+            .then((blueprint)=>{
+                //popoulate meta data
+                blueprint.note=note;
+                blueprint.memory_usage_mb=memory_usage_mb;
+                blueprint.disk_usage_mb=disk_usage_mb;
+                blueprint.next=next;
+                blueprint.tasks=[];
+
+                //popoulate task info
+                let taskList=[];
+                tasks.forEach(function(taskItem) {
+                    taskList.push(taskControl.isTaskValid(taskItem));            
+                });
+                Promise.all(taskList)
+                    .then(taskDocs=>{
+                        taskDocs.forEach(task=>{
+                            blueprint.tasks.push({task:task._id});
+                        });
+                        blueprint.save(err=>{
+                            if(err){
+                                reject(standardError(err,500));
+                            }
+                            else{
+                                resolve();
+                            }
+                        });
+                    })
+
+
+            })
+            .catch(err=>{
+                reject(standardError(err,500));
+            });
+
+    });
+};
 
 const newBlueprint=(req,res,next)=>{
     return new Promise((resolve,reject)=>{
@@ -68,6 +133,13 @@ const newBlueprint=(req,res,next)=>{
 
 
 };
+exports.createBlueprintWithcheck=function(req,res){
+    updateBlueprint(req.body.name,req.body.note,req.body.memory_usage_mb,req.body.disk_usage_mb,req.body.next,req.body.tasks)
+        .then(()=>{res.json();})
+        .catch((err)=>{
+            res.status(err.status).json(err);
+        });
+}
 
 exports.queryBlueprint=function(blueprint,cb=()=>{}){
     return new Promise((resolve,reject)=>{
@@ -101,7 +173,7 @@ exports.isBlueprintValid=function(blueprint,cb=()=>{}){
                 else{
                     resolve(blueprint);
                     return cb(null,blueprint);
-            }
+                }
             })
             .catch(err=>{
                 reject(err);

@@ -4,9 +4,9 @@ var mongoose=require('mongoose'),
 
 let projectMinModel=new Schema({
     name:{type:String,required:true},
-    note:{type:String,required:true},
-    memory_usage_mb:{type:Number,required:true},
-    disk_usage_mb:{type:Number,required:true},
+    note:{type:String},
+    memory_usage_mb:{type:Number},
+    disk_usage_mb:{type:Number},
     tasks:[{        
         task:{type:Schema.Types.ObjectId,ref:'Task'}
     }],

@@ -7,10 +7,13 @@ var projectValidation=require('../validation/project.validation.ArtServer.js')
 
 
 router.post('/projectBlueprint',validate(projectValidation.blueprintPost),function(req, res, next) {
-    //it shall create a blueprint
+    //it shall create a blueprint (override if any)
     return projectBlueprint.createBlueprint(req,res,next);    
 });
-
+router.post('/projectBlueprintWithCheck',validate(projectValidation.blueprintPost),function(req, res, next) {
+    //it shall create a blueprint (will not override)
+    return projectBlueprint.createBlueprintWithcheck(req,res,next);    
+});
 router.get('/projectBlueprint',(req,res,next)=>{
     //it shall get all blueprint
     return projectBlueprint.getBlueprint(req,res,next,{});

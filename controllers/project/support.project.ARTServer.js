@@ -3,6 +3,7 @@
 let chai = require('chai');
 let app = require('../../app.js');
 let taskSupport=require('../task/support.Task.Controllers.ARTServer');
+//let blueprintModel=require('../../model/project/projectBlueprint.model.ARTServer');
 exports.PostNewBlueprint=(query,cb=()=>{})=>{
     return new Promise((resolve,reject)=>{
         chai
@@ -21,6 +22,23 @@ exports.PostNewBlueprint=(query,cb=()=>{})=>{
             });   
     });
 };
+
+exports.PostNewBlueprintWithCheck=function(blueprintObj){
+    return new Promise((resolve,reject)=>{
+        chai
+            .request(app)
+            .post('/api/projectBlueprintWithCheck')
+            .send(blueprintObj)
+            .end((err, res) => {            
+                if(err) {
+                    reject(err);                    
+                }
+                else {
+                    resolve(res);                    
+                }
+            });   
+    });
+}
 exports.putProjectStatus=(projectId,statusId,cb=()=>{})=>{
     return new Promise((resolve,reject)=>{
         chai
@@ -115,6 +133,14 @@ exports.blueprintAPMMediaDeployment={
     memory_usage_mb:6*1024,
     disk_usage_mb:10*1024,
     tasks:[taskSupport.taskMediaInstallation.name],
+    next:[]    
+};
+exports.blueprintAPMMediaDeployment1={
+    name:'APM_Media_Deployment',
+    note:'Install APM media whenever it is posted',
+    memory_usage_mb:6*1024,
+    disk_usage_mb:10*1024,
+    tasks:[taskSupport.taskMediaInstallation.name,taskSupport.taskMediaDetection.name],
     next:[]    
 };
 exports.sampleMtellDeployment={
