@@ -1,17 +1,17 @@
 process.env.NODE_ENV = 'test';
-var assert = require('assert');
-var visionModel = require('../../model/vision/vision.model.ARTServer.js');
-var taskModel = require('../../model/task/task.model.ARTServer');
-var taskImageDeployment = require('../../model/task/imageDeploy.model.ARTServer');
-var projectBlueprintModel = require('../../model/project/projectBlueprint.model.ARTServer');
-var projectModel = require('../../model/project/project.model.ARTServer');
+
+
+
+
+
+let vhdDeployment=require('../task/vhdDeployment.task.setup.ARTServer');
 let vhdSupport=require('../../controllers/shelf/support.vhd.shelf.controllers.ARTServer');
-//let projectStatus=require('../../controllers/project/status.project.controllers.ARTServer');
+
 let dormSupport = require('../../controllers/organization/support.dorm.controller.ARTServer');
-let dormModel = require('../../model/organization/dormModel');
-//let scheduleControl=require('../../controllers/scheduler/scheduler.controllers.ARTServer');
+
+
 let scheduleSupport=require('../../controllers/scheduler/support.scheduler.controllers.ARTServer');
-//var visionControl = require('../../controllers/vision/vision.controllers.ARTServer')
+
 let projectSupport = require('../../controllers/project/support.project.ARTServer');
 let taskSupport = require('../../controllers/task/support.Task.Controllers.ARTServer');
 let resumeSetup=require('../task/resume.task.setup.ARTServer');
@@ -33,26 +33,8 @@ describe('Add new vision APM Prestaging.',()=>{
         //let blueprintMediaPreparationObj=projectSupport.sampleMtellDeployment;        
         registrySupport.postRegistry(registrySupport.Keys.Template,registrySupport.Keys.Template,registrySupport.Keys.Template,'test','test')
             .then(()=>{
-            //add setting for vhd deployment
-                return new Promise((resolve)=>{
-                    registrySupport.postRegistry(registrySupport.Keys.Template,blueprintMVT.name,taskSupport.sampleDeployStandardVHDImage.name,'base_vhd_path','599c85c9a758ba2afcc18df9')
-                        .then(()=>{
-                            return registrySupport.postRegistry(registrySupport.Keys.Template,blueprintMVT.name,taskSupport.sampleDeployStandardVHDImage.name,'memory_size',8*1024*1024*1024);
-                        })                      
-                        .then(()=>{
-                            return registrySupport.postRegistry(registrySupport.Keys.Template,blueprintMVT.name,taskSupport.sampleDeployStandardVHDImage.name,'cpu_cores',4);
-                        })
-                        .then(()=>{
-                            return registrySupport.postRegistry(registrySupport.Keys.Template,blueprintMVT.name,taskSupport.sampleDeployStandardVHDImage.name,'VM_Username','administrator');
-                        })
-                        .then(()=>{
-                            return registrySupport.postRegistry(registrySupport.Keys.Template,blueprintMVT.name,taskSupport.sampleDeployStandardVHDImage.name,'VM_Pass','Aspen100');
-                        })                        
-                        .then(()=>{
-                            resolve();
-                        });
-                });                
-            })            
+                return vhdDeployment.updateSetting(blueprintMVT.name,vhdDeployment.Constant.mtellMVTDeployment);
+            })           
             .then(()=>{
             //add setting for plan generation
                 return new Promise(resolve=>{
@@ -80,6 +62,9 @@ describe('Add new vision APM Prestaging.',()=>{
                             return registrySupport.postRegistry(registrySupport.Keys.Template,blueprintMVT.name,taskName,'Record','{\r\n    "id":  "CQ00768180",\r\n    "Headline":  "Smoke test",\r\n    "Product":  "Aspen Supply Chain Management",\r\n    "Area":  "SCM CAPs",\r\n    "Description":  "MTELL Smoke Test Part 1"\r\n}');
                         })
                         .then(()=>{
+                            return taskSupport.PostTaskWithCheck(taskSupport.samplePlanGeneration);
+                        })
+                        .then(()=>{
                             resolve();
                         });
                 });
@@ -90,17 +75,11 @@ describe('Add new vision APM Prestaging.',()=>{
                 return resumeSetup.updateSetting(blueprintMVT.name,resumeSetup.Constant.mtellSetting);
             })        
             .then(()=>{
-                return taskSupport.PostTask(taskSupport.samplePlanGeneration);
-            })        
-            .then(()=>{
                 return dormSupport.PostDorm(dormObj);
             })
             .then(()=>{
-                return taskSupport.PostTask(taskSupport.sampleResume);
-            })
-            .then(()=>{
                 //post blueprint
-                return projectSupport.PostNewBlueprint(blueprintMVT);
+                return projectSupport.PostNewBlueprintWithCheck(blueprintMVT);
             })
             .then(()=>{
             //post new vision and link blueprint to vision

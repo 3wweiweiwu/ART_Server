@@ -6,10 +6,12 @@ var assert = require('assert');
 var projectBlueprintModel=require('../../model/project/projectBlueprint.model.ARTServer');
 var taskSpec=require('../task/spec.task.controllers.ARTServer');
 var taskModel = require('../../model/task/task.model.ARTServer.js');
+let taskSupport=require('../task/support.Task.Controllers.ARTServer');
+let blueprintSupport=require('./support.project.ARTServer');
 var taskImageDeployment=require('../../model/task/imageDeploy.model.ARTServer');
 let chai = require('chai');
 let chaiHttp = require('chai-http');
-let should = chai.should();
+
 let support=require('./support.project.ARTServer');
 
 chai.use(chaiHttp);
@@ -129,7 +131,48 @@ describe('blueprint - /post',()=>{
     });
 });
 describe('post /projectBlueprintWithCheck',()=>{
+    beforeEach((done) => {
+        taskModel.remove({}, (err) => { 
+            taskImageDeployment.remove({},(err)=>{
+                projectBlueprintModel.remove({},(err)=>{
+                    done();
+                });
+                
+            });
+            
+        });    
+    });
+    it('shall create a new blueprint if there is nothing',(done)=>{
+        taskSupport.PostTask(taskSupport.taskMediaInstallation)
+            .then(()=>{
+                return taskSupport.PostTask(taskSupport.taskMediaDetection)
+            })
+            .then(()=>{
+                return blueprintSupport.PostNewBlueprintWithCheck(blueprintSupport.blueprintAPMMediaDeployment);
+            })
+            .then(()=>{
+                return projectBlueprintModel.findOne({name:blueprintSupport.blueprintAPMMediaDeployment.name}).populate('tasks.task');
+            })
+            .then(blueprint=>{
+                //validate each item in the blueprint
+                assert.notEqual(null,blueprint,'blue print creation failed');
+                assert.equal(blueprint.disk_usage_mb,blueprintSupport.blueprintAPMMediaDeployment.disk_usage_mb);
+                assert.equal(blueprint.memory_usage_mb,blueprintSupport.blueprintAPMMediaDeployment.memory_usage_mb);
+                assert.equal(blueprint.note,blueprintSupport.blueprintAPMMediaDeployment.note);
+                assert.equal(blueprint.tasks.length,blueprintSupport.blueprintAPMMediaDeployment.tasks.length);
+                assert.equal(blueprint.tasks[0].task.name,blueprintSupport.blueprintAPMMediaDeployment.tasks[0]);
+                done();
+            })
+            .catch((err)=>{
+                assert(false,err);
+                done();
+            });
+        
 
+        
+    });
+    it('shall update info without chaning _id if there is existing blueprint');
+    it('shall return status 400 when invalid task is passed in')
 });
 describe('blueprint -/get',()=>{
     it('shall return nothing when project base is empty',(done)=>{

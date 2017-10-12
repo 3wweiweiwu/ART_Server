@@ -4,7 +4,8 @@ let app = require('../../app.js');
 
 let chai = require('chai');
 let chaiHttp = require('chai-http');
-
+//let taskControl=require('./task.controllers.ARTServer');
+let taskModel=require('../../model/task/task.model.ARTServer');
 chai.use(chaiHttp);
 
 exports.taskMediaDetection={
@@ -122,6 +123,33 @@ exports.sampleResume={
     task_script_path:'/api/ps/MVT@ExecutionControl.ps1',
     setting_type:'NULL'    
 };
+
+exports.PostTaskWithCheck=function(taskObj){
+    let taskName=taskObj.name;
+    return new Promise((resolve,reject)=>{
+        taskModel.findOne({'name':taskName})            
+            .then(task=>{
+
+                //if there is no task found, then register the task for the 1st time
+                if(task==null){                        
+                    exports.PostTask(taskObj)
+                        .then((info)=>{
+                            resolve(info);
+                        })
+                        .catch(err=>{
+                            reject(err);
+                        });
+                }
+                else{
+                    //if there is exsting task, then don't do anything but start setting configuration
+                    resolve();
+                }
+
+            
+            });
+    });
+};
+
 exports.PostTask=(Json,cb=()=>{})=>{
     var prom= new Promise((resolve,reject)=>{
         chai

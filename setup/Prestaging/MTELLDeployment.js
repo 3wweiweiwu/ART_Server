@@ -1,14 +1,14 @@
 process.env.NODE_ENV = 'test';
-var assert = require('assert');
-var visionModel = require('../../model/vision/vision.model.ARTServer.js');
-var taskModel = require('../../model/task/task.model.ARTServer');
-var taskImageDeployment = require('../../model/task/imageDeploy.model.ARTServer');
-var projectBlueprintModel = require('../../model/project/projectBlueprint.model.ARTServer');
-var projectModel = require('../../model/project/project.model.ARTServer');
+
+
+
+
+
+
 let vhdSupport=require('../../controllers/shelf/support.vhd.shelf.controllers.ARTServer');
 //let projectStatus=require('../../controllers/project/status.project.controllers.ARTServer');
 let dormSupport = require('../../controllers/organization/support.dorm.controller.ARTServer');
-let dormModel = require('../../model/organization/dormModel');
+let vhdDeployment=require('../task/vhdDeployment.task.setup.ARTServer')
 //let scheduleControl=require('../../controllers/scheduler/scheduler.controllers.ARTServer');
 let scheduleSupport=require('../../controllers/scheduler/support.scheduler.controllers.ARTServer');
 //var visionControl = require('../../controllers/vision/vision.controllers.ARTServer')
@@ -16,7 +16,7 @@ let projectSupport = require('../../controllers/project/support.project.ARTServe
 let taskSupport = require('../../controllers/task/support.Task.Controllers.ARTServer');
 let chai = require('chai');
 let chaiHttp = require('chai-http');
-
+let vhdDetection=require('../task/vhdDetection.task.setup.ARTServer');
 let visionSupport = require('../../controllers/vision/support.vision.controllers.ARTServer');
 chai.use(chaiHttp);
 
@@ -29,12 +29,15 @@ describe('Add new vision APM Prestaging.',()=>{
         let blueprintVHDDeployment=projectSupport.sampleMtellVHDDeployment;
         let dormObj=dormSupport.qe_mtell_01;
         //let blueprintMediaPreparationObj=projectSupport.sampleMtellDeployment;        
-        taskSupport.PostTask(taskSupport.sampleVHDDetection)        
+        vhdDeployment.updateSetting(blueprintVHDDeployment.name,vhdDeployment.Constant.mtellVHDDeployment)
             .then(()=>{
-                return projectSupport.PostNewBlueprint(blueprintVHDDetection);
+                return vhdDetection.updateSetting(blueprintVHDDetection.name,vhdDetection.Constant.mtellDetection);
             })
             .then(()=>{
-                return projectSupport.PostNewBlueprint(blueprintVHDDeployment);
+                return projectSupport.PostNewBlueprintWithCheck(blueprintVHDDetection);
+            })
+            .then(()=>{
+                return projectSupport.PostNewBlueprintWithCheck(blueprintVHDDeployment);
             })            
             .then(()=>{
                 return visionSupport.postNewVision(visionObj);
@@ -68,37 +71,6 @@ describe('Add new vision APM Prestaging.',()=>{
                 //schedule project into machine
                 return scheduleSupport.postScheduleSignal(visionObj.name);
             })              
-            .then(()=>{
-                //add setting for vhd detection
-                return new Promise(resolve=>{
-                    registrySupport.postRegistry(registrySupport.Keys.Template,blueprintVHDDetection.name,taskSupport.sampleVHDDetection.name,'series','2016 MTELL V10.0.3 VHD')
-                        .then(()=>{
-                            resolve();
-                        });
-                });
-                
-            })          
-            .then(()=>{
-                //add setting for vhd deployment
-                return new Promise((resolve)=>{
-                    registrySupport.postRegistry(registrySupport.Keys.Template,blueprintVHDDeployment.name,taskSupport.sampleDeployStandardVHDImage.name,'base_vhd_path','599c85c9a758ba2afcc18df9')
-                        .then(()=>{
-                            return registrySupport.postRegistry(registrySupport.Keys.Template,blueprintVHDDeployment.name,taskSupport.sampleDeployStandardVHDImage.name,'memory_size',2*1024*1024*1024);
-                        })
-                        .then(()=>{
-                            return registrySupport.postRegistry(registrySupport.Keys.Template,blueprintVHDDeployment.name,taskSupport.sampleDeployStandardVHDImage.name,'cpu_cores',4);
-                        })
-                        .then(()=>{
-                            return registrySupport.postRegistry(registrySupport.Keys.Template,blueprintVHDDeployment.name,taskSupport.sampleDeployStandardVHDImage.name,'VM_Username','administrator');
-                        })
-                        .then(()=>{
-                            return registrySupport.postRegistry(registrySupport.Keys.Template,blueprintVHDDeployment.name,taskSupport.sampleDeployStandardVHDImage.name,'VM_Pass','Aspen100');
-                        })                        
-                        .then(()=>{
-                            resolve();
-                        });
-                });                
-            })
             .then(()=>{
                 done();
             })
