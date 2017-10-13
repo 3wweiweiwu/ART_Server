@@ -29,7 +29,7 @@ describe('Add new vision APM Prestaging.',()=>{
         let blueprintMVT=projectSupport.sampleMtellMVT;
         let blueprintVHDDetection=projectSupport.sampleMTELLVHDDetection;
         
-        let dormObj=dormSupport.MVF1;
+        let dormObj=dormSupport.qe_mtell_01;
         //let blueprintMediaPreparationObj=projectSupport.sampleMtellDeployment;        
         registrySupport.postRegistry(registrySupport.Keys.Template,registrySupport.Keys.Template,registrySupport.Keys.Template,'test','test')
             .then(()=>{

@@ -17,11 +17,11 @@ let resumeSetting=function(){
         cpu_cores:4,
         VM_Username:'administrator',
         VM_Pass:'Aspen100',
-        Email_List:['weiwei.wu@aspentech.com','weiwei.wu@aspentech.com']
+        Email_List:['weiwei.wu@aspentech.com','weiwei.wu@aspentech.com','David.Bechara@aspentech.com','Manasi.Tilwalli@aspentech.com','Sunil.Pillai@aspentech.com','Yucheng.Lai@aspentech.com']
     };
     let _mtellMVTDeployment={
         base_vhd_path:'599c85c9a758ba2afcc18df9',
-        memory_size:8*1024*1024*1024,
+        memory_size:10*1024*1024*1024,
         cpu_cores:4,
         VM_Username:'administrator',
         VM_Pass:'Aspen100',
