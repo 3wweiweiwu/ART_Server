@@ -90,12 +90,12 @@ Write-Host -Object "Mapping Done" -ForegroundColor Yellow
 foreach($sln in $CSharp_Sln_List)
 {
     #remove dll items in the build path
-    $sBuildPath=Get-BuildPathFromSln -slnPath $sln
-    Get-ChildItem -Path $sBuildPath|where{$_.Name -match ".dll"}|Remove-Item -Force
     if($sln -eq $null -or $sln -eq "")
     {
         continue
     }
+    $sBuildPath=Get-BuildPathFromSln -slnPath $sln
+    Get-ChildItem -Path $sBuildPath|where{$_.Name -match ".dll"}|Remove-Item -Force
     Build-Project -msBuild "" -slnPath $sln -rebuild -CompressOutput
 }
 
