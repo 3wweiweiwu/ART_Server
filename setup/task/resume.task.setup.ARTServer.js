@@ -8,7 +8,7 @@ let resumeSetting=function(){
         iMaxTrial:1,
         iErrTestCasePerPlan:3,
         iTimeout:60,
-        Email_List:['weiwei.wu@aspentech.com','weiwei.wu@aspentech.com']
+        Email_List:['weiwei.wu@aspentech.com','weiwei.wu@aspentech.com','David.Bechara@aspentech.com','Manasi.Tilwalli@aspentech.com','Sunil.Pillai@aspentech.com','Yucheng.Lai@aspentech.com']
     };
     let ConstantValue={
         mtellSetting:_mtellSetting
