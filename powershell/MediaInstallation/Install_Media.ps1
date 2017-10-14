@@ -14,7 +14,7 @@ $taskName=$Task.installMedia
     $Product_Verification=Load-Setting -sARTServerUri $sARTUri -project $blueprint -task $taskName -key 'Product_Verification'
     $lsCurrentSchedule=([array](Load-Setting -sARTServerUri $sARTUri -vision $vision -task $Task.mediaDetection -key current_schedule))
     $Installation_File=$lsCurrentSchedule[$lsCurrentSchedule.Length-1]
-    $iEstimatedProductInstallationTimeInHour=3 #estimated installation time is 3 hours, if it takes more than 3 horus and haven't finished, then restart the machine
+    $iEstimatedProductInstallationTimeInHour=4 #estimated installation time is 3 hours, if it takes more than 3 horus and haven't finished, then restart the machine
 #test installation file, if this is 
 
 
@@ -103,8 +103,9 @@ $sLocal_Media_Path=Join-Path -Path $Local_Media_Storage -ChildPath (Split-Path -
                             
     while($true)
     {
-        #kill open agent 
+        #kill open agent and patner.exe
         Get-Process|where{$_.ProcessName -match 'openagent'}|Stop-Process -Force
+        Get-Process|where{$_.ProcessName -match 'partner'}|Stop-Process -Force
         Start-Sleep -Seconds 10
 
         &partner.exe -proj $Silk_Installer_Project_File -resextract -q -r $Silk_Installer_Plan_File -quiet
@@ -112,23 +113,22 @@ $sLocal_Media_Path=Join-Path -Path $Local_Media_Storage -ChildPath (Split-Path -
         #if open agent cannot be launched within 5mins, then go through this process again
         $iTime=0
         $iOpenAgentTimeOut=60*5
+        $bOpoenAgentTimeout=$false
         while((Get-Process|where{$_.ProcessName -match 'openagent'}) -eq $null)
         {
             Start-Sleep -Seconds 10
             $iTime=$iTime+10
-
+            Write-Progress "Waiting for open agent to show up. Have been waiting for $iTime s"
             if($iTime -gt $iOpenAgentTimeOut)
             {
                 Get-Process|where{$_.ProcessName -eq 'partner'}|Stop-Process -Force
                 Write-Host -Object "ERROR while waiting for open agent"
+                $bOpoenAgentTimeout=$true
                 break
             }
 
         }
-        if($iTime -lt $iOpenAgentTimeOut)
-        {
-            break
-        }
+        break
 
     }
     #If installation take more than time limit, then restart the machine
@@ -136,6 +136,7 @@ $sLocal_Media_Path=Join-Path -Path $Local_Media_Storage -ChildPath (Split-Path -
     while ((Get-Process|where{$_.ProcessName -eq 'partner'}) -ne $null)
     {
         $silkElapsedTime=(((Get-Date)-$silkStartTime).TotalHours)
+        Write-Progress -Activity "Silk Installation has been ongoing for $silkElapsedTime hours "
         if($silkElapsedTime -gt $iEstimatedProductInstallationTimeInHour)
         {
             Restart-Computer -Force

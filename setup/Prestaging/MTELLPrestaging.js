@@ -5,7 +5,7 @@ var taskModel = require('../../model/task/task.model.ARTServer');
 var taskImageDeployment = require('../../model/task/imageDeploy.model.ARTServer');
 var projectBlueprintModel = require('../../model/project/projectBlueprint.model.ARTServer');
 var projectModel = require('../../model/project/project.model.ARTServer');
-let vhdSupport=require('../../controllers/shelf/support.vhd.shelf.controllers.ARTServer')
+
 //let projectStatus=require('../../controllers/project/status.project.controllers.ARTServer');
 let dormSupport = require('../../controllers/organization/support.dorm.controller.ARTServer');
 let dormModel = require('../../model/organization/dormModel');
@@ -176,17 +176,17 @@ let SettingKit=function(){
                 })
                 .catch(err=>{
                     reject(err);
-                })
-        })
+                });
+        });
     };
     let Mtell_Media_Deployer=function(){
 
-    }
+    };
     return {
         Mtell_Template_Creator:Mtell_Template_Creator,
         Mtell_Media_Deployer:Mtell_Media_Deployer
     };
-}
+};
 
 describe('Add new vision APM Prestaging',()=>{
     before((done) => {

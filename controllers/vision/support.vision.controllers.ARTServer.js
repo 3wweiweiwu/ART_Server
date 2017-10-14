@@ -1,15 +1,15 @@
 process.env.NODE_ENV = 'test';
-let async = require('async');
-const EventEmitter = require('events');
+//let async = require('async');
+//const EventEmitter = require('events');
 let app = require('../../app.js');
-var assert = require('assert');
+//var assert = require('assert');
 var visionModel = require('../../model/vision/vision.model.ARTServer.js');
-var visionControl=require('./vision.controllers.ARTServer');
-let projectSupport=require('../../controllers/project/support.project.ARTServer');
-let taskSupport=require('../../controllers/task/support.Task.Controllers.ARTServer');
+//var visionControl=require('./vision.controllers.ARTServer');
+//let projectSupport=require('../../controllers/project/support.project.ARTServer');
+//let taskSupport=require('../../controllers/task/support.Task.Controllers.ARTServer');
 let chai = require('chai');
 let chaiHttp = require('chai-http');
-let should = chai.should();
+//let should = chai.should();
 chai.use(chaiHttp);
 exports.postVisionWithCheck=function(visionObj){
     return new Promise((resolve,reject)=>{
@@ -426,5 +426,12 @@ exports.sampleMtellDeployment={
 exports.sampleMtellMVT={
     name:'MTELL_MVT',
     note:'Perform MVT on mtell',
+    status:'online'    
+};
+
+
+exports.sampleAPMPrestaging={
+    name:'APM Prestaging',
+    note:'setup basic image for APM',
     status:'online'    
 };

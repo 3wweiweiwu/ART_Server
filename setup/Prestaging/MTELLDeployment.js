@@ -1,26 +1,15 @@
 process.env.NODE_ENV = 'test';
-
-
-
-
-
-
 let vhdSupport=require('../../controllers/shelf/support.vhd.shelf.controllers.ARTServer');
-//let projectStatus=require('../../controllers/project/status.project.controllers.ARTServer');
 let dormSupport = require('../../controllers/organization/support.dorm.controller.ARTServer');
-let vhdDeployment=require('../task/vhdDeployment.task.setup.ARTServer')
-//let scheduleControl=require('../../controllers/scheduler/scheduler.controllers.ARTServer');
+let vhdDeployment=require('../task/vhdDeployment.task.setup.ARTServer');
 let scheduleSupport=require('../../controllers/scheduler/support.scheduler.controllers.ARTServer');
-//var visionControl = require('../../controllers/vision/vision.controllers.ARTServer')
 let projectSupport = require('../../controllers/project/support.project.ARTServer');
-let taskSupport = require('../../controllers/task/support.Task.Controllers.ARTServer');
-let chai = require('chai');
-let chaiHttp = require('chai-http');
 let vhdDetection=require('../task/vhdDetection.task.setup.ARTServer');
 let visionSupport = require('../../controllers/vision/support.vision.controllers.ARTServer');
-chai.use(chaiHttp);
+let assert=require('assert');
 
-var registrySupport = require('../../controllers/registry/support.registry.controllers.ARTServer');
+
+
 describe('Add new vision APM Prestaging.',()=>{
 
     it('shall Add APM prestaging into the project',done=>{
@@ -75,6 +64,7 @@ describe('Add new vision APM Prestaging.',()=>{
                 done();
             })
             .catch(err=>{
+                assert(false,err);
                 done();
             });
 

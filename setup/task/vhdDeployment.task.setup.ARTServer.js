@@ -27,13 +27,32 @@ let resumeSetting=function(){
         VM_Pass:'Aspen100',
         Email_List:['weiwei.wu@aspentech.com','weiwei.wu@aspentech.com']
     };
+    let apm={
+        prestaging:{
+            base_vhd_path:'599c85c9a758ba2afcc18df9',
+            memory_size:6*1024*1024*1024,
+            cpu_cores:4,
+            VM_Username:'administrator',
+            VM_Pass:'Aspen100',
+            Email_List:['weiwei.wu@aspentech.com']
+        },
+        deployment:{
+            base_vhd_path:'599c85c9a758ba2afcc18df9',
+            memory_size:2*1024*1024*1024,
+            cpu_cores:4,
+            VM_Username:'administrator',
+            VM_Pass:'Aspen100',
+            Email_List:['weiwei.wu@aspentech.com']
+        }
+    };
     
-    let ConstantValue={
+    let ConstantValue={        
         mtellVHDDeployment:_mtellVHDDeployment,
         mtellMVTDeployment:_mtellMVTDeployment,
-        mtellPrestagingDeployment:_mtellPrestagingDeployment
+        mtellPrestagingDeployment:_mtellPrestagingDeployment,
+        apm:apm
     };
-    let updateSetting=function(blueprintName,settingObj){
+    let updateSetting=function(visionName,blueprintName,settingObj){
 
         return new Promise(resolve=>{
             //this function will add all setting for resume
@@ -43,7 +62,7 @@ let resumeSetting=function(){
             //otherwise, create a new task
             taskSupport.PostTaskWithCheck(taskObj)
                 .then(()=>{
-                    return registrySupport.postRegistry(registrySupport.Keys.Template,blueprintName,taskName,'base_vhd_path',settingObj.base_vhd_path);
+                    return registrySupport.postRegistry(visionName,registrySupport.Keys.Template,taskName,'base_vhd_path',settingObj.base_vhd_path);
                 })
                 .then(()=>{
                     return registrySupport.postRegistry(registrySupport.Keys.Template,blueprintName,taskName,'Email_List',JSON.stringify(settingObj.Email_List));
