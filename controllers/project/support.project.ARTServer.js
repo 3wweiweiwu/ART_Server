@@ -38,7 +38,7 @@ exports.PostNewBlueprintWithCheck=function(blueprintObj){
                 }
             });   
     });
-}
+};
 exports.putProjectStatus=(projectId,statusId,cb=()=>{})=>{
     return new Promise((resolve,reject)=>{
         chai
@@ -175,14 +175,48 @@ exports.sampleMtellMVT={
     disk_usage_mb:10*1024,
     tasks:[taskSupport.sampleDeployStandardVHDImage.name,taskSupport.samplePlanGeneration.name,taskSupport.sampleResume.name],
     next:[]           
-}
-exports.sampleAPMDeployment={
-    name:'APM_Media_Deployment',
+};
+//////start of apm
+exports.sample_APMMediaDetection={
+    name:'APM media detection',
+    note:'detect apm media',
+    memory_usage_mb:1024,
+    disk_usage_mb:1024,
+    tasks:[taskSupport.taskMediaDetection.name],
+    next:[]    
+};
+exports.sampleAPMPrestaging={
+    name:'APM Prestaing',
     note:'Install APM media whenever it is posted',
     memory_usage_mb:6*1024,
     disk_usage_mb:10*1024,
     tasks:[taskSupport.sampleDeployStandardVHDImage.name,taskSupport.sampleUninstallProduct.name,taskSupport.sampleRestart.name,taskSupport.sampleWait.name,taskSupport.sampleInstallMedia.name,taskSupport.sampleRestart.name,taskSupport.sampleWait.name,taskSupport.sampleVHDCheckin.name],
     next:[]       
+};
+exports.sampleAPMVHDDeployment={
+    name:'APM VHD Deployment',
+    note:'Deploy APM VHD whenever it is posted',
+    memory_usage_mb:2*1024,
+    disk_usage_mb:10*1024,
+    tasks:[taskSupport.sampleDeployStandardVHDImage.name],
+    next:[]       
+};
+exports.sampleAPMVHDDetection={
+    name:'APM VHD Detection',
+    note:'Detect APM VHD whenever it is posted',
+    memory_usage_mb:1,
+    disk_usage_mb:1,
+    tasks:[taskSupport.sampleVHDDetection.name],
+    next:[]       
+};
+//end of apm section
+exports.sampleAPMMVT={
+    name:'APM MVT',
+    note:'Validate APM MVT whenever it is posted',
+    memory_usage_mb:4*1024,
+    disk_usage_mb:10*1024,
+    tasks:[taskSupport.sampleDeployStandardVHDImage.name,taskSupport.samplePlanGeneration.name,taskSupport.sampleResume.name],
+    next:[]           
 };
 exports.APMMediaDeployment={
     name:'APM_Media_Deployment',
