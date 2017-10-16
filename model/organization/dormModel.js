@@ -22,6 +22,7 @@ var dormModel=new Schema({
         free_memory_mb:{type:Number},
         disk_total:[diskSchema]
     },
+    need_update:{type:Boolean,default:true},
     last_updated:{type:Date,default:Date.now()},
     residents:[{worker:{type:mType.ObjectId,ref:'Worker'}}],
     vision:[{type:mType.ObjectId,ref:'Vision'}],
