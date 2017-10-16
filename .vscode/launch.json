@@ -67,6 +67,21 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "APM Deployment",
+            "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
+            "args": [
+                "-u",
+                "tdd",
+                "--timeout",
+                "999999999",
+                "--colors",
+                "${workspaceRoot}\\**\\APMDeployment.js"
+            ],
+            "internalConsoleOptions": "openOnSessionStart"
+        },            
+        {
+            "type": "node",
+            "request": "launch",
             "name": "APM Prestaging",
             "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
             "args": [
