@@ -237,7 +237,7 @@ exports.InitializeDiskUsage=function(dormName,diskProfile){
                     };
                     disk_total.push(disk);
                 });
-
+                dormDoc.need_update=false;
                 dormDoc.system_resource.disk_total=disk_total;
                 dormDoc.save(err=>{
                     if(err){
