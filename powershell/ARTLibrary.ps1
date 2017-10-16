@@ -427,6 +427,26 @@ function Get-CurrentDiskProfile(){
     } 
     return $ARTProfile
 }
+function Get-DormInfo($sARTUri,$dormName=$env:COMPUTERNAME)
+{
+    while($true)
+    {
+        try
+        {
+            $result=Invoke-RestMethod -Uri "$sARTUri/api/dorm/$dormName" -Method Get 
+            Start-Sleep -Milliseconds $iTimeout
+
+            return $result
+        }
+        catch
+        {
+            Resolve-RestError            
+            Write-Warning -Message "Get-DormInfo($sARTUri,$dormName=$env:COMPUTERNAME)"
+            
+        }
+
+    }
+}
 function Set-DormDiskSpace($sARTServerUri,$dormName){
     $profile=([array](Get-CurrentDiskProfile))
     

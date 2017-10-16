@@ -11,7 +11,7 @@ $ScheduleMode=@{
 
 iex ((New-Object System.Net.WebClient).DownloadString("$sARTServerUri/api/ps/ARTLibrary.ps1"))
 iex ((New-Object System.Net.WebClient).DownloadString("$sARTServerUri/api/ps/Library.ps1"))
-
+iex ((New-Object System.Net.WebClient).DownloadString("$sARTUri/api/ps/CommonHeader.ps1"))
 
 
 
@@ -23,7 +23,7 @@ if($DebugPreference -eq "Continue")
     .(Join-Path -Path $sRootFolder -ChildPath ARTLibrary.ps1)
 }
 
-
+<#
 $debugPID=$PID
 $computerName=$env:COMPUTERNAME
 
@@ -35,7 +35,7 @@ $projectId=$projectFeed.projectId
 
 #create ui identifier
 $Host.UI.RawUI.WindowTitle ="$blueprint==$projectId==$debugPID"
-
+#>
 
 $sMediaPath=Load-Setting -sARTServerUri $sARTServerUri -project $blueprint -task $taskMediaDetection -key media_path
 $sFamily=Load-Setting -sARTServerUri $sARTServerUri -project $blueprint -task $taskMediaDetection -key family
@@ -44,7 +44,7 @@ $sScheduleMode=Load-Setting -sARTServerUri $sARTServerUri -project $blueprint -t
 $lsCurrentSchedule=[array](Load-Setting -sARTServerUri $sARTServerUri -vision $vision -task $taskMediaDetection -key "current_schedule") #this is recorded at vision level as this information is shared by everyone
 
 #if media folder snapshot is empty, then initalize it
-if($lsMedia_Folder_Snapshot -eq ""){
+if($lsMedia_Folder_Snapshot -eq "" -or $lsMedia_Folder_Snapshot -eq $null){
     $lsMedia_Folder_Snapshot=@()
 }
 
