@@ -201,17 +201,38 @@ Connect-VMNetworkAdapter -VMName $sVMClientId -SwitchName $switchName
 $VM|Hyper-V\Start-VM
 
 #vm deployment is done, send out email notification
+
+$vhdInfo=Get-VHDFromServer -sARTUri $sARTUri -vhdID $sRemoteVmPath
+
+$productTable=$vhdInfo.content.installed_products|where{$_.Name -match "aspen"}|Select-Object name,build|ConvertTo-Html -As Table
+
+$mediaInfo=$vhdInfo.content.installed_media.name
+
+
 $content="
-Hello All,
+Hello All,<br>
+    <br>
+    Thank you very much for using automatic media deployment service from quality team. The media image is deployed successfully. You can log in right now.<br>
+    <br>
+    Installed Media: $mediaInfo <br>
+    <br>
+    Machine name: $sVMClientId <br>
+    <br>
+    Username: $sVMClientId\administrator <br>
+    <br>
+    Password: Aspen100 <br>
+    <br>
 
-Thank you very much for using automatic media deployment service from quality team. The media image is deployed successfully at [$sVMClientId]. You can log in right now.
-
-Best,
-
-Automation Team
+Best,<br>
+<br>
+Automation Team<br>
+<br>
+Installed Products: <br>
+<br>
+$productTable
 
 "
 
-Send-MailMessage -From "weiwei.wu@aspentech.com" -SmtpServer "smtp.aspentech.local" -Subject "VM Deployment is ready for $blueprint" -Body $content -To $Email_List
+Send-MailMessage -From "weiwei.wu@aspentech.com" -SmtpServer "smtp.aspentech.local" -Subject "VM Deployment is ready for $blueprint" -Body $content -To $Email_List -BodyAsHtml
 
 
