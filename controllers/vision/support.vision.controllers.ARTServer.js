@@ -435,3 +435,9 @@ exports.sampleAPMPrestaging={
     note:'setup basic image for APM',
     status:'online'    
 };
+
+exports.sampleAPMDeployment={
+    name:'APM Deployment',
+    note:'Deploy APM media whenever it is posted',
+    status:'online'    
+};

@@ -7,11 +7,11 @@ let vhdDetection=require('../task/vhdDetection.task.setup.ARTServer');
 let visionSupport = require('../../controllers/vision/support.vision.controllers.ARTServer');
 let deployment=function(){
     let main=function(visionObj,blueprintVHDDetection,blueprintVHDDeployment,vhdDeploymentSetting,vhdDetectionSetting,dormObj,vidList){
-        vhdDeploymentSetting=vhdDeployment.Constant.apm.prestaging;
-        vhdDetectionSetting=vhdDetection.Constant.apm;
-        vidList=[{vid:'mvt2-apm-d1'},{vid:'mvt2-apm-d2'}];
+        //vhdDeploymentSetting=vhdDeployment.Constant.apm.prestaging;
+        //vhdDetectionSetting=vhdDetection.Constant.apm;
+        //vidList=[{vid:'mvt2-apm-d1'},{vid:'mvt2-apm-d2'}];
         return new Promise((resolve,reject)=>{
-            vhdDeployment.updateSetting(blueprintVHDDeployment.name,vhdDeploymentSetting)
+            vhdDeployment.updateSetting(visionObj.name,blueprintVHDDeployment.name,vhdDeploymentSetting)
                 .then(()=>{
                     return vhdDetection.updateSetting(blueprintVHDDetection.name,vhdDetectionSetting);
                 })
