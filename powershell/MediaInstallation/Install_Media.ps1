@@ -100,7 +100,7 @@ $sLocal_Media_Path=Join-Path -Path $Local_Media_Storage -ChildPath (Split-Path -
         write-host 'Waiting for aspenONE Installer or update agent to showup'
         Start-Sleep -Seconds 10
     }
-                            
+    
     while($true)
     {
         #kill open agent and patner.exe
@@ -113,6 +113,7 @@ $sLocal_Media_Path=Join-Path -Path $Local_Media_Storage -ChildPath (Split-Path -
         #if open agent cannot be launched within 5mins, then go through this process again
         $iTime=0
         $iOpenAgentTimeOut=60*5
+        $iOpenAgentRetry=0
         $bOpoenAgentTimeout=$false
         while((Get-Process|where{$_.ProcessName -match 'openagent'}) -eq $null)
         {
@@ -124,11 +125,25 @@ $sLocal_Media_Path=Join-Path -Path $Local_Media_Storage -ChildPath (Split-Path -
                 Get-Process|where{$_.ProcessName -eq 'partner'}|Stop-Process -Force
                 Write-Host -Object "ERROR while waiting for open agent"
                 $bOpoenAgentTimeout=$true
+                $iOpenAgentRetry++
                 break
             }
 
         }
-        break
+        #if open agent timeout for more than 5 times, then reboot the machine
+        if($iOpenAgentRetry -gt 10)
+        {
+            Restart-Computer -Force
+            Write-Progress -Activity "Restart machine because open agent has timed out for more than 10 times"
+            Start-Sleep -Seconds 3600
+        }
+        #if open agent launch successfully, then stop quit the loop
+        if(!$bOpoenAgentTimeout)
+        {
+            Write-Progress -Activity "Open agent is launched successfully"
+            break
+        }
+        
 
     }
     #If installation take more than time limit, then restart the machine
@@ -167,7 +182,7 @@ $sLocal_Media_Path=Join-Path -Path $Local_Media_Storage -ChildPath (Split-Path -
             }
             if($bVerified -eq $false)
             {
-                log -ServerLocation $sServerDirectory -Err ("The installation failed becuase it cannot find $($InstalledSoftware.Caption) in installed software list")
+                Write-Host ("The installation failed becuase it cannot find $($InstalledSoftware.Caption) in installed software list")
                 $InstallFail=$true
                 break
             }
@@ -182,7 +197,7 @@ $sLocal_Media_Path=Join-Path -Path $Local_Media_Storage -ChildPath (Split-Path -
     
     if(!$bVerified)
     {
-        log -ServerLocation $sServerDirectory -Err ("The installation failed. Revert to Task Queue")
+        Write-Progress ("The installation failed. Revert to Task Queue")
         #Fix folder problem
         Set-ItemProperty -Path HKLM:\SOFTWARE\AspenTech\Setup -Name "ASPENROOT64" -Value ""                    
         Restart-Computer -Force
