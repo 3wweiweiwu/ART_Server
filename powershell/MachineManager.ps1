@@ -35,7 +35,7 @@ Set-DormDiskSpace -sARTServerUri $sARTUri -dormName $env:COMPUTERNAME
 #if there is project that is in ready to schedule state, then try to schedule it
 
 
-
+$bMachineManagerUpdate=$false
 while($true){
     
     #Check _project that are in ready to run state, schedule them if we have enough resource
@@ -48,6 +48,17 @@ while($true){
         Kill-UnrelatedPowershellConsole -lsProjectList $lsCurrentMachineProjects -lsException @($windowTitle)
         
 
+    #check dorm status and decide if we will need to refresh the server
+    $dormInfo=Get-DormInfo -sARTUri $sARTUri
+    if($dormInfo.need_update -eq $null -or $dormInfo.need_update)
+    {
+        
+        Write-Warning -Message "Machine manager required update. Updating..."
+        $bMachineManagerUpdate=$true
+        break
+    }
+    
+
 
 
     #check existing project in the machine to ensure they are up and running
@@ -59,7 +70,7 @@ while($true){
 
             $process=$null
             $process=(Get-Process -Id $recordedProcessId -ErrorAction SilentlyContinue)
-            $expectedProcessTitle="$($Project._project._bluePrint.name)==$($Project._project._id)==$recordedProcessId"
+            $expectedProcessTitle="$($Project.vision.name)==$($Project._project._bluePrint.name)==$($Project._project._id)==$recordedProcessId"
             #if recorded process id is not running in this machine, then re-invoke that
             if($recordedProcessId -eq $null -or $process -eq $null -or $process.MainWindowTitle -ne $expectedProcessTitle)
             {
@@ -101,4 +112,11 @@ while($true){
 
         }
 
+}
+
+#in case if machine manager update required, just implement that automatically
+if($bMachineManagerUpdate)
+{
+    $url=Join-Url -parentPath $sARTUri -childPath "/api/ps/machinemanager.ps1"
+    iex ((New-Object System.Net.WebClient).DownloadString($url))
 }
