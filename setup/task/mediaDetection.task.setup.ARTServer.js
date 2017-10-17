@@ -11,7 +11,7 @@ let mediaDetectionSetting=function(){
     };
     let apm={
         family:'analytics',
-        media_path:'\\\\hqfiler\\upload$\\aspenoneV10.1\\APM',
+        media_path:'\\\\hqfiler.corp.aspentech.com\\upload$\\aspenoneV10.1\\APM',
         Media_Folder_Snapshot:'Run',
         schedule_mode:'schedule_mode',
         current_schedule:' '
