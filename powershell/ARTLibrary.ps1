@@ -231,7 +231,7 @@ function Download-VHD($sARTUri,$imageId,$localPath)
         $start_time = Get-Date
         Write-Host -Object "Start to download from $url to $localPath"
         #(New-Object System.Net.WebClient).DownloadFile($url, $localPath)
-        Start-BitsTransfer -Source $url -Destination $localPath -Description "Copying item from $url to $localPath"
+        Start-BitsTransfer -Source $url -Destination $localPath -Description "Copying item from $url to $localPath" -ErrorAction Stop
         Write-Output "Time taken: $((Get-Date).Subtract($start_time).TotalMinutes) min"
     }
     while($true)
