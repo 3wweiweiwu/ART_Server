@@ -41,7 +41,8 @@ while($true){
     #Check _project that are in ready to run state, schedule them if we have enough resource
     #pull the project every 5 second
     Start-Sleep -Milliseconds ($iTimeout*30)
-    Write-Host -Object "Waiting for task from server"
+    
+    Write-Progress -Activity "Machine Manager" -Status "$((Get-Date).ToString()) Waiting for task from server"
     $lsCurrentMachineProjects=[array](Get-ProjectsInMachine -sARTServerUri $sARTUri)
     
     #go through existing powershell console window, kill unrelated window to avoid double schedule
