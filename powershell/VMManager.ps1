@@ -69,6 +69,7 @@ while($true)
     }
     catch
     {
+        Write-Progress -Activity "VM Manager Starter" -Status "Unable to download script from $machineManagerPath. Wait for server response"
         Start-Sleep -Seconds 1
     }
     
