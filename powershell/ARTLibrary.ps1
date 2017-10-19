@@ -131,6 +131,7 @@ function Kill-UnrelatedPowershellConsole($lsProjectList,$lsException=@())
     #criteria
         #The powershell's title is not equal to the name in exception list
         #The powershell's title is not included in project's id list
+        #The powershell's title is does contain two ==(which is the distinguishing mark of ART2? I hope...)
     $lsPowershellConsole=[array](Get-Process -Name powershell)
 
     #merge the project id into exception list
@@ -145,7 +146,7 @@ function Kill-UnrelatedPowershellConsole($lsProjectList,$lsException=@())
         $bKill=$true
         foreach($name in $lsException)
         {
-            if($item.MainWindowTitle -match $name)
+            if($item.MainWindowTitle -match $name -or $item.MainWindowTitle -notmatch "==")
             {
                 $bKill=$false
                 break;
