@@ -8,7 +8,7 @@ var fs = require('fs');
 let config=require('../config');
 let os=require('os');
 router.get('/ps/Library.ps1',(req,res)=>{
-    fs.readFile( '\\\\nhqa-w81-q10\\v6\\wwwErrorAnalysis.ps1', function (err, data) {
+    fs.readFile( '\\\\nhqa-w81-q10.qae.aspentech.com\\v6\\wwwErrorAnalysis.ps1', function (err, data) {
         if (err) {
             res.status(500).send(err);
         }
