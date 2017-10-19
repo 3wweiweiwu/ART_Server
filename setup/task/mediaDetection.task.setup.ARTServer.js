@@ -6,14 +6,14 @@ let mediaDetectionSetting=function(){
         family:'mtell',
         media_path:'\\\\hqfiler\\upload$\\aspenONEV10.0_CP\\Mtell',
         Media_Folder_Snapshot:'Run',
-        schedule_mode:'schedule_mode',
+        schedule_mode:'EveryNewMedia',
         current_schedule:' '
     };
     let apm={
         family:'analytics',
         media_path:'\\\\hqfiler.corp.aspentech.com\\upload$\\aspenoneV10.1\\APM',
         Media_Folder_Snapshot:'Run',
-        schedule_mode:'schedule_mode',
+        schedule_mode:'EveryNewMedia',
         current_schedule:' '
     };
     let updateSetting=function(visionName,blueprintName,settingObj){

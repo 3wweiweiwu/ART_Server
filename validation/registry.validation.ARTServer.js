@@ -21,5 +21,21 @@ module.exports={
             key:Joi.string().required()
         }
     },
+    isRegistryExpired:{
+        params:{
+            vision:Joi.string().required(),
+            project:Joi.string().required(),
+            task:Joi.string().required(),
+            key:Joi.string().required()
+        }
+    },
+    setRegistryExpired:{
+        params:{
+            vision:Joi.string().required(),
+            project:Joi.string().required(),
+            task:Joi.string().required(),
+            key:Joi.string().required()
+        }
+    },    
 
-}
+};

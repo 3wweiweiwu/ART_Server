@@ -6,6 +6,8 @@ let registrySchema=new Schema({
     project:{type:String},
     task:{type:String},
     key:{type:String},
-    value:{type:String}
+    value:{type:String},
+    timestamp:{type:Date,default:Date.now()},
+    expired:{type:Boolean,default:false}
 });
 module.exports=mongoose.model('Registry',registrySchema);
