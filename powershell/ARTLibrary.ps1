@@ -391,31 +391,67 @@ function Write-Setting($sARTServerUri,$vision="Template",$project="Template",$ta
     Write-Debug -Message "$sARTServerUri,$vision,$project,$task,$key,$value"
 }
 
-function Load-Setting($sARTServerUri,$vision="Template",$project="Template",$task="Template",$key,[switch]$LoadOnce){
+function Load-CompleteSetting($sARTServerUri,$vision="Template",$project="Template",$task="Template",$key,[switch]$LoadOnce)
+{
     #load setting from server
     while($true)
     {
         try{
-            $response=Invoke-RestMethod -Uri "$sARTServerUri/api/registry/vision/$vision/project/$project/task/$task/key/$key" -Method Get -ContentType 'application/json'
+            $url=Join-Url -parentPath $sARTServerUri -childPath "/api/registry/vision/$vision/project/$project/task/$task/key/$key/all"
+            $response=Invoke-RestMethod -Uri $url -Method Get -ContentType 'application/json'
             Start-Sleep -Milliseconds $iTimeout
-            try{
-                $result=$response.result|ConvertFrom-Json
 
-            }
-            catch{
-                $result=$response.result
-            }
-            Write-Debug "value for $key is $result"
-            return $result
+            return $response
         }
         catch{
             Start-Sleep -Seconds 1
-            Write-Warning "unable to load-setting $sARTServerUri | $vision | $project | $task | $key |"
+            Write-Warning "unable to Load-CompleteSetting $sARTServerUri | $vision | $project | $task | $key |"
             if($LoadOnce.IsPresent){
                 break
             }
         }
     }
+}
+function Set-RegistryExpired($sARTServerUri,$vision="Template",$project="Template",$task="Template",$key)
+{
+    while($true)
+    {
+        try
+        {
+            $url=Join-Url -parentPath $sARTServerUri -childPath "/api/registry/vision/$vision/project/$project/task/$task/key/$key/expired"
+            $response=Invoke-RestMethod -Uri $url -Method Put -ContentType 'application/json'
+            break
+            
+        }
+        catch
+        {
+            Start-Sleep -Milliseconds $iTimeout*2
+            Write-Progress -Activity Warning -Status "Warning - Set-RegistryExpired($sARTServerUri,$vision,$project,$task,$key)"
+        }
+    }
+}
+function Load-Setting($sARTServerUri,$vision="Template",$project="Template",$task="Template",$key,[switch]$LoadOnce){
+    #load setting from server
+    if($LoadOnce.IsPresent)
+    {
+        $response=Load-CompleteSetting -sARTServerUri $sARTServerUri -vision $vision -project $project -task $task -key $key -LoadOnce
+    }
+    else
+    {
+        $response=Load-CompleteSetting -sARTServerUri $sARTServerUri -vision $vision -project $project -task $task -key $key
+    }
+
+    #convert value to json
+    try{
+        $result=$response.value|ConvertFrom-Json
+
+    }
+    catch{
+        $result=$response.value
+    }
+    Write-Debug "value for $key is $result"
+    return $result
+    
 
     
 }
@@ -579,7 +615,23 @@ function Write-SettingForProcess($sARTUri,$key,$value,$processId,$dorm){
 }
 
 function Get-SettingForProcess($sARTUri,$key,$processId,$dorm){
-    return Load-Setting -sARTServerUri $sARTUri -project "Dorm_$dorm" -task $processId -key $key
+    #in the debug mode, do not check expiration
+    while($DebugPreference -eq "Continue")
+    {
+        
+        $expireStatus=Load-CompleteSetting -sARTServerUri $sARTUri -project "Dorm_$dorm" -task $processId -key $key
+        if($expireStatus.expired -eq $false)
+        {
+            break
+        }
+        Write-Progress -Activity "Get-SettingForProcess" -Status "Project feed is expired, waiting..."
+        Start-Sleep -Milliseconds $iTimeout
+    }
+    
+    
+    $result=Load-Setting -sARTServerUri $sARTUri -project "Dorm_$dorm" -task $processId -key $key
+    $expired=Set-RegistryExpired -sARTServerUri $sARTUri -project "Dorm_$dorm" -task $processId -key $key
+    return $result
 }
 
 function Get-CurrentProcessSetting($sARTUri,$key){

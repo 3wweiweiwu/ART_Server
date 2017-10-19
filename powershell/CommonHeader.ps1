@@ -6,7 +6,7 @@ $vision=$projectFeed.vision
 $blueprint=$projectFeed.blueprint
 $projectId=$projectFeed.projectId
 $sVMClientId=$projectFeed.vmId
-$Host.UI.RawUI.WindowTitle ="$vision==$blueprint==$projectId==$debugPID"
+$Host.UI.RawUI.WindowTitle =[string]("$vision==$blueprint==$projectId==$debugPID")
 
 Write-Host -Object "Common Header Loaded!" -ForegroundColor DarkMagenta
 Write-Debug -Message $debugPID
