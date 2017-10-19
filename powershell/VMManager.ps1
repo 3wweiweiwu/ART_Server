@@ -55,6 +55,24 @@ if ($sVMname -ne $null -and $env:COMPUTERNAME -ne $sVMname)
     Stop-Computer -Force
     Start-Sleep -Seconds 3600
 }
-Start-Process -FilePath powershell.exe -ArgumentList "-NoProfile -ExecutionPolicy Bypass -Command `"iex ((New-Object System.Net.WebClient).DownloadString('$machineManagerPath'))`"" -PassThru
+#Start-Process -FilePath powershell.exe -ArgumentList "-NoProfile -ExecutionPolicy Bypass -Command `"iex ((New-Object System.Net.WebClient).DownloadString('$machineManagerPath'))`"" -PassThru
 Start-Process -FilePath powershell.exe -ArgumentList "-NoProfile -ExecutionPolicy Bypass -Command `"iex ((New-Object System.Net.WebClient).DownloadString('$installBatchPath'))`"" -PassThru
 
+#download machine manager script
+
+while($true)
+{
+    try
+    {
+        $machineManagerScript=(New-Object System.Net.WebClient).DownloadString($machineManagerPath)
+        break
+    }
+    catch
+    {
+        Start-Sleep -Seconds 1
+    }
+    
+}
+
+
+iex $machineManagerScript
