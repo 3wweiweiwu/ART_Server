@@ -78,7 +78,8 @@ foreach($item in $lsUpdates)
         Write-Host -Object "Executing $executableName"
         Start-Sleep -Seconds 5
         Get-Process|where{$_.Name -match "aspen" -or $_.Name -match "IP21" -or $_.Name -match "Python" -or $_.Description -match "Aspen" -or $_.Company -match "aspen"}|Stop-Process -Force
-        $process=Start-Process -FilePath $executableName  -WorkingDirectory $updaterPath -Wait
+        $workingDirectory=Split-Path -Path $executableName -Parent
+        $process=Start-Process -FilePath $executableName  -WorkingDirectory $workingDirectory -Wait
         
         
     }    
