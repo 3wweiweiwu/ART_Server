@@ -75,7 +75,8 @@ foreach($item in $lsUpdates)
     if(Test-Path -Path $executableName)
     {
         Write-Host -Object "Executing $executableName"
-        $process=Start-Process -FilePath $executableName  -WorkingDirectory $updaterPath -Wait
+        $workingDirectory=Split-Path -Path $executableName -Parent
+        $process=Start-Process -FilePath $executableName  -WorkingDirectory $workingDirectory -Wait
 
     }    
     
