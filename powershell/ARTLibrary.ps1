@@ -16,6 +16,7 @@ $Task=@{
     taskVHDDetection='VHD Detection'
     taskPlanGeneration="Plan_Generation"
     taskResume="Resume"
+    taskInstallPatch="Install_Patch"
 }
 function Send-ARTMail($sARTUri,$From,$To,$Subject,$Body,$filePath)
 {

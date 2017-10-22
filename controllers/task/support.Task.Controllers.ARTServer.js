@@ -123,7 +123,12 @@ exports.sampleResume={
     task_script_path:'/api/ps/MVT@ExecutionControl.ps1',
     setting_type:'NULL'    
 };
-
+exports.sampleInstallPatch={
+    name:'Install_Patch',
+    note:'Install Update for CP',
+    task_script_path:'/api/ps/MediaInstallation@PatchInstaller.ps1',
+    setting_type:'NULL'    
+};
 exports.PostTaskWithCheck=function(taskObj){
     let taskName=taskObj.name;
     return new Promise((resolve,reject)=>{
