@@ -41,6 +41,9 @@ let prestaging=function(){
                     return taskSupport.PostTaskWithCheck(taskSupport.sampleShutdown);
                 })
                 .then(()=>{
+                    return taskSupport.PostTaskWithCheck(taskSupport.sampleInstallPatch);
+                })
+                .then(()=>{
                     return installMedia.updateSetting(mediaPrestagingBlueprint.name,mediaInstallSetting);
                 })
                 .then(()=>{

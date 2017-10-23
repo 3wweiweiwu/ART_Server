@@ -26,8 +26,10 @@ if((Test-Path -Path $Local_Media_Storage) -eq $false)
 {
     md $Local_Media_Storage
 }
-#Copy-Item -Path $Installation_File -Destination $Local_Media_Storage -Force|Out-Host
 $sLocal_Media_Path=Join-Path -Path $Local_Media_Storage -ChildPath (Split-Path -Path $Installation_File -Leaf)
+
+#Copy-Item -Path $Installation_File -Destination $Local_Media_Storage -Force|Out-Host
+
 
 #download installation script form p4
     $sInstallerPath="//depot/qe/dev/AUTOMATION/BAF/Shared Features/aspenOneInstaller/AspenOneInstaller/"
@@ -79,9 +81,13 @@ $sLocal_Media_Path=Join-Path -Path $Local_Media_Storage -ChildPath (Split-Path -
     }
 
 #Invoke Silk to Install Media
+    
+    
     $Silk_Installer_Project_File=Join-Path -Path $sSilkInstallerFolder -ChildPath AspenOneInstaller.vtp
     $Silk_Installer_Plan_File=Join-Path -Path $sSilkInstallerFolder -ChildPath "\Plan\main.pln"
     $sMediaInstallerPath=(Join-Path -Path $imageDriveName -ChildPath setup.exe)
+    
+    
     $sUpdateAgentPath=(Join-Path -Path $imageDriveName -ChildPath "aspenONE Update Agent.exe")
     if(Test-Path -Path $sMediaInstallerPath)
     {
