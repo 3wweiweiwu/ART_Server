@@ -190,7 +190,7 @@ exports.sampleAPMPrestaging={
     note:'Install APM media whenever it is posted',
     memory_usage_mb:6*1024,
     disk_usage_mb:10*1024,
-    tasks:[taskSupport.sampleDeployStandardVHDImage.name,taskSupport.sampleUninstallProduct.name,taskSupport.sampleRestart.name,taskSupport.sampleWait.name,taskSupport.sampleInstallMedia.name,taskSupport.sampleRestart.name,taskSupport.sampleWait.name,taskSupport.sampleVHDCheckin.name],
+    tasks:[taskSupport.sampleDeployStandardVHDImage.name,taskSupport.sampleUninstallProduct.name,taskSupport.sampleRestart.name,taskSupport.sampleWait.name,taskSupport.sampleInstallMedia.name,taskSupport.sampleRestart.name,taskSupport.sampleWait.name,taskSupport.sampleInstallPatch.name,taskSupport.sampleRestart.name,taskSupport.sampleWait.name,taskSupport.sampleVHDCheckin.name],
     next:[]       
 };
 exports.sampleAPMVHDDeployment={
