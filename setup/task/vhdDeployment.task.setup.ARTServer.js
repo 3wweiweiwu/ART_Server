@@ -42,7 +42,7 @@ let resumeSetting=function(){
             cpu_cores:4,
             VM_Username:'administrator',
             VM_Pass:'Aspen100',
-            Email_List:['weiwei.wu@aspentech.com','Samantha.Immele@aspentech.com','Phillip.Carpenter@aspentech.com','Yucheng.Lai@aspentech.com','Sunil.Pillai@aspentech.com']
+            Email_List:['weiwei.wu@aspentech.com','Samantha.Immele@aspentech.com','Phillip.Carpenter@aspentech.com','Yucheng.Lai@aspentech.com','Sunil.Pillai@aspentech.com','Arun.Bhatia@aspentech.com','Dicson.Leung@aspentech.com','Advait.Tendulkar@aspentech.com']
         }
     };
     
