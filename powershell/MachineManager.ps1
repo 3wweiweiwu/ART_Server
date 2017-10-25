@@ -21,7 +21,8 @@ if($DebugPreference -eq "Continue")
 
 }
 
-#kill all powershell script other than machine manager
+#enable ps-remoting for debug purpose
+Enable-PSRemoting -Force
 
 
 
