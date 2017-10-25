@@ -25,6 +25,9 @@ let deployment=function(){
                     return visionSupport.postNewVision(visionObj);
                 })
                 .then(()=>{
+                    return dormSupport.PostDorm(dormObj);
+                })                  
+                .then(()=>{
                     return visionSupport.putBlueprintMachineInstance(visionObj.name, blueprintVHDDetection.name, dormObj.name, 1);                
                 })            
                 .then(()=>{
@@ -44,10 +47,7 @@ let deployment=function(){
                 .then(()=>{
                     //update the project sequence execute deployment after media deployment is ready
                     return visionSupport.putNextBlueprint(visionObj.name,blueprintVHDDetection.name,blueprintVHDDeployment.name);                    
-                })
-                .then(()=>{
-                    return dormSupport.PostDorm(dormObj);
-                })                
+                })              
                 .then(()=>{                
                     //initialize media detection project
                     return scheduleSupport.postScheduleFromBlueprint(visionObj.name,blueprintVHDDetection.name);
