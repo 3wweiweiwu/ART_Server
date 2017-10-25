@@ -151,6 +151,21 @@ exports.HQDEVBLADE28={
         ]
     }    
 };
+exports.HOUQAEBLADE12={
+    name:'HOUQAEBLADE12',
+    system_resource:{
+        CPU:38,
+        total_memory_mb:131037.26953125,
+        free_memory_mb:100197.453125,
+        disk_total:[
+            {
+                drive_letter:'E',
+                total_disk_space_mb:2097148.99609375,
+                free_disk_space_mb:1390084.421875
+            }
+        ]
+    }    
+};
 exports.MVF2={
     name:'MVF2',
     system_resource:{

@@ -441,3 +441,15 @@ exports.sampleAPMDeployment={
     note:'Deploy APM media whenever it is posted',
     status:'online'    
 };
+
+exports.sampleMSCPrestaging={
+    name:'MSC Prestaging',
+    note:'setup basic image for MSC',
+    status:'online'    
+};
+
+exports.sample_MSC_Deployment={
+    name:'MSC Suite VHD Deployment',
+    note:'deploy prepared VHD for MSC',
+    status:'online'    
+};

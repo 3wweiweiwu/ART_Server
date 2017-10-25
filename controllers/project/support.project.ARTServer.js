@@ -177,6 +177,7 @@ exports.sampleMtellMVT={
     next:[]           
 };
 //////start of apm
+//#region apm
 exports.sample_APMMediaDetection={
     name:'APM media detection',
     note:'detect apm media',
@@ -210,6 +211,53 @@ exports.sampleAPMVHDDetection={
     next:[]       
 };
 //end of apm section
+//#endregion
+
+
+//#region msc
+exports.sample_MSC_MediaDetection={
+    name:'MSC media detection',
+    note:'detect msc media',
+    memory_usage_mb:1024,
+    disk_usage_mb:1024,
+    tasks:[taskSupport.taskMediaDetection.name],
+    next:[]    
+};
+exports.sample_MSC_Prestaging={
+    name:'MSC Prestaing',
+    note:'Install MSC media whenever it is posted',
+    memory_usage_mb:6*1024,
+    disk_usage_mb:10*1024,
+    tasks:[taskSupport.sampleDeployStandardVHDImage.name,taskSupport.sampleUninstallProduct.name,taskSupport.sampleRestart.name,taskSupport.sampleWait.name,taskSupport.sampleInstallMedia.name,taskSupport.sampleRestart.name,taskSupport.sampleWait.name,taskSupport.sampleInstallPatch.name,taskSupport.sampleRestart.name,taskSupport.sampleWait.name,taskSupport.sampleVHDCheckin.name],
+    next:[]       
+};
+exports.sample_MSC_SCM_MVT={
+    name:'SCM MVT',
+    note:'Validate SCM MVT whenever it is posted',
+    memory_usage_mb:4*1024,
+    disk_usage_mb:10*1024,
+    tasks:[taskSupport.sampleDeployStandardVHDImage.name,taskSupport.samplePlanGeneration.name,taskSupport.sampleResume.name],
+    next:[]           
+};
+exports.sample_MSC_Deployment={
+    name:'MSC Standard Media VHD Image Deployment',
+    note:'Deploy MSC Standard Media whenever it is posted',
+    memory_usage_mb:2*1024,
+    disk_usage_mb:10*1024,
+    tasks:[taskSupport.sampleDeployStandardVHDImage.name],
+    next:[]       
+};
+
+exports.sample_MSC_VHDDetection={
+    name:'MSC VHD Detection',
+    note:'Detect MSC VHD whenever it is posted',
+    memory_usage_mb:1,
+    disk_usage_mb:1,
+    tasks:[taskSupport.sampleVHDDetection.name],
+    next:[]       
+};
+//#endregion
+
 exports.sampleAPMMVT={
     name:'APM MVT',
     note:'Validate APM MVT whenever it is posted',

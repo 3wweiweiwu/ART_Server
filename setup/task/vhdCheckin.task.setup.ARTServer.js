@@ -8,9 +8,13 @@ let resumeSetting=function(){
     let apmv101={
         vhd_serie:'2016 APM V10.1 VHD'
     };
+    let msc_v11={
+        vhd_serie:'2016 MSC V11 VHD'
+    }
     let ConstantValue={
         mtell:mtell,
-        apmv101:apmv101
+        apmv101:apmv101,
+        msc_v11:msc_v11
     };
     let updateSetting=function(blueprintName,settingObj){
 

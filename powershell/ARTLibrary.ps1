@@ -337,6 +337,17 @@ function Upload-FileToServer($sARTUri,$fieldName,$filePath,$otherFieldInfo)
 function Add-NewServerToArt($sARTServerUri=$sARTUri){
     
     $CPU=(Get-WmiObject Win32_Processor).NumberOfCores
+    #if CPU come back to be array
+    if($CPU.GetType().ToString().contains("["))
+    {
+        $iCPUCount=0
+        foreach($count in $CPU)
+        {
+            $iCPUCount+=$count
+        }
+        $CPU=$iCPUCount    
+    }
+    
     $totalMemory=(gwmi Win32_ComputerSystem  ).TotalPhysicalMemory/1024/1024
     $freeMemory=(gwmi Win32_OperatingSystem).FreePhysicalMemory/1024
     $dormStatus=@{
