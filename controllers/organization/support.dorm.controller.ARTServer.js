@@ -151,6 +151,21 @@ exports.HQDEVBLADE28={
         ]
     }    
 };
+exports.JAYAPRAA1={
+    name:'JAYAPRAA1',
+    system_resource:{
+        CPU:4,
+        total_memory_mb:16257.94921875,
+        free_memory_mb:6205.3046875,
+        disk_total:[
+            {
+                drive_letter:'D',
+                total_disk_space_mb:476937.99609375,
+                free_disk_space_mb:322590.8203125
+            }
+        ]
+    }    
+};
 exports.HOUQAEBLADE12={
     name:'HOUQAEBLADE12',
     system_resource:{
