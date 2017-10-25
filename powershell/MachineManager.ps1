@@ -1,4 +1,4 @@
-﻿
+﻿cls
 #this script is adaptor we used to run/kill process in the machine
 $sARTUri='http://mvf1:3000'
 $sARTServerUri=$sARTUri
@@ -21,6 +21,7 @@ if($DebugPreference -eq "Continue")
 
 }
 
+#kill all powershell script other than machine manager
 
 
 
@@ -118,6 +119,9 @@ while($true){
 #in case if machine manager update required, just implement that automatically
 if($bMachineManagerUpdate)
 {
+    #kill the running process
+    Get-Process -Name powershell|where{$_.MainWindowTitle -ne $windowTitle -and $_.MainWindowTitle.Contains("==")}|Stop-Process
     $url=Join-Url -parentPath $sARTUri -childPath "/api/ps/machinemanager.ps1"
     iex ((New-Object System.Net.WebClient).DownloadString($url))
+    
 }
