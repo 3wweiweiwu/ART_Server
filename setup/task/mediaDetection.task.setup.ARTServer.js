@@ -16,6 +16,13 @@ let mediaDetectionSetting=function(){
         schedule_mode:'EveryNewMedia',
         current_schedule:' '
     };
+    let msc={
+        family:'msc',
+        media_path:'\\\\hqfiler\\upload$\\aspenONEV11.0\\MSC',
+        Media_Folder_Snapshot:'Run',
+        schedule_mode:'EveryNewMedia',
+        current_schedule:' '
+    };
     let updateSetting=function(visionName,blueprintName,settingObj){
         return new Promise(resolve=>{
             let taskObj=taskSupport.taskMediaDetection;
@@ -45,7 +52,8 @@ let mediaDetectionSetting=function(){
     };
     let constant={
         mtellMediaDetection:mtellMediaDetection,
-        apm:apm
+        apm:apm,
+        msc:msc
     };
     return {
         constant:constant,

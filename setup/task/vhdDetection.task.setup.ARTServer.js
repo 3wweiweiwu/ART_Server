@@ -9,10 +9,15 @@ let vhdDetection=function(){
     let apmDetection={
         series:'2016 APM V10.1 VHD',
     };
+
+    let mscDetection={
+        series:'2016 MSC V11 VHD'
+    };
     
     let ConstantValue={
         mtellDetection:_mtellDetection,
-        apm:apmDetection
+        apm:apmDetection,
+        msc:mscDetection
     };
     let updateSetting=function(blueprintName,settingObj){
 

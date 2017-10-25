@@ -13,11 +13,11 @@ let resumeSetting=function(){
     };
     let _mtellVHDDeployment={
         base_vhd_path:'599c85c9a758ba2afcc18df9',
-        memory_size:2*1024*1024*1024,
+        memory_size:4*1024*1024*1024,
         cpu_cores:4,
         VM_Username:'administrator',
         VM_Pass:'Aspen100',
-        Email_List:['weiwei.wu@aspentech.com','weiwei.wu@aspentech.com','David.Bechara@aspentech.com','Manasi.Tilwalli@aspentech.com','Sunil.Pillai@aspentech.com','Yucheng.Lai@aspentech.com']
+        Email_List:['weiwei.wu@aspentech.com','weiwei.wu@aspentech.com','David.Bechara@aspentech.com','Manasi.Tilwalli@aspentech.com','Sunil.Pillai@aspentech.com','Yucheng.Lai@aspentech.com','Arun.Bhatia@aspentech.com']
     };
     let _mtellMVTDeployment={
         base_vhd_path:'599c85c9a758ba2afcc18df9',
@@ -45,12 +45,39 @@ let resumeSetting=function(){
             Email_List:['weiwei.wu@aspentech.com','Samantha.Immele@aspentech.com','Phillip.Carpenter@aspentech.com','Yucheng.Lai@aspentech.com','Sunil.Pillai@aspentech.com','Arun.Bhatia@aspentech.com','Dicson.Leung@aspentech.com','Advait.Tendulkar@aspentech.com']
         }
     };
+    let msc={
+        prestaging:{
+            base_vhd_path:'599c7e4ba758ba2afcc18dd7',
+            memory_size:6*1024*1024*1024,
+            cpu_cores:4,
+            VM_Username:'administrator',
+            VM_Pass:'Aspen100',
+            Email_List:['weiwei.wu@aspentech.com']
+        },
+        deployment:{
+            base_vhd_path:'599c85c9a758ba2afcc18df9',
+            memory_size:2*1024*1024*1024,
+            cpu_cores:4,
+            VM_Username:'administrator',
+            VM_Pass:'Aspen100',
+            Email_List:['weiwei.wu@aspentech.com']
+        },
+        mvt:{
+            base_vhd_path:'599c85c9a758ba2afcc18df9',
+            memory_size:4*1024*1024*1024,
+            cpu_cores:4,
+            VM_Username:'administrator',
+            VM_Pass:'Aspen100',
+            Email_List:['weiwei.wu@aspentech.com']
+        }        
+    };
     
     let ConstantValue={        
         mtellVHDDeployment:_mtellVHDDeployment,
         mtellMVTDeployment:_mtellMVTDeployment,
         mtellPrestagingDeployment:_mtellPrestagingDeployment,
-        apm:apm
+        apm:apm,
+        msc:msc
     };
     let updateSetting=function(visionName,blueprintName,settingObj){
 

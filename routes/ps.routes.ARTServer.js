@@ -44,11 +44,16 @@ router.get('/ps/:psname',(req,res)=>{
 
 
 });
-router.get('/iso/a.iso',(req,res)=>{
-    
-    let dest='e:\\VHD\\mvt-1.vhd';
-    res.download(dest);
-
-
+router.get('/ps/tunnel/:path',(req,res)=>{
+    let path=req.params.path.replace(/@/g,'\\');
+    fs.access(path,fs.constants.R_OK,err=>{
+        if(err)
+        {
+            res.status(400).send(err);
+        }
+        else{
+            res.download(path);
+        }
+    });
 });
 module.exports = router;

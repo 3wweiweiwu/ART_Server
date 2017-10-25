@@ -93,7 +93,37 @@
                 "${workspaceRoot}\\**\\APMPrestaging.js"
             ],
             "internalConsoleOptions": "openOnSessionStart"
-        },         
+        },      
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "MSC Prestaging",
+            "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
+            "args": [
+                "-u",
+                "tdd",
+                "--timeout",
+                "999999999",
+                "--colors",
+                "${workspaceRoot}\\**\\MSC_Prestaging.js"
+            ],
+            "internalConsoleOptions": "openOnSessionStart"
+        },     
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "MSC VHD Deployment",
+            "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
+            "args": [
+                "-u",
+                "tdd",
+                "--timeout",
+                "999999999",
+                "--colors",
+                "${workspaceRoot}\\**\\MSC_Deployment.js"
+            ],
+            "internalConsoleOptions": "openOnSessionStart"
+        },                   
         {
             "type": "node",
             "request": "launch",
