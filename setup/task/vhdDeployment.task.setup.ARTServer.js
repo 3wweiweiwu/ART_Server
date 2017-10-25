@@ -11,6 +11,16 @@ let resumeSetting=function(){
         VM_Pass:'Aspen100',
         Email_List:['weiwei.wu@aspentech.com','weiwei.wu@aspentech.com']
     };
+    let mtellCustomized={
+        Anand:{
+            base_vhd_path:'599c85c9a758ba2afcc18df9',
+            memory_size:4*1024*1024*1024,
+            cpu_cores:4,
+            VM_Username:'administrator',
+            VM_Pass:'Aspen100',
+            Email_List:['weiwei.wu@aspentech.com','Anand.Jayaprakash@aspentech.com','Yucheng.Lai@aspentech.com']
+        }
+    };
     let _mtellVHDDeployment={
         base_vhd_path:'599c85c9a758ba2afcc18df9',
         memory_size:4*1024*1024*1024,
@@ -77,7 +87,8 @@ let resumeSetting=function(){
         mtellMVTDeployment:_mtellMVTDeployment,
         mtellPrestagingDeployment:_mtellPrestagingDeployment,
         apm:apm,
-        msc:msc
+        msc:msc,
+        mtell:mtellCustomized
     };
     let updateSetting=function(visionName,blueprintName,settingObj){
 

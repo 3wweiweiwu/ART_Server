@@ -453,3 +453,9 @@ exports.sample_MSC_Deployment={
     note:'deploy prepared VHD for MSC',
     status:'online'    
 };
+
+exports.sample_MTELL_Deployment_anand={
+    name:'MTELL Suite VHD Deployment for Anand',
+    note:'deploy prepared VHD for MSC',
+    status:'online'    
+};
