@@ -82,6 +82,26 @@ exports.PutDiskInitializationSignal=function(dormName,diskObj,cb=()=>{}){
 
 };
 
+exports.RefreshDorm=function(dormName,cb=()=>{}){
+    return new Promise((resolve,reject)=>{
+        chai.request(app)
+            .put(`/api/dorm/refresh/${dormName}`)
+            .end((err,res)=>{
+                if(err){
+                    reject(err);
+                    return cb(err,null);
+                }
+                
+                else{
+                    resolve(res);
+                    cb(null,res);
+                }
+                
+            });
+    });
+
+};
+
 exports.Disk1={
     diskProfile:[
         {

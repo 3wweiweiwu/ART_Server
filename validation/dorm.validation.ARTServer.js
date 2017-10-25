@@ -19,5 +19,10 @@ module.exports={
             size_mb:Joi.number().required(),
             driveLetter:Joi.required()
         }
+    },
+    RefreshDorm:{
+        params:{
+            dormName:Joi.string().required()
+        }
     }
 }

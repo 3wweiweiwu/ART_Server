@@ -10,7 +10,7 @@ let deployment=function(){
         //vhdDeploymentSetting=vhdDeployment.Constant.apm.prestaging;
         //vhdDetectionSetting=vhdDetection.Constant.apm;
         //vidList=[{vid:'mvt2-apm-d1'},{vid:'mvt2-apm-d2'}];
-        return new Promise((resolve,reject)=>{
+        return new Promise((resolve,reject)=>{            
             vhdDeployment.updateSetting(visionObj.name,blueprintVHDDeployment.name,vhdDeploymentSetting)
                 .then(()=>{
                     return vhdDetection.updateSetting(blueprintVHDDetection.name,vhdDetectionSetting);
@@ -27,6 +27,9 @@ let deployment=function(){
                 .then(()=>{
                     return dormSupport.PostDorm(dormObj);
                 })                  
+                .then(()=>{
+                    return dormSupport.RefreshDorm(dormObj.name);
+                })
                 .then(()=>{
                     return visionSupport.putBlueprintMachineInstance(visionObj.name, blueprintVHDDetection.name, dormObj.name, 1);                
                 })            

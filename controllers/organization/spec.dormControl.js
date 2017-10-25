@@ -17,6 +17,70 @@ const myEmitter=new dormControlEmitter();
 
 const PostDorm=dormSupport.PostDorm
 
+describe('put /dorm/refresh/:dormName',()=>{
+    beforeEach((done)=>{
+        dormModel.remove({},(err)=>{done()});
+    });
+    let dorm1={
+        name:"test_dorm1",
+        system_resource:{
+            CPU:38,
+            total_memory_mb:4096,
+            free_memory_mb:3081,
+            disk_total:[
+                {
+                    drive_letter:"c",
+                    total_disk_space_mb:9096,
+                    free_disk_space_mb:3084
+                },
+                {
+                    drive_letter:"d",
+                    total_disk_space_mb:19096,
+                    free_disk_space_mb:33084
+                }
+            ]
+        }
+    };    
+    it('shall not return error when dorm name is invlaid',done=>{
+        dormSupport.RefreshDorm('name')
+            .then(()=>{
+                assert(false,'it shall return 400 error');
+                done();
+            })
+            .catch(res=>{
+                assert.equal(res.status,400);
+                
+                done();
+            });
+    });    
+    it('shall change the dorms need_update property to true',done=>{
+        dormSupport.PostDorm(dorm1)
+            .then(()=>{
+                return dormModel.findOneAndUpdate({name:dorm1.name},{$set:{need_update:false}});
+            })
+            .then(()=>{
+                return dormModel.find({name:dorm1.name});
+            })            
+            .then((dormDoc)=>{
+                assert.equal(dormDoc[0].need_update,false);                                
+                return dormSupport.RefreshDorm(dorm1.name);
+            })
+            .then(()=>{
+                return dormSupport.RefreshDorm(dorm1.name)
+            })
+            .then(()=>{
+                return dormModel.find({name:dorm1.name});
+            })
+            .then((dormDoc)=>{
+                assert.equal(dormDoc[0].need_update,true);
+                done();
+            })
+            .catch(err=>{
+                assert(false,err);
+                done();
+            });
+    });
+});
 
 describe('dorm',()=>{
     let dorm1={

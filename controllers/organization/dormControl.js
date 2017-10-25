@@ -70,6 +70,29 @@ exports.create=function(req,res,next){
     
 
 }
+
+exports.RefreshDorm=function(name){
+    return new Promise((resolve,reject)=>{
+        dormModel.update({name:name},{$set:{need_update:true}},{upsert:false},((err,raw)=>{
+            if(err)
+            {
+                reject(CreateStandardError(err,500));
+            }
+            else{
+                //if there is 1 item change, then it is good,otherwise, there must be something wrong with dorm  name
+                if(raw.n==1){
+                    resolve(raw);
+                }
+                else{
+                    reject(CreateStandardError('invalid dorm name',400));
+                }
+                
+            }
+        }));
+        
+    });
+}
+
 exports.GetDorm=function(name)
 {
     return new Promise((resolve,reject)=>{

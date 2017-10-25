@@ -40,5 +40,15 @@ router.delete('/dorm/:dormName',validate(dormValidation.DeleteDorm),function(req
             res.status(err.status).json(err);
         })
 
+});
+
+router.put('/dorm/refresh/:dormName',validate(dormValidation.RefreshDorm),function(req,res,next){
+    dormControl.RefreshDorm(req.params.dormName)
+        .then(raw=>{
+            res.json(raw);
+        })
+        .catch(err=>{
+            res.status(err.status).json(err);
+        });
 })
 module.exports = router;
