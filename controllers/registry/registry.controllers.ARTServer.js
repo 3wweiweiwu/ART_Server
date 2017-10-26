@@ -43,6 +43,7 @@ let registry=function(){
 
     const updateRegistry=function(vision,project,task,key,value){
         return new Promise((resolve,reject)=>{
+            
             registryModel.update({vision:vision,project:project,task:task,key:key},{$set:{value:value,expired:false,timestamp:Date.now()}},{upsert:true},(err,raw)=>{
                 if(err){
                     reject(CreateStandardError(err,500));
@@ -62,7 +63,7 @@ let registry=function(){
                 res.status(200).json(raw);
             })
             .catch(err=>{
-                res.status(err.err.status).json(err);
+                res.status(err.status).json(err);
             });
     };
     const setRegistryExpired=function(vision,project,task,key){
