@@ -70,7 +70,7 @@ let resumeSetting=function(){
             cpu_cores:4,
             VM_Username:'administrator',
             VM_Pass:'Aspen100',
-            Email_List:['weiwei.wu@aspentech.com']
+            Email_List:['weiwei.wu@aspentech.com','randy.burch@aspentech.com','Yucheng.Lai@aspentech.com','Sunil.Pillai@aspentech.com','Robert.Russell@aspentech.com']
         },
         mvt:{
             base_vhd_path:'599c85c9a758ba2afcc18df9',

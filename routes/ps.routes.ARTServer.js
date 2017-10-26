@@ -33,7 +33,7 @@ router.get('/ps/:psname',(req,res)=>{
             let text=data;
             config.powershell.development_list.forEach(item=>{
                 //text=text.toString().replace(item,`${os.hostname()}.qae.aspentech.com:${config.express.port}`);
-                text=text.toString().replace(item,`${os.hostname()}:${config.express.port}`);
+                text=text.toString().replace(item,`${os.hostname()}.qae.aspentech.com:${config.express.port}`);
             });
             res.status(200).send(text);
             return;
