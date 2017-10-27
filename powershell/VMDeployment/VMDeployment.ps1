@@ -208,6 +208,7 @@ $productTable=$vhdInfo.content.installed_products|where{$_.Name -match "aspen"}|
 
 $mediaInfo=$vhdInfo.content.installed_media.name
 
+$IPAddress=[string]($VM.NetworkAdapters[0].IPAddresses)
 
 $content="
 Hello All,<br>
@@ -216,7 +217,7 @@ Hello All,<br>
     <br>
     Installed Media: $mediaInfo <br>
     <br>
-    Machine name: $sVMClientId <br>
+    Machine name: $sVMClientId ($IPAddress) <br>
     <br>
     Username: $sVMClientId\administrator <br>
     <br>
