@@ -202,6 +202,58 @@ exports.sampleAPMVHDDeployment={
     tasks:[taskSupport.sampleDeployStandardVHDImage.name],
     next:[]       
 };
+exports.sample_APM_Deployment={
+    AFR_QE_HQDEVBLADE28:{
+        name:'APM VHD Deployment',
+        note:'Deploy APM VHD whenever it is posted',
+        memory_usage_mb:2*1024,
+        disk_usage_mb:10*1024,
+        tasks:[taskSupport.sampleDeployStandardVHDImage.name],
+        next:[] 
+    },
+    Analytics_QE_HOUQAEBLADE114:{
+        name:'APM VHD Deployment for Analytics QE team in blade HOUQAEBLADE114',
+        note:'Deploy APM VHD whenever it is posted',
+        memory_usage_mb:2*1024,
+        disk_usage_mb:10*1024,
+        tasks:[taskSupport.sampleDeployStandardVHDImage.name],
+        next:[]  
+    },
+    Analytics_RD_HOUQAEBLADE114:{
+        name:'APM VHD Deployment for Analytics R&D Team in blade HOUQAEBLADE114',
+        note:'Deploy APM VHD whenever it is posted',
+        memory_usage_mb:2*1024,
+        disk_usage_mb:10*1024,
+        tasks:[taskSupport.sampleDeployStandardVHDImage.name],
+        next:[]  
+    },
+    Analytics_QE_HQDEVRACK2:{
+        name:'APM VHD Deployment for Analytics QE team in blade HQDEVRACK2',
+        note:'Deploy APM VHD whenever it is posted',
+        memory_usage_mb:2*1024,
+        disk_usage_mb:10*1024,
+        tasks:[taskSupport.sampleDeployStandardVHDImage.name],
+        next:[]  
+    },
+    Analytics_QE_SHQEANALYTICS3:{
+        name:'APM VHD Deployment for Analytics QE team in blade SHQEANALYTICS3',
+        note:'Deploy APM VHD whenever it is posted',
+        memory_usage_mb:2*1024,
+        disk_usage_mb:10*1024,
+        tasks:[taskSupport.sampleDeployStandardVHDImage.name],
+        next:[]  
+    }    
+};
+
+exports.sample_HOUQAEBLADE114_APMVHDDeployment={
+    name:'APM VHD Deployment for blade HOUQAEBLADE114',
+    note:'Deploy APM VHD whenever it is posted',
+    memory_usage_mb:2*1024,
+    disk_usage_mb:10*1024,
+    tasks:[taskSupport.sampleDeployStandardVHDImage.name],
+    next:[]       
+};
+
 exports.sampleAPMVHDDetection={
     name:'APM VHD Detection',
     note:'Detect APM VHD whenever it is posted',

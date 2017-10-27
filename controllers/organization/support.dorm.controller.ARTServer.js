@@ -171,6 +171,51 @@ exports.HQDEVBLADE28={
         ]
     }    
 };
+exports.HOUQAEBLADE114={
+    name:'HOUQAEBLADE114',
+    system_resource:{
+        CPU:38,
+        total_memory_mb:99096,
+        free_memory_mb:90000,
+        disk_total:[
+            {
+                drive_letter:'C',
+                total_disk_space_mb:9096,
+                free_disk_space_mb:3084
+            }
+        ]
+    }    
+};
+exports.HQDEVRACK2={
+    name:'HQDEVRACK2',
+    system_resource:{
+        CPU:38,
+        total_memory_mb:99096,
+        free_memory_mb:90000,
+        disk_total:[
+            {
+                drive_letter:'C',
+                total_disk_space_mb:9096,
+                free_disk_space_mb:3084
+            }
+        ]
+    }    
+};
+exports.WUWEI1={
+    name:'WUWEI1',
+    system_resource:{
+        CPU:38,
+        total_memory_mb:99096,
+        free_memory_mb:90000,
+        disk_total:[
+            {
+                drive_letter:'C',
+                total_disk_space_mb:9096,
+                free_disk_space_mb:3084
+            }
+        ]
+    }    
+};
 exports.JAYAPRAA1={
     name:'JAYAPRAA1',
     system_resource:{

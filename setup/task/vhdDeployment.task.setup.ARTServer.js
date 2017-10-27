@@ -48,11 +48,49 @@ let resumeSetting=function(){
         },
         deployment:{
             base_vhd_path:'599c85c9a758ba2afcc18df9',
-            memory_size:2*1024*1024*1024,
+            memory_size:4*1024*1024*1024,
             cpu_cores:4,
             VM_Username:'administrator',
             VM_Pass:'Aspen100',
-            Email_List:['weiwei.wu@aspentech.com','Samantha.Immele@aspentech.com','Phillip.Carpenter@aspentech.com','Yucheng.Lai@aspentech.com','Sunil.Pillai@aspentech.com','Arun.Bhatia@aspentech.com','Dicson.Leung@aspentech.com','Advait.Tendulkar@aspentech.com']
+            Email_List:['weiwei.wu@aspentech.com','Samantha.Immele@aspentech.com','Phillip.Carpenter@aspentech.com','Yucheng.Lai@aspentech.com','Sunil.Pillai@aspentech.com','Arun.Bhatia@aspentech.com']
+        },
+        wuwei1:{
+            deployment:{
+                base_vhd_path:'599c85c9a758ba2afcc18df9',
+                memory_size:4*1024*1024*1024,
+                cpu_cores:4,
+                VM_Username:'administrator',
+                VM_Pass:'Aspen100',
+                Email_List:['weiwei.wu@aspentech.com']
+            },            
+        },
+        HQDEVRACK2:{
+            deployment:{
+                base_vhd_path:'599c85c9a758ba2afcc18df9',
+                memory_size:6*1024*1024*1024,
+                cpu_cores:4,
+                VM_Username:'administrator',
+                VM_Pass:'Aspen100',
+                Email_List:['weiwei.wu@aspentech.com','Yucheng.Lai@aspentech.com','Sunil.Pillai@aspentech.com','Arun.Bhatia@aspentech.com','Dicson.Leung@aspentech.com','Advait.Tendulkar@aspentech.com','Jian.Ma@aspentech.com']
+            }
+        },
+        houqaeblade114:{
+            Analytics_QE_deployment:{
+                base_vhd_path:'599c85c9a758ba2afcc18df9',
+                memory_size:6*1024*1024*1024,
+                cpu_cores:4,
+                VM_Username:'administrator',
+                VM_Pass:'Aspen100',
+                Email_List:['weiwei.wu@aspentech.com','Yucheng.Lai@aspentech.com','Sunil.Pillai@aspentech.com','Arun.Bhatia@aspentech.com','Dicson.Leung@aspentech.com','Advait.Tendulkar@aspentech.com','Jian.Ma@aspentech.com']
+            },
+            Analytics_RD_deployment:{
+                base_vhd_path:'599c85c9a758ba2afcc18df9',
+                memory_size:6*1024*1024*1024,
+                cpu_cores:4,
+                VM_Username:'administrator',
+                VM_Pass:'Aspen100',
+                Email_List:['weiwei.wu@aspentech.com','Yucheng.Lai@aspentech.com','Sunil.Pillai@aspentech.com','Arun.Bhatia@aspentech.com','Dicson.Leung@aspentech.com','Advait.Tendulkar@aspentech.com','Jian.Ma@aspentech.com','Can.Gao@aspentech.com']
+            }            
         }
     };
     let msc={

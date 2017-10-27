@@ -441,6 +441,48 @@ exports.sampleAPMDeployment={
     note:'Deploy APM media whenever it is posted',
     status:'online'    
 };
+exports.sample_APM_Deployment={
+    AFR_QE_Team_HQDEVBLADE28:{
+        name:'APM Deployment for AFR QE in HQDEVBLADE28',
+        note:'Deploy APM media for AFR QE whenever it is posted',
+        status:'online'         
+    },
+    Analytics_QE_Team_HOUQAEBLADE114:{
+        name:'APM Deployment for Analytics QE in HOUQAEBLADE114',
+        note:'Deploy APM media for Analytics QE whenever it is posted',
+        status:'online'         
+    },
+    Analytics_RD_Team_HOUQAEBLADE114:{
+        name:'APM Deployment for Analytics RD in HOUQAEBLADE114',
+        note:'Deploy APM media for Analytics RD whenever it is posted',
+        status:'online'   
+    },
+    Analytics_QE_Team_HQDEVRACK2:{
+        name:'APM Deployment for QE team in HQDEVRACK2',
+        note:'Deploy APM media for HOUQAEBLADE114 whenever it is posted',
+        status:'online'  
+    },
+    Analytics_QE_Team_SHQEANALYTICS3:{
+        name:'APM Deployment for QE team in SHQEANALYTICS3',
+        note:'Deploy APM media for SHQEANALYTICS3 whenever it is posted',
+        status:'online' 
+    }
+};
+exports.SHQEANALYTICS3={
+    APM:{
+        Deployment:{
+            name:'APM Deployment for SHQEANALYTICS3',
+            note:'Deploy APM media for SHQEANALYTICS3 whenever it is posted',
+            status:'online' 
+        }
+    }
+}
+
+exports.sample_WUWEI1_APMDeployment={
+    name:'APM Deployment for WUWEI1',
+    note:'Deploy APM media for WUWEI1 whenever it is posted',
+    status:'online'    
+};
 
 exports.sampleMSCPrestaging={
     name:'MSC Prestaging',

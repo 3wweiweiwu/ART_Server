@@ -8,10 +8,10 @@ let dormSupport = require('../../controllers/organization/support.dorm.controlle
 //let vhdCheckin=require('../task/vhdCheckin.task.setup.ARTServer');
 let vhdDetection=require('../task/vhdDetection.task.setup.ARTServer');
 let assert=require('assert');
-describe('Add new vision APM Prestaging',()=>{
+describe('Deploy APM VHD',()=>{
 
     it('shall Add APM prestaging into the project',done=>{
-        mediaDeployment.configure(visionSupport.sample_APM_Deployment.AFR_QE_Team_HQDEVBLADE28,projectSupport.sampleAPMVHDDetection,projectSupport.sample_APM_Deployment.AFR_QE_HQDEVBLADE28,deployVHD.Constant.apm.deployment,vhdDetection.Constant.apm,dormSupport.HQDEVBLADE28,[{'vid':'mvt2-apm-d1'}])        
+        mediaDeployment.configure(visionSupport.sample_APM_Deployment.Analytics_QE_Team_HOUQAEBLADE114,projectSupport.sampleAPMVHDDetection,projectSupport.sample_APM_Deployment.Analytics_QE_HQDEVRACK2,deployVHD.Constant.apm.HQDEVRACK2.deployment,vhdDetection.Constant.apm,dormSupport.HQDEVRACK2,[{'vid':'mvt2-apm-d4'}])
             .then(()=>{
                 done();
             })
