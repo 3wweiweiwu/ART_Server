@@ -207,6 +207,7 @@ $vhdInfo=Get-VHDFromServer -sARTUri $sARTUri -vhdID $sRemoteVmPath
 $productTable=$vhdInfo.content.installed_products|where{$_.Name -match "aspen"}|Select-Object name,build|ConvertTo-Html -As Table
 
 $mediaInfo=$vhdInfo.content.installed_media.name
+Start-Sleep -Seconds 180
 
 $IPAddress=[string]($VM.NetworkAdapters[0].IPAddresses)
 
