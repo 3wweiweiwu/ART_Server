@@ -396,6 +396,7 @@ function Write-Setting($sARTServerUri,$vision="Template",$project="Template",$ta
         }
         catch
         {            
+            Write-Warning -Message "Write-Setting($sARTServerUri,$vision,$project,$task,$key,$value)"
             Resolve-RestError
         }
         
