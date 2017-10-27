@@ -22,7 +22,7 @@ if($DebugPreference -eq "Continue")
 }
 
 #enable ps-remoting for debug purpose
-Enable-PSRemoting -Force
+#Enable-PSRemoting -Force
 
 
 
