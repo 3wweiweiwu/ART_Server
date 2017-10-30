@@ -22,6 +22,8 @@ let vhdControl=function(){
             return new Promise((resolve,reject)=>{
                 //get respective series manager to get max inventory
                 let todo=[];
+                
+                series=series.replace(/"/g,''); //get rid of " from powershell
                 todo.push(shelfManagerModel.findOne({series:series}));
                 
                 //push the vhd
