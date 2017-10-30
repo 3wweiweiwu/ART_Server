@@ -10,9 +10,9 @@ iex ((New-Object System.Net.WebClient).DownloadString("$sARTUri/api/ps/CommonHea
 while($true)
 {
     
-    #load series info
-    Write-Progress -Activity "Checking VHD Status $(Get-Date)"
+    #load series info    
     $seriesName=Load-Setting -sARTServerUri $sARTUri -project $blueprint -task $taskName -key series
+    Write-Progress -Activity "Checking VHD Status $(Get-Date) for $seriesName"
 
     #get vhd feed
     $lsVhdFeed=[array](Get-VHDFeedForVision -sARTUri $sARTUri -seriesName $seriesName -visionName $vision)
