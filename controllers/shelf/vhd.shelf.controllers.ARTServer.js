@@ -29,7 +29,10 @@ let vhdControl=function(){
                 //push the vhd
                 todo.push(vhdModel.find({
                     $and:[
-                        {'content.series':series},
+                        {$or:[
+                            {'content.series':series},
+                            {'content.series':`"${series}"`}
+                        ]},
                         {$or:[
                             {'content.is_keeper':false},
                             {'content.is_keeper':null},
