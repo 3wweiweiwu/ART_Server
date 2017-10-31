@@ -18,7 +18,7 @@ describe('Add new vision APM Prestaging.',()=>{
         let blueprintVHDDeployment=projectSupport.sampleMtellVHDDeployment;
         let dormObj=dormSupport.qe_mtell_01;
         //let blueprintMediaPreparationObj=projectSupport.sampleMtellDeployment;        
-        vhdDeployment.updateSetting(blueprintVHDDeployment.name,vhdDeployment.Constant.mtellVHDDeployment)
+        vhdDeployment.updateSetting(visionObj.name,blueprintVHDDeployment.name,vhdDeployment.Constant.mtellVHDDeployment)
             .then(()=>{
                 return vhdDetection.updateSetting(blueprintVHDDetection.name,vhdDetection.Constant.mtellDetection);
             })
