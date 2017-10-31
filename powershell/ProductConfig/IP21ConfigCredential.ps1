@@ -33,6 +33,7 @@ $appPoolList=@('AspenAnalyticsAppPool','AspenProcessDataAppPool','AspenProcessDa
 foreach($app in $appPoolList)
 {
     Set-ItemProperty -Path "IIS:\AppPools\$app" -Name processModel -Value @{userName="$sUserName";password='Aspen100';identitytype=3}
+    Restart-WebAppPool -Name $app -Verbose
 }
 
 #change ip21 machine name
