@@ -5,6 +5,7 @@ let scheduleSupport=require('../../controllers/scheduler/support.scheduler.contr
 let projectSupport = require('../../controllers/project/support.project.ARTServer');
 let vhdDetection=require('../task/vhdDetection.task.setup.ARTServer');
 let visionSupport = require('../../controllers/vision/support.vision.controllers.ARTServer');
+let taskSupport = require('../../controllers/task/support.Task.Controllers.ARTServer');
 let deployment=function(){
     let main=function(visionObj,blueprintVHDDetection,blueprintVHDDeployment,vhdDeploymentSetting,vhdDetectionSetting,dormObj,vidList){
         //vhdDeploymentSetting=vhdDeployment.Constant.apm.prestaging;
@@ -16,11 +17,14 @@ let deployment=function(){
                     return vhdDetection.updateSetting(blueprintVHDDetection.name,vhdDetectionSetting);
                 })
                 .then(()=>{
+                    return taskSupport.PostTaskWithCheck(taskSupport.sampleConfigureIP21);
+                })                            
+                .then(()=>{
                     return projectSupport.PostNewBlueprintWithCheck(blueprintVHDDetection);
                 })
                 .then(()=>{
                     return projectSupport.PostNewBlueprintWithCheck(blueprintVHDDeployment);
-                })            
+                })
                 .then(()=>{
                     return visionSupport.postNewVision(visionObj);
                 })

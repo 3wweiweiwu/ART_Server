@@ -4,7 +4,7 @@ let taskSupport = require('../../controllers/task/support.Task.Controllers.ARTSe
 //let taskModel=require('../../model/task/task.model.ARTServer');
 let resumeSetting=function(){
     let _mtellPrestagingDeployment={
-        base_vhd_path:'599c85c9a758ba2afcc18df9',
+        base_vhd_path:'59f77f079ec86f2536006cda',
         memory_size:4*1024*1024*1024,
         cpu_cores:4,
         VM_Username:'administrator',
@@ -39,7 +39,7 @@ let resumeSetting=function(){
     };
     let apm={
         prestaging:{
-            base_vhd_path:'599c85c9a758ba2afcc18df9',
+            base_vhd_path:'59f77f079ec86f2536006cda',
             memory_size:6*1024*1024*1024,
             cpu_cores:4,
             VM_Username:'administrator',
@@ -67,7 +67,7 @@ let resumeSetting=function(){
         HQDEVRACK2:{
             deployment:{
                 base_vhd_path:'599c85c9a758ba2afcc18df9',
-                memory_size:6*1024*1024*1024,
+                memory_size:8*1024*1024*1024,
                 cpu_cores:4,
                 VM_Username:'administrator',
                 VM_Pass:'Aspen100',
@@ -77,7 +77,7 @@ let resumeSetting=function(){
         houqaeblade114:{
             Analytics_QE_deployment:{
                 base_vhd_path:'599c85c9a758ba2afcc18df9',
-                memory_size:6*1024*1024*1024,
+                memory_size:8*1024*1024*1024,
                 cpu_cores:4,
                 VM_Username:'administrator',
                 VM_Pass:'Aspen100',
@@ -85,7 +85,7 @@ let resumeSetting=function(){
             },
             Analytics_RD_deployment:{
                 base_vhd_path:'599c85c9a758ba2afcc18df9',
-                memory_size:6*1024*1024*1024,
+                memory_size:8*1024*1024*1024,
                 cpu_cores:4,
                 VM_Username:'administrator',
                 VM_Pass:'Aspen100',
@@ -95,7 +95,7 @@ let resumeSetting=function(){
     };
     let msc={
         prestaging:{
-            base_vhd_path:'599c7e4ba758ba2afcc18dd7',
+            base_vhd_path:'59f77f079ec86f2536006cda',
             memory_size:6*1024*1024*1024,
             cpu_cores:4,
             VM_Username:'administrator',

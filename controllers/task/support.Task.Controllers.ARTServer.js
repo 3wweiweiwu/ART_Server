@@ -129,6 +129,13 @@ exports.sampleInstallPatch={
     task_script_path:'/api/ps/MediaInstallation@PatchInstaller.ps1',
     setting_type:'NULL'    
 };
+exports.sampleConfigureIP21={
+    name:'IP.21 Credentials Configuration',
+    note:'Configure IP 21 service account and app pool crednetial with local admin account',
+    task_script_path:'/api/ps/ProductConfig@IP21ConfigCredential.ps1',
+    setting_type:'NULL'    
+};
+
 exports.PostTaskWithCheck=function(taskObj){
     let taskName=taskObj.name;
     return new Promise((resolve,reject)=>{

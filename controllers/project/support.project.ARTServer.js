@@ -199,7 +199,7 @@ exports.sampleAPMVHDDeployment={
     note:'Deploy APM VHD whenever it is posted',
     memory_usage_mb:2*1024,
     disk_usage_mb:10*1024,
-    tasks:[taskSupport.sampleDeployStandardVHDImage.name],
+    tasks:[taskSupport.sampleDeployStandardVHDImage.name,taskSupport.sampleConfigureIP21.name],
     next:[]       
 };
 exports.sample_APM_Deployment={
@@ -208,7 +208,7 @@ exports.sample_APM_Deployment={
         note:'Deploy APM VHD whenever it is posted',
         memory_usage_mb:2*1024,
         disk_usage_mb:10*1024,
-        tasks:[taskSupport.sampleDeployStandardVHDImage.name],
+        tasks:[taskSupport.sampleDeployStandardVHDImage.name,taskSupport.sampleConfigureIP21.name],
         next:[] 
     },
     Analytics_QE_HOUQAEBLADE114:{
@@ -216,7 +216,7 @@ exports.sample_APM_Deployment={
         note:'Deploy APM VHD whenever it is posted',
         memory_usage_mb:2*1024,
         disk_usage_mb:10*1024,
-        tasks:[taskSupport.sampleDeployStandardVHDImage.name],
+        tasks:[taskSupport.sampleDeployStandardVHDImage.name,taskSupport.sampleConfigureIP21.name],
         next:[]  
     },
     Analytics_RD_HOUQAEBLADE114:{
@@ -224,7 +224,7 @@ exports.sample_APM_Deployment={
         note:'Deploy APM VHD whenever it is posted',
         memory_usage_mb:2*1024,
         disk_usage_mb:10*1024,
-        tasks:[taskSupport.sampleDeployStandardVHDImage.name],
+        tasks:[taskSupport.sampleDeployStandardVHDImage.name,taskSupport.sampleConfigureIP21.name],
         next:[]  
     },
     Analytics_QE_HQDEVRACK2:{
@@ -232,7 +232,7 @@ exports.sample_APM_Deployment={
         note:'Deploy APM VHD whenever it is posted',
         memory_usage_mb:2*1024,
         disk_usage_mb:10*1024,
-        tasks:[taskSupport.sampleDeployStandardVHDImage.name],
+        tasks:[taskSupport.sampleDeployStandardVHDImage.name,taskSupport.sampleConfigureIP21.name],
         next:[]  
     },
     Analytics_QE_SHQEANALYTICS3:{
@@ -240,7 +240,7 @@ exports.sample_APM_Deployment={
         note:'Deploy APM VHD whenever it is posted',
         memory_usage_mb:2*1024,
         disk_usage_mb:10*1024,
-        tasks:[taskSupport.sampleDeployStandardVHDImage.name],
+        tasks:[taskSupport.sampleDeployStandardVHDImage.name,taskSupport.sampleConfigureIP21.name],
         next:[]  
     }    
 };

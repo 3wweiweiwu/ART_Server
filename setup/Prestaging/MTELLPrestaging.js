@@ -122,7 +122,7 @@ let SettingKit=function(){
                 .then(()=>{
                     //setting for the vm deployment
                     return new Promise((resolve)=>{
-                        registrySupport.postRegistry(visionObj.name,registrySupport.Keys.Template,taskSupport.sampleDeployStandardVHDImage.name,'base_vhd_path','599c85c9a758ba2afcc18df9')
+                        registrySupport.postRegistry(visionObj.name,registrySupport.Keys.Template,taskSupport.sampleDeployStandardVHDImage.name,'base_vhd_path','59f77f079ec86f2536006cda')
                             .then(()=>{
                                 return registrySupport.postRegistry(registrySupport.Keys.Template,blueprintMediaPreparationObj.name,taskSupport.sampleDeployStandardVHDImage.name,'memory_size',4*1024*1024*1024);
                             })

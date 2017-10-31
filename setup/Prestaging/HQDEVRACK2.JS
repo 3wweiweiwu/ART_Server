@@ -11,7 +11,7 @@ let assert=require('assert');
 describe('Deploy APM VHD',()=>{
 
     it('shall Add APM prestaging into the project',done=>{
-        mediaDeployment.configure(visionSupport.sample_APM_Deployment.Analytics_QE_Team_HOUQAEBLADE114,projectSupport.sampleAPMVHDDetection,projectSupport.sample_APM_Deployment.Analytics_QE_HQDEVRACK2,deployVHD.Constant.apm.HQDEVRACK2.deployment,vhdDetection.Constant.apm,dormSupport.HQDEVRACK2,[{'vid':'mvt2-apm-d4'}])
+        mediaDeployment.configure(visionSupport.sample_APM_Deployment.Analytics_QE_Team_HQDEVRACK2,projectSupport.sampleAPMVHDDetection,projectSupport.sample_APM_Deployment.Analytics_QE_HQDEVRACK2,deployVHD.Constant.apm.HQDEVRACK2.deployment,vhdDetection.Constant.apm,dormSupport.HQDEVRACK2,[{'vid':'mvt2-apm-d4'}])
             .then(()=>{
                 done();
             })
