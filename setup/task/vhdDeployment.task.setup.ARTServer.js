@@ -30,7 +30,7 @@ let resumeSetting=function(){
         Email_List:['weiwei.wu@aspentech.com','weiwei.wu@aspentech.com','David.Bechara@aspentech.com','Manasi.Tilwalli@aspentech.com','Sunil.Pillai@aspentech.com','Yucheng.Lai@aspentech.com','Arun.Bhatia@aspentech.com']
     };
     let _mtellMVTDeployment={
-        base_vhd_path:'599c85c9a758ba2afcc18df9',
+        base_vhd_path:'59f77f079ec86f2536006cda',
         memory_size:10*1024*1024*1024,
         cpu_cores:4,
         VM_Username:'administrator',

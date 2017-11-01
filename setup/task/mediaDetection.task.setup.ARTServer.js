@@ -4,7 +4,7 @@ let taskSupport = require('../../controllers/task/support.Task.Controllers.ARTSe
 let mediaDetectionSetting=function(){
     let mtellMediaDetection={
         family:'mtell',
-        media_path:'\\\\hqfiler\\upload$\\aspenONEV10.0_CP\\Mtell',
+        media_path:'\\\\hqfiler\\upload$\\aspenONEV10.0.4\\Mtell',
         Media_Folder_Snapshot:'Run',
         schedule_mode:'EveryNewMedia',
         current_schedule:' '
