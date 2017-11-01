@@ -39,5 +39,21 @@ foreach($app in $appPoolList)
 #change ip21 machine name
 Start-Process -FilePath 'C:\Program Files\AspenTech\InfoPlus.21\db21\code\IP21Rename.exe' -ArgumentList "-nq" -WorkingDirectory 'C:\Program Files\AspenTech\InfoPlus.21\db21\code\' -Wait
 
+
+#restore and create Aspen Plus db
+$dbAppList=@("dbCreate.bat","dbRestore.bat")
+foreach($dbApp in $dbAppList)
+{
+    $dbRestoreList=Get-ChildItem -Path "C:\ProgramData\AspenTech" -Recurse|where{$_.FullName -match $dbApp}
+    foreach($dbRestore in $dbRestoreList)
+    {
+        &$dbRestore.FullName
+    }
+
+}
+
+#enable tcp/ip search list
+New-ItemProperty -Path "HKLM:\System\CurrentControlSet\Services\TCPIP\Parameters\" -Name "SearchList" -Value "rnd.aspentech.com,qae.aspentech.com,dev.aspentech.com,corp.aspentech.com" -PropertyType "String" -Force
+
 #configuration is done. Move on to next
 Set-NextProject -sARTServerUri $sARTUri -vision $vision -project $projectId
