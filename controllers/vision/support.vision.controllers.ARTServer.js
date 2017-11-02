@@ -473,15 +473,7 @@ exports.sample_APM_Deployment={
         status:'online' 
     }
 };
-exports.SHQEANALYTICS3={
-    APM:{
-        Deployment:{
-            name:'APM Deployment for SHQEANALYTICS3',
-            note:'Deploy APM media for SHQEANALYTICS3 whenever it is posted',
-            status:'online' 
-        }
-    }
-}
+
 
 exports.sample_WUWEI1_APMDeployment={
     name:'APM Deployment for WUWEI1',
@@ -502,7 +494,7 @@ exports.sample_MSC_Deployment={
 };
 
 exports.sample_MTELL_Deployment_anand={
-    name:'MTELL Suite VHD Deployment for Anand',
+    name:'MTELL Suite VHD Deployment for R&D - Anand',
     note:'deploy prepared VHD for MSC',
     status:'online'    
 };

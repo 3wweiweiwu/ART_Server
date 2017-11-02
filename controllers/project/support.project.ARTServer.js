@@ -176,6 +176,19 @@ exports.sampleMtellMVT={
     tasks:[taskSupport.sampleDeployStandardVHDImage.name,taskSupport.sample_MVT.mtell.FileVersionCheck.name,taskSupport.samplePlanGeneration.name,taskSupport.sampleResume.name],
     next:[]           
 };
+
+exports.sample_Mtell={
+    Deployment:{
+        Mtell_RD_Anand:{
+            name:'Mtell Media Deployment for R&D Team - Anand',
+            note:'Deploy Mtell VHD whenever it is posted',
+            memory_usage_mb:6*1024,
+            disk_usage_mb:10*1024,
+            tasks:[taskSupport.sampleDeployStandardVHDImage.name],
+            next:[]  
+        }
+    }
+}
 //start of aes
 //#region aes
 exports.sample_AES_Prestaging={

@@ -186,6 +186,21 @@ exports.HOUQAEBLADE114={
         ]
     }    
 };
+exports.SHQEANALYTICS3={
+    name:'SHQEANALYTICS3',
+    system_resource:{
+        CPU:38,
+        total_memory_mb:99096,
+        free_memory_mb:90000,
+        disk_total:[
+            {
+                drive_letter:'C',
+                total_disk_space_mb:9096,
+                free_disk_space_mb:3084
+            }
+        ]
+    }    
+};
 exports.HQDEVRACK2={
     name:'HQDEVRACK2',
     system_resource:{
