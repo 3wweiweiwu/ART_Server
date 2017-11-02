@@ -160,7 +160,7 @@ $VMSetting=@{
     VM_Name=$sVMClientId
 }
 $sVMSettingPath=Join-Path -Path $sArt_VHD -ChildPath setting.json
-$VMSetting|ConvertTo-Json -Depth 999|Out-File -FilePath $sVMSettingPath -Force
+$VMSetting|ConvertTo-Json -Depth 50|Out-File -FilePath $sVMSettingPath -Force
 $sVMManagerUri="$sARTServerUri/api/ps/VMManager.ps1"
 $lsVMManagerContent=(New-Object System.Net.WebClient).DownloadString($sVMManagerUri)
 $sVmManagerPathInVM=Join-Path -Path $sArt_VHD -ChildPath VMManager.ps1
