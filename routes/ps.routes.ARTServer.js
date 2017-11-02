@@ -21,7 +21,7 @@ router.get('/ps/Library.ps1',(req,res)=>{
 });
 
 router.get('/ps/:psname',(req,res)=>{
-    let relativePath=req.params.psname.replace('@','\\');
+    let relativePath=req.params.psname.replace(/@/g,'\\');
     let dest=`.\\powershell\\${relativePath}`;
     fs.readFile(dest,(err,data)=>{
         if(err){

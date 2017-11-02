@@ -136,6 +136,17 @@ exports.sampleConfigureIP21={
     setting_type:'NULL'    
 };
 
+exports.sample_MVT={
+    mtell:{
+        FileVersionCheck:{
+            name:'Mtell File Version Check',
+            note:'Check the dll version across mtell to ensure its consistency',
+            task_script_path:'/api/ps/MVT@Products@MTELL@FileVersionCheck.ps1',
+            setting_type:'NULL'   
+        }
+    }
+};
+
 exports.PostTaskWithCheck=function(taskObj){
     let taskName=taskObj.name;
     return new Promise((resolve,reject)=>{

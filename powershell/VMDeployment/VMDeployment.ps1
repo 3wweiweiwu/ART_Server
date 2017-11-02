@@ -26,7 +26,7 @@ iex ((New-Object System.Net.WebClient).DownloadString("$sARTServerUri/api/ps/Lib
 
 
 
-
+$taskVMDeployment=$Task.taskVMDeployment
 
 
 #2nd load for debugging purpose

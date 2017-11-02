@@ -7,6 +7,7 @@ let resumeSetup=require('../task/resume.task.setup.ARTServer');
 let visionSupport = require('../../controllers/vision/support.vision.controllers.ARTServer');
 let planGenerationSetup=require('../task/planGeneration.task.setup.ARTServer');
 let vhdDetection=require('../task/vhdDetection.task.setup.ARTServer');
+let taskSupport = require('../../controllers/task/support.Task.Controllers.ARTServer');
 let MVT=function(){
     let configure=function(visionObj,blueprintVHDDetection,vhdDetectionSetting,blueprintVHDDeployment,vhdDeploymentSetting,blueprintMVT,planGenerationSetting,resumeSetting,dormObj,vidList){
         return new Promise((resolve,reject)=>{
@@ -20,6 +21,9 @@ let MVT=function(){
                 })
                 .then(()=>{
                     return  resumeSetup.updateSetting(blueprintMVT.name,resumeSetting);
+                })
+                .then(()=>{
+                    return taskSupport.PostTaskWithCheck(taskSupport.sample_MVT.mtell.FileVersionCheck);
                 })
                 .then(()=>{
                     //post blueprint
