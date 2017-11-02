@@ -18,6 +18,7 @@ $Task=@{
     taskResume="Resume"
     taskInstallPatch="Install_Patch"
     taskIP21CredentialConfiguration='IP.21 Credentials Configuration'
+    taskPrestagingReadyEmail="Prestaging_Ready_Email"
 }
 function Send-ARTMail($sARTUri,$From,$To,$Subject,$Body,$filePath)
 {

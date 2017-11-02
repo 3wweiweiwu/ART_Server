@@ -93,6 +93,16 @@ let resumeSetting=function(){
             }            
         }
     };
+    let aes={
+        prestaging:{
+            base_vhd_path:'59f77f079ec86f2536006cda',
+            memory_size:6*1024*1024*1024,
+            cpu_cores:4,
+            VM_Username:'administrator',
+            VM_Pass:'Aspen100',
+            Email_List:['weiwei.wu@aspentech.com']
+        }
+    }
     let msc={
         prestaging:{
             base_vhd_path:'59f77f079ec86f2536006cda',
@@ -126,6 +136,7 @@ let resumeSetting=function(){
         mtellPrestagingDeployment:_mtellPrestagingDeployment,
         apm:apm,
         msc:msc,
+        aes:aes,
         mtell:mtellCustomized
     };
     let updateSetting=function(visionName,blueprintName,settingObj){

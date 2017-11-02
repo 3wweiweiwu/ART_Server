@@ -435,6 +435,11 @@ exports.sampleAPMPrestaging={
     note:'setup basic image for APM',
     status:'online'    
 };
+exports.sample_AES_Prestaging={
+    name:'AES Prestaging',
+    note:'setup basic image for AES',
+    status:'online'    
+};
 
 exports.sampleAPMDeployment={
     name:'APM Deployment',

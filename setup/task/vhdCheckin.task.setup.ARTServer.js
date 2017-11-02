@@ -11,10 +11,14 @@ let resumeSetting=function(){
     let msc_v11={
         vhd_serie:'2016 MSC V11 VHD'
     }
+    let aes_v11={
+        vhd_serie:'Win2016 AES V11 VHD'
+    }    
     let ConstantValue={
         mtell:mtell,
         apmv101:apmv101,
-        msc_v11:msc_v11
+        msc_v11:msc_v11,
+        aes_V11:aes_v11
     };
     let updateSetting=function(blueprintName,settingObj){
 
