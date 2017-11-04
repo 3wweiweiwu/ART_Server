@@ -294,7 +294,7 @@ exports.sample_APM_Deployment={
         next:[]  
     },
     Analytics_RD_HOUQAEBLADE114:{
-        name:'APM VHD Deployment for Analytics R&D Team in blade HOUQAEBLADE114',
+        name:'Analytics Deployment for Bedford Analytics Team in blade HOUQAEBLADE114',
         note:'Deploy APM VHD whenever it is posted',
         memory_usage_mb:2*1024,
         disk_usage_mb:10*1024,
@@ -302,7 +302,7 @@ exports.sample_APM_Deployment={
         next:[]  
     },
     Analytics_QE_HQDEVRACK2:{
-        name:'APM VHD Deployment for Analytics QE team in blade HQDEVRACK2',
+        name:'Analytics Deployment for Bedford Analytics team in blade HQDEVRACK2',
         note:'Deploy APM VHD whenever it is posted',
         memory_usage_mb:2*1024,
         disk_usage_mb:10*1024,
@@ -310,7 +310,7 @@ exports.sample_APM_Deployment={
         next:[]  
     },
     Analytics_QE_SHQEANALYTICS3:{
-        name:'APM VHD Deployment for Analytics QE team in blade SHQEANALYTICS3',
+        name:'Analytics Deployment for Shanghai Analytics team in blade SHQEANALYTICS3',
         note:'Deploy APM VHD whenever it is posted',
         memory_usage_mb:2*1024,
         disk_usage_mb:10*1024,

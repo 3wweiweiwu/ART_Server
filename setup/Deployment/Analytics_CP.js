@@ -32,7 +32,7 @@ describe('Deploy Analytics VHD',()=>{
 
     });    
     it('3.	Mvt2-apm-d4 (HQDEVRACK2',done=>{
-        mediaDeployment.configure(visionSupport.sample_APM_Deployment.Analytics_QE_Team_HQDEVRACK2,projectSupport.sampleAPMVHDDetection,projectSupport.sample_APM_Deployment.Analytics_RD_HOUQAEBLADE114,deployVHD.Constant.apm.houqaeblade114.Analytics_RD_deployment,vhdCheckin.Constant.analytics_aspenONEV10_0_3,dormSupport.HQDEVRACK2,[{'vid':'mvt2-apm-d4'}])        
+        mediaDeployment.configure(visionSupport.sample_APM_Deployment.Analytics_QE_Team_HQDEVRACK2,projectSupport.sampleAPMVHDDetection,projectSupport.sample_APM_Deployment.Analytics_QE_HQDEVRACK2,deployVHD.Constant.apm.houqaeblade114.Analytics_RD_deployment,vhdCheckin.Constant.analytics_aspenONEV10_0_3,dormSupport.HQDEVRACK2,[{'vid':'mvt2-apm-d4'}])        
             .then(()=>{
                 done();
             })
