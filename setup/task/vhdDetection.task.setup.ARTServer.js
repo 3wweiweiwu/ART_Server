@@ -29,7 +29,7 @@ let vhdDetection=function(){
             //otherwise, create a new task
             taskSupport.PostTaskWithCheck(taskObj)
                 .then(()=>{
-                    return registrySupport.postRegistry(registrySupport.Keys.Template,blueprintName,taskName,'series',settingObj.series);                    
+                    return registrySupport.postRegistry(registrySupport.Keys.Template,blueprintName,taskName,'series',settingObj.series||settingObj.vhd_serie);                    
                 })
                 .then(()=>{
                     resolve();

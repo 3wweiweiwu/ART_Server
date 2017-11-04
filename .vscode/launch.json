@@ -67,7 +67,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "HQDEVRACK2 Deployment",
+            "name": "Analytics CP Deployment",
             "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
             "args": [
                 "-u",
@@ -75,14 +75,14 @@
                 "--timeout",
                 "999999999",
                 "--colors",
-                "${workspaceRoot}\\**\\HQDEVRACK2.js"
+                "${workspaceRoot}\\**\\Analytics_CP.js"
             ],
             "internalConsoleOptions": "openOnSessionStart"
         },          
         {
             "type": "node",
             "request": "launch",
-            "name": "SHQEANALYTICS3 Deployment",
+            "name": "ProMV CP Deployment",
             "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
             "args": [
                 "-u",
@@ -90,10 +90,25 @@
                 "--timeout",
                 "999999999",
                 "--colors",
-                "${workspaceRoot}\\**\\SHQEANALYTICS3.js"
+                "${workspaceRoot}\\**\\ProMV_CP.js"
             ],
             "internalConsoleOptions": "openOnSessionStart"
-        },             
+        },  
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "PROMV CP Prestaging",
+            "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
+            "args": [
+                "-u",
+                "tdd",
+                "--timeout",
+                "999999999",
+                "--colors",
+                "${workspaceRoot}\\**\\ProMV_Prestaging.js"
+            ],
+            "internalConsoleOptions": "openOnSessionStart"
+        },     
         {
             "type": "node",
             "request": "launch",
@@ -109,21 +124,7 @@
             ],
             "internalConsoleOptions": "openOnSessionStart"
         },           
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "HOUQAEBLADE114 Deployment",
-            "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
-            "args": [
-                "-u",
-                "tdd",
-                "--timeout",
-                "999999999",
-                "--colors",
-                "${workspaceRoot}\\**\\HOUQAEBLADE114.js"
-            ],
-            "internalConsoleOptions": "openOnSessionStart"
-        },            
+         
         {
             "type": "node",
             "request": "launch",
@@ -139,21 +140,7 @@
             ],
             "internalConsoleOptions": "openOnSessionStart"
         },      
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "HQDEVBLADE28 Deployment",
-            "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
-            "args": [
-                "-u",
-                "tdd",
-                "--timeout",
-                "999999999",
-                "--colors",
-                "${workspaceRoot}\\**\\APMDeployment.js"
-            ],
-            "internalConsoleOptions": "openOnSessionStart"
-        },            
+         
         {
             "type": "node",
             "request": "launch",
@@ -213,7 +200,22 @@
                 "${workspaceRoot}\\**\\MTELLDeployment.js"
             ],
             "internalConsoleOptions": "openOnSessionStart"
-        },        
+        },     
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Analytics Prestaging",
+            "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
+            "args": [
+                "-u",
+                "tdd",
+                "--timeout",
+                "999999999",
+                "--colors",
+                "${workspaceRoot}\\**\\Analytics_Prestaging.js"
+            ],
+            "internalConsoleOptions": "openOnSessionStart"
+        },            
         {
             "type": "node",
             "request": "launch",

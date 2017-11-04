@@ -422,6 +422,11 @@ exports.sampleMtellDeployment={
     note:'Install daily Mtell image to multiple clients',
     status:'online'
 };
+exports.sampleSCMMVT={
+    name:'SCM MVT',
+    note:'Perform MVT on SCM',
+    status:'online'  
+};
 
 exports.sampleMtellMVT={
     name:'MTELL_MVT',
@@ -430,6 +435,18 @@ exports.sampleMtellMVT={
 };
 
 
+exports.sample_Prestaging={
+    Analytics:{
+        name:'Analytics Prestaging',
+        note:'setup basic image for Analytics',
+        status:'online'  
+    },
+    ProMV:{
+        name:'ProMV Prestaging',
+        note:'setup basic image for ProMV',
+        status:'online' 
+    }
+};
 exports.sampleAPMPrestaging={
     name:'APM Prestaging',
     note:'setup basic image for APM',
@@ -446,6 +463,7 @@ exports.sampleAPMDeployment={
     note:'Deploy APM media whenever it is posted',
     status:'online'    
 };
+
 exports.sample_APM_Deployment={
     AFR_QE_Team_HQDEVBLADE28:{
         name:'APM Deployment for AFR QE in HQDEVBLADE28',
@@ -453,26 +471,52 @@ exports.sample_APM_Deployment={
         status:'online'         
     },
     Analytics_QE_Team_HOUQAEBLADE114:{
-        name:'APM Deployment for Analytics QE in HOUQAEBLADE114',
+        name:'APM Deployment for Analytics QE in Houston (HOUQAEBLADE114)',
         note:'Deploy APM media for Analytics QE whenever it is posted',
         status:'online'         
     },
     Analytics_RD_Team_HOUQAEBLADE114:{
-        name:'APM Deployment for Analytics RD in HOUQAEBLADE114',
-        note:'Deploy APM media for Analytics RD whenever it is posted',
+        name:'APM Deployment for ProMV RD in Houston (HOUQAEBLADE114)',
+        note:'Deploy APM media for ProMV RD whenever it is posted',
         status:'online'   
     },
     Analytics_QE_Team_HQDEVRACK2:{
-        name:'APM Deployment for QE team in HQDEVRACK2',
+        name:'APM Deployment for Analytics QE team in Bedford (HQDEVRACK2)',
         note:'Deploy APM media for HOUQAEBLADE114 whenever it is posted',
         status:'online'  
     },
     Analytics_QE_Team_SHQEANALYTICS3:{
-        name:'APM Deployment for QE team in SHQEANALYTICS3',
+        name:'APM Deployment for QE team in Shanghai (SHQEANALYTICS3)',
         note:'Deploy APM media for SHQEANALYTICS3 whenever it is posted',
         status:'online' 
+    },
+    ProMV:{
+        QE:{
+            Mvt2_apm_d5:{
+                name:'ProMV Deployment for Bedford QE team in Mvt2-apm-d5',
+                note:'Deploy ProMV media for ProMV RD whenever it is posted',
+                status:'online'  
+            },
+            Mvt2_pro_d1:{
+                name:'ProMV Deployment for Bedford RD team and QE in Mvt2-pro-d1',
+                note:'Deploy ProMV media for ProMV RD whenever it is posted',
+                status:'online'  
+            },
+            Mvt2_pro_d2:{
+                name:'ProMV Deployment for Bedford RD team and QE in Mvt2-pro-d2',
+                note:'Deploy ProMV media for ProMV RD whenever it is posted',
+                status:'online'  
+            },
+            Mvt2_pro_d3:{
+                name:'ProMV Deployment for Shanghai QE team in Mvt2-pro-d3',
+                note:'Deploy ProMV media for ProMV RD whenever it is posted',
+                status:'online'  
+            }        
+        }
     }
 };
+
+
 
 
 exports.sample_WUWEI1_APMDeployment={

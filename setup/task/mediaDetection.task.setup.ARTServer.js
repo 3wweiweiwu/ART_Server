@@ -29,7 +29,22 @@ let mediaDetectionSetting=function(){
         Media_Folder_Snapshot:'Run',
         schedule_mode:'EveryNewMedia',
         current_schedule:' '
-    }
+    };
+    let analytics_cp={
+        family:'analytics_cp',
+        media_path:'\\\\hqfiler\\upload$\\aspenONEV10.0.3\\Analytics',
+        Media_Folder_Snapshot:'Run',
+        schedule_mode:'EveryNewMedia',
+        current_schedule:' '
+    };
+    let promv_cp={
+        family:'promv_cp',
+        media_path:'\\\\hqfiler\\upload$\\aspenONEV10.0.2\\ProMV',
+        Media_Folder_Snapshot:'Run',
+        schedule_mode:'EveryNewMedia',
+        current_schedule:' '
+    };
+
     let updateSetting=function(visionName,blueprintName,settingObj){
         return new Promise(resolve=>{
             let taskObj=taskSupport.taskMediaDetection;
@@ -61,7 +76,9 @@ let mediaDetectionSetting=function(){
         mtellMediaDetection:mtellMediaDetection,
         apm:apm,
         msc:msc,
-        aes:aes
+        aes:aes,
+        analytics_cp:analytics_cp,
+        promv_cp:promv_cp
     };
     return {
         constant:constant,

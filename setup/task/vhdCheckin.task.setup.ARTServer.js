@@ -10,15 +10,23 @@ let resumeSetting=function(){
     };
     let msc_v11={
         vhd_serie:'2016 MSC V11 VHD'
-    }
+    };
     let aes_v11={
         vhd_serie:'Win2016 AES V11 VHD'
-    }    
+    };
+    let analytics_aspenONEV10DOT0DOT3={
+        vhd_serie:'Win2016 Analytics V10.0.3 VHD'
+    };    
+    let promv_V10_0_2={
+        vhd_serie:'Win2016 ProMV V10.0.2 VHD'
+    };
     let ConstantValue={
         mtell:mtell,
         apmv101:apmv101,
         msc_v11:msc_v11,
-        aes_V11:aes_v11
+        aes_V11:aes_v11,
+        analytics_aspenONEV10_0_3:analytics_aspenONEV10DOT0DOT3,
+        promv_aspenONEV10_0_2:promv_V10_0_2
     };
     let updateSetting=function(blueprintName,settingObj){
 
@@ -30,9 +38,8 @@ let resumeSetting=function(){
             //otherwise, create a new task
             taskSupport.PostTaskWithCheck(taskObj)
                 .then(()=>{
-                    return registrySupport.postRegistry(registrySupport.Keys.Template,blueprintName,taskName,'vhd_serie',settingObj.vhd_serie)
+                    return registrySupport.postRegistry(registrySupport.Keys.Template,blueprintName,taskName,'vhd_serie',settingObj.vhd_serie);
                 })
-
                 .then(()=>{
                     resolve();
                 });

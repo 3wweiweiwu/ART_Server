@@ -6,13 +6,17 @@ let projectSupport = require('../../controllers/project/support.project.ARTServe
 let vhdDetection=require('../task/vhdDetection.task.setup.ARTServer');
 let visionSupport = require('../../controllers/vision/support.vision.controllers.ARTServer');
 let taskSupport = require('../../controllers/task/support.Task.Controllers.ARTServer');
+let visionModel=require('../../model/vision/vision.model.ARTServer');
 let deployment=function(){
     let main=function(visionObj,blueprintVHDDetection,blueprintVHDDeployment,vhdDeploymentSetting,vhdDetectionSetting,dormObj,vidList){
         //vhdDeploymentSetting=vhdDeployment.Constant.apm.prestaging;
         //vhdDetectionSetting=vhdDetection.Constant.apm;
         //vidList=[{vid:'mvt2-apm-d1'},{vid:'mvt2-apm-d2'}];
         return new Promise((resolve,reject)=>{            
-            vhdDeployment.updateSetting(visionObj.name,blueprintVHDDeployment.name,vhdDeploymentSetting)
+            visionModel.remove({name:visionObj.name})
+                .then((info)=>{
+                    return vhdDeployment.updateSetting(visionObj.name,blueprintVHDDeployment.name,vhdDeploymentSetting)         
+                })            
                 .then(()=>{
                     return vhdDetection.updateSetting(blueprintVHDDetection.name,vhdDetectionSetting);
                 })
@@ -39,13 +43,13 @@ let deployment=function(){
                 })            
                 .then(()=>{
                     return visionSupport.putBlueprintMachineInstance(visionObj.name, blueprintVHDDeployment.name, dormObj.name, 1,vidList);                
-                })                
-                .then(()=>{
-                    return vhdSupport.postSeries(vhdDetectionSetting.series);
                 })
                 .then(()=>{
+                    return vhdSupport.postSeries(vhdDetectionSetting.series||vhdDetectionSetting.vhd_serie);
+                })  
+                .then(()=>{
                 //add vision into watch list for the mtell prestaging
-                    return vhdSupport.addSeriesSubscriber(vhdDetectionSetting.series,visionObj.name);
+                    return vhdSupport.addSeriesSubscriber(vhdDetectionSetting.series||vhdDetectionSetting.vhd_serie,visionObj.name);
                 })
                 .then(()=>{
                     //update the project sequence execute deployment after media deployment is ready

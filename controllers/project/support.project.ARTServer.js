@@ -188,7 +188,7 @@ exports.sample_Mtell={
             next:[]  
         }
     }
-}
+};
 //start of aes
 //#region aes
 exports.sample_AES_Prestaging={
@@ -235,6 +235,48 @@ exports.sampleAPMVHDDeployment={
     next:[]       
 };
 exports.sample_APM_Deployment={
+    ProMV:{
+        QE:{
+            Mvt2_apm_d5:{
+                name:'ProMV VHD Deployment for Mvt2_apm_d5',
+                note:'Deploy APM VHD whenever it is posted',
+                memory_usage_mb:2*1024,
+                disk_usage_mb:10*1024,
+                tasks:[taskSupport.sampleDeployStandardVHDImage.name,taskSupport.sampleConfigureIP21.name],
+                next:[] 
+            },
+            Mvt2_pro_d1:{
+                
+                name:'ProMV VHD Deployment for Mvt2_pro_d1',
+                note:'Deploy APM VHD whenever it is posted',
+                memory_usage_mb:2*1024,
+                disk_usage_mb:10*1024,
+                tasks:[taskSupport.sampleDeployStandardVHDImage.name,taskSupport.sampleConfigureIP21.name],
+                next:[] 
+                
+            },
+            Mvt2_pro_d2:{
+                
+                name:'ProMV VHD Deployment for Mvt2_pro_d2',
+                note:'Deploy APM VHD whenever it is posted',
+                memory_usage_mb:2*1024,
+                disk_usage_mb:10*1024,
+                tasks:[taskSupport.sampleDeployStandardVHDImage.name,taskSupport.sampleConfigureIP21.name],
+                next:[] 
+                
+            },
+            Mvt2_pro_d3:{
+                
+                name:'ProMV VHD Deployment for Mvt2_pro_d3',
+                note:'Deploy APM VHD whenever it is posted',
+                memory_usage_mb:2*1024,
+                disk_usage_mb:10*1024,
+                tasks:[taskSupport.sampleDeployStandardVHDImage.name,taskSupport.sampleConfigureIP21.name],
+                next:[] 
+                
+            },
+        }
+    },
     AFR_QE_HQDEVBLADE28:{
         name:'APM VHD Deployment',
         note:'Deploy APM VHD whenever it is posted',
@@ -297,6 +339,71 @@ exports.sampleAPMVHDDetection={
 //end of apm section
 //#endregion
 
+//#region analytics cp
+exports.sample_AnalyticsCP={
+    Prestaging:{
+        name:'Analytics CP Prestaing',
+        note:'Install APM media whenever it is posted',
+        memory_usage_mb:6*1024,
+        disk_usage_mb:10*1024,
+        tasks:[taskSupport.sampleDeployStandardVHDImage.name,taskSupport.sampleUninstallProduct.name,taskSupport.sampleRestart.name,taskSupport.sampleWait.name,taskSupport.sampleInstallMedia.name,taskSupport.sampleRestart.name,taskSupport.sampleWait.name,taskSupport.sampleInstallPatch.name,taskSupport.sampleRestart.name,taskSupport.sampleWait.name,taskSupport.sampleVHDCheckin.name],
+        next:[]  
+    },
+    VHD_Detection:{
+        name:'Analytics CP Detection',
+        note:'Detect Analytics CP VHD whenever it is posted',
+        memory_usage_mb:1,
+        disk_usage_mb:1,
+        tasks:[taskSupport.sampleVHDDetection.name],
+        next:[]           
+    },
+    Media_Detection:{
+        name:'Analytics CP media detection',
+        note:'detect analytics media',
+        memory_usage_mb:1024,
+        disk_usage_mb:1024,
+        tasks:[taskSupport.taskMediaDetection.name],
+        next:[]          
+    },
+    Deployment:{
+        Analytics_QE:{},
+        Analytics_RD:{}
+    }
+};
+    
+//#endregion
+//#region promv
+exports.sample_ProMVCP={
+    Prestaging:{
+        name:'ProMV Prestaing',
+        note:'Install ProMV media whenever it is posted',
+        memory_usage_mb:6*1024,
+        disk_usage_mb:10*1024,
+        tasks:[taskSupport.sampleDeployStandardVHDImage.name,taskSupport.sampleUninstallProduct.name,taskSupport.sampleRestart.name,taskSupport.sampleWait.name,taskSupport.sampleInstallMedia.name,taskSupport.sampleRestart.name,taskSupport.sampleWait.name,taskSupport.sampleInstallPatch.name,taskSupport.sampleRestart.name,taskSupport.sampleWait.name,taskSupport.sampleVHDCheckin.name],
+        next:[]  
+    },
+    VHD_Detection:{
+        name:'ProMV Detection',
+        note:'Detect ProMV VHD whenever it is posted',
+        memory_usage_mb:1,
+        disk_usage_mb:1,
+        tasks:[taskSupport.sampleVHDDetection.name],
+        next:[]           
+    },
+    Media_Detection:{
+        name:'ProMV media detection',
+        note:'detect ProMV media',
+        memory_usage_mb:1024,
+        disk_usage_mb:1024,
+        tasks:[taskSupport.taskMediaDetection.name],
+        next:[]          
+    },
+    Deployment:{
+        Analytics_QE:{},
+        Analytics_RD:{}
+    }
+};
+//#endregion
 
 //#region msc
 exports.sample_MSC_MediaDetection={
