@@ -8,6 +8,7 @@ let projectSupport = require('../../controllers/project/support.project.ARTServe
 let dormSupport = require('../../controllers/organization/support.dorm.controller.ARTServer');
 let taskSupport = require('../../controllers/task/support.Task.Controllers.ARTServer');
 let vhdCheckin=require('../task/vhdCheckin.task.setup.ARTServer');
+let visionModel=require('../../model/vision/vision.model.ARTServer');
 //this is the script that we used to setup machine prestaging.
 let prestaging=function(){
     let main=function(visionObj,mediaDetectionBlueprint,mediaDetectionSetting,mediaPrestagingBlueprint,vhdDeploymentSetting,mediaInstallSetting,vhdCheckinSetting,dormObj,vid){    
@@ -21,7 +22,10 @@ let prestaging=function(){
     
             // mediaInstallSetting=installMedia.Constant.APM;
             // vhdCheckinSetting=vhdCheckin.Constant.apmv101;
-            mediaDetection.updateSetting(visionObj.name,mediaDetectionBlueprint.name,mediaDetectionSetting)
+            visionModel.remove({name:visionObj.name})
+                .then(()=>{
+                    return mediaDetection.updateSetting(visionObj.name,mediaDetectionBlueprint.name,mediaDetectionSetting);
+                })            
                 .then(()=>{
                     return uninstallProduct.updateSetting(mediaPrestagingBlueprint.name,uninstallProduct.Constant.uninstallAll);
                 })
@@ -59,7 +63,7 @@ let prestaging=function(){
                     return visionSupport.postNewVision(visionObj);
                 })
                 .then(()=>{
-                    return dormSupport.PostDorm(dormObj);
+                    return dormSupport.PostDormWithCheck(dormObj);
                 })
                 .then(()=>{
                     //update machien ask for media detection

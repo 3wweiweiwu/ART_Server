@@ -443,7 +443,7 @@ exports.sample_SCM_MVT={
     note:'Validate Mtell MVT whenever it is posted',
     memory_usage_mb:4*1024,
     disk_usage_mb:10*1024,
-    tasks:[taskSupport.sampleDeployStandardVHDImage.name,taskSupport.sample_MVT.mtell.FileVersionCheck.name,taskSupport.samplePlanGeneration.name,taskSupport.sampleResume.name],
+    tasks:[taskSupport.sampleDeployStandardVHDImage.name,taskSupport.sample_MVT.common.SLMConfiguration.name,taskSupport.samplePlanGeneration.name,taskSupport.sampleResume.name],
     next:[]           
 };
 exports.sample_MSC_VHDDetection={

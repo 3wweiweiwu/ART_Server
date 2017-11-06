@@ -1,7 +1,7 @@
 let app = require('../../app.js');
 let chai = require('chai');
 let chaiHttp = require('chai-http');
-let should = chai.should();
+
 chai.use(chaiHttp);
 exports.PostDorm=function(dormObj,cb=()=>{}){
     return new Promise((resolve,reject)=>{
@@ -22,6 +22,36 @@ exports.PostDorm=function(dormObj,cb=()=>{}){
             });
     });
 
+};
+
+exports.PostDormWithCheck=function(dormObj){
+    return new Promise((resolve,reject)=>{
+        chai.request(app)
+            .get(`/api/dorm/${dormObj.name}`)
+            .send(dormObj)
+            .end((err,res)=>{
+                if(err){
+                    reject(err);
+                    
+                }
+                
+                else{
+                    
+                    if(res.body.length==0){
+                        exports.PostDorm(dormObj)
+                            .then((res)=>{
+                                resolve(res);
+                            });
+                    }
+                    else
+                    {
+                        resolve(res);
+                    }
+                    
+                }
+                
+            });
+    });
 };
 exports.PutVMToDorm=function(dormName,size_mb,drive_letter='*',cb=()=>{}){
     return new Promise((resolve,reject)=>{
@@ -164,9 +194,9 @@ exports.HQDEVBLADE28={
         free_memory_mb:90000,
         disk_total:[
             {
-                drive_letter:'C',
-                total_disk_space_mb:9096,
-                free_disk_space_mb:3084
+                drive_letter:'H',
+                total_disk_space_mb:1.8*1024,
+                free_disk_space_mb:1.5*1024
             }
         ]
     }    

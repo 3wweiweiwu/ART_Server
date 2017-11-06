@@ -8,11 +8,19 @@ let visionSupport = require('../../controllers/vision/support.vision.controllers
 let planGenerationSetup=require('../task/planGeneration.task.setup.ARTServer');
 let vhdDetection=require('../task/vhdDetection.task.setup.ARTServer');
 let taskSupport = require('../../controllers/task/support.Task.Controllers.ARTServer');
+let visionModel=require('../../model/vision/vision.model.ARTServer');
 let MVT=function(){
     let configure=function(visionObj,blueprintVHDDetection,vhdDetectionSetting,blueprintVHDDeployment,vhdDeploymentSetting,blueprintMVT,planGenerationSetting,resumeSetting,dormObj,vidList){
         return new Promise((resolve,reject)=>{
+            
             //configure vhd detection
-            vhdDetection.updateSetting(blueprintVHDDetection.name,vhdDetectionSetting)
+            dormSupport.PostDormWithCheck(dormObj)            
+                .then(()=>{
+                    return visionModel.remove({name:visionObj.name});
+                })            
+                .then(()=>{
+                    return vhdDetection.updateSetting(blueprintVHDDetection.name,vhdDetectionSetting);
+                })            
                 .then(()=>{
                     return vhdDeployment.updateSetting(visionObj.name,blueprintVHDDeployment.name,vhdDeploymentSetting);
                 })
@@ -23,22 +31,22 @@ let MVT=function(){
                     return  resumeSetup.updateSetting(blueprintMVT.name,resumeSetting);
                 })
                 .then(()=>{
+                    return taskSupport.PostTaskWithCheck(taskSupport.sample_MVT.common.SLMConfiguration);
+                })
+                .then(()=>{
                     return taskSupport.PostTaskWithCheck(taskSupport.sample_MVT.mtell.FileVersionCheck);
                 })
                 .then(()=>{
                     //post blueprint
                     return projectSupport.PostNewBlueprintWithCheck(blueprintMVT);
-                })                
-                .then(()=>{
-                    return dormSupport.PostDorm(dormObj);
-                })                
+                })                                
                 .then(()=>{
                 //post new vision and link blueprint to vision
                     return new Promise(resolve=>{
                         visionSupport.postVisionWithCheck(visionObj)
                             .then(()=>{
                                 //add vision into watch list for the mtell prestaging
-                                return vhdSupport.addSeriesSubscriber(vhdDetectionSetting.series,visionObj.name);
+                                return vhdSupport.addSeriesSubscriber(vhdDetectionSetting.vhd_serie||vhdDetectionSetting.series,visionObj.name);
                             })
                             .then(()=>{                            
                                 return visionSupport.putBlueprintMachineInstance(visionObj.name, blueprintVHDDetection.name, dormObj.name, 1);

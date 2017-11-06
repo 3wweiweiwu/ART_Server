@@ -90,7 +90,7 @@
                 "--timeout",
                 "999999999",
                 "--colors",
-                "${workspaceRoot}\\**\\ProMV_CP.js"
+                "${workspaceRoot}\\**\\ProMV_Deployment.js"
             ],
             "internalConsoleOptions": "openOnSessionStart"
         },  
@@ -171,6 +171,21 @@
             ],
             "internalConsoleOptions": "openOnSessionStart"
         },     
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "SCM MVT",
+            "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
+            "args": [
+                "-u",
+                "tdd",
+                "--timeout",
+                "999999999",
+                "--colors",
+                "${workspaceRoot}\\**\\SCM_MVT.js"
+            ],
+            "internalConsoleOptions": "openOnSessionStart"
+        },         
         {
             "type": "node",
             "request": "launch",

@@ -137,6 +137,14 @@ exports.sampleConfigureIP21={
 };
 
 exports.sample_MVT={
+    common:{
+        SLMConfiguration:{
+            name:'Configure SLM',
+            note:'Configure SLM',
+            task_script_path:'/api/ps/ProductConfig@SLM_Configuration.ps1',
+            setting_type:'NULL'   
+        }
+    },
     mtell:{
         FileVersionCheck:{
             name:'Mtell File Version Check',

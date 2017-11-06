@@ -19,6 +19,7 @@ $Task=@{
     taskInstallPatch="Install_Patch"
     taskIP21CredentialConfiguration='IP.21 Credentials Configuration'
     taskPrestagingReadyEmail="Prestaging_Ready_Email"
+    taskSLMConfiguration="SLM_Configuration"
 }
 
 function Download-FromServertunnel($sARTUri,$From,$To)

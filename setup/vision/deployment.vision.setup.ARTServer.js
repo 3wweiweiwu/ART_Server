@@ -33,11 +33,11 @@ let deployment=function(){
                     return visionSupport.postNewVision(visionObj);
                 })
                 .then(()=>{
-                    return dormSupport.PostDorm(dormObj);
+                    return dormSupport.PostDormWithCheck(dormObj);
                 })                  
-                .then(()=>{
-                    return dormSupport.RefreshDorm(dormObj.name);
-                })
+                // .then(()=>{
+                //     return dormSupport.RefreshDorm(dormObj.name);
+                // })
                 .then(()=>{
                     return visionSupport.putBlueprintMachineInstance(visionObj.name, blueprintVHDDetection.name, dormObj.name, 1);                
                 })            
