@@ -269,14 +269,24 @@ exports.MVF2={
         free_memory_mb:90000,
         disk_total:[
             {
-                drive_letter:'c',
+                drive_letter:'C',
                 total_disk_space_mb:9096,
                 free_disk_space_mb:3084
-            },
+            }
+        ]
+    }    
+};
+exports.HQQAEBLADE02={
+    name:'HQQAEBLADE02',
+    system_resource:{
+        CPU:38,
+        total_memory_mb:99096,
+        free_memory_mb:90000,
+        disk_total:[
             {
-                drive_letter:'d',
-                total_disk_space_mb:19096,
-                free_disk_space_mb:33084
+                drive_letter:'C',
+                total_disk_space_mb:9096,
+                free_disk_space_mb:3084
             }
         ]
     }    
