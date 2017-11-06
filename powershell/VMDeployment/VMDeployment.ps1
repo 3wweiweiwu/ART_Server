@@ -118,6 +118,7 @@ $pipe=Wait-PipelineFree -Pipelinename "ART_Mount_VHD" -iTimeout 600 #block while
 $VHDObj=Mount-VHD -Path $sLocalVHDPath -Passthru
 Get-Disk|where{$_.OperationalStatus -eq "Offline"}|foreach{Set-Disk -InputObject $_ -IsOffline:$false}
 $lastDrive= $VHDObj|Get-Disk|Get-Partition|Select-Object -Last 1
+$firstDrive=$VHDObj|Get-Disk|Get-Partition|Select-Object -First 1
 $sDriverLetter=$lastDrive.DriveLetter+":"
 $pipe.Dispose()
 
@@ -166,6 +167,12 @@ $lsVMManagerContent=(New-Object System.Net.WebClient).DownloadString($sVMManager
 $sVmManagerPathInVM=Join-Path -Path $sArt_VHD -ChildPath VMManager.ps1
 $lsVMManagerContent|Out-File -FilePath $sVmManagerPathInVM -Force
 'powershell "..\..\..\..\..\..\p4\art\VMManager.ps1"'|Out-File -FilePath (Join-Path $sDriverLetter -ChildPath "\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp\startVMManager.bat") -Encoding ascii
+
+#fix boot section in case of any error
+Write-Host "$((Get-Date).tostring())#fix boot section in case of any error"
+$sBootDriveLetter=$firstDrive.DriveLetter+":"
+$sWindowsDirectory=Join-Path -Path $sDriverLetter -ChildPath Windows
+&bcdboot.exe $sWindowsDirectory /s $sBootDriveLetter /f ALL|Out-Host
 
 
 Dismount-VHD -Path $sLocalVHDPath
