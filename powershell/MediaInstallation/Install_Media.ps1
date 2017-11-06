@@ -14,7 +14,7 @@ $taskName=$Task.installMedia
     $Product_Verification=Load-Setting -sARTServerUri $sARTUri -project $blueprint -task $taskName -key 'Product_Verification'
     $lsCurrentSchedule=([array](Load-Setting -sARTServerUri $sARTUri -vision $vision -task $Task.mediaDetection -key current_schedule))
     $Installation_File=$lsCurrentSchedule[$lsCurrentSchedule.Length-1]
-    $iEstimatedProductInstallationTimeInHour=4 #estimated installation time is 3 hours, if it takes more than 3 horus and haven't finished, then restart the machine
+    $iEstimatedProductInstallationTimeInHour=6 #estimated installation time is 3 hours, if it takes more than 3 horus and haven't finished, then restart the machine
 #test installation file, if this is 
 
 
@@ -34,7 +34,7 @@ $sLocal_Media_Path=Join-Path -Path $Local_Media_Storage -ChildPath (Split-Path -
 #download installation script form p4
     $sInstallerPath="//depot/qe/dev/AUTOMATION/BAF/Shared Features/aspenOneInstaller/AspenOneInstaller/"
     $P4_Work_Space_Folder="c:\p4"
-    Sync-FromP4 -P4_Location_List @($sInstallerPath) -P4_User wuwei -P4_Server hqperforce2:1666 -P4_PASSWORD Perforce562 -P4_Work_Space_Folder $P4_Work_Space_Folder -P4_Work_Space_Name ART
+    Sync-FromP4 -P4_Location_List @($sInstallerPath) -P4_User wuwei -P4_Server hqperforce2:1666 -P4_PASSWORD Changethis19 -P4_Work_Space_Folder $P4_Work_Space_Folder -P4_Work_Space_Name ART
     
 #deploy installation option to p4 file
     
