@@ -28,6 +28,15 @@ if((Test-Path -Path $Local_Media_Storage) -eq $false)
 }
 $sLocal_Media_Path=Join-Path -Path $Local_Media_Storage -ChildPath (Split-Path -Path $Installation_File -Leaf)
 
+
+#test the existience of the media path. if cannot be found, then 
+if((Test-Path -Path $sLocal_Media_Path) -eq $false)
+{
+    Write-Host "$((Get-Date).ToString()) Cannot find $Local_Media_Storage start to download from $Installation_File"
+    Download-FromServertunnel -sARTUri $sARTUri -From $Installation_File -To $Local_Media_Storage
+    Write-Host "$((Get-Date).ToString()) Download Completed"
+}
+
 #Copy-Item -Path $Installation_File -Destination $Local_Media_Storage -Force|Out-Host
 
 

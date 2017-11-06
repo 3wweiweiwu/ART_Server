@@ -20,6 +20,30 @@ $Task=@{
     taskIP21CredentialConfiguration='IP.21 Credentials Configuration'
     taskPrestagingReadyEmail="Prestaging_Ready_Email"
 }
+
+function Download-FromServertunnel($sARTUri,$From,$To)
+{
+    $downloadUrl=$From.replace("\","@")
+    $url=Join-Url -parentPath $sARTUri -childPath "/api/ps/tunnel/$downloadUrl"
+    
+    while($true)
+    {
+        try
+        {
+            Start-BitsTransfer -Source $url -Destination $To -Description "Copying item from $From to $To with $url" -ErrorAction Stop
+            break
+        }
+        catch
+        {
+            Resolve-RestError
+            Write-Warning -Message "Download-FromServertunnel($sARTUri,$From,$To)"
+            Start-Sleep -Seconds 15
+            
+        }
+        
+    }
+}
+
 function Send-ARTMail($sARTUri,$From,$To,$Subject,$Body,$filePath)
 {
 
