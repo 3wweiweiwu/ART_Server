@@ -9,8 +9,8 @@ let prestaging=require('../vision/Prestaging.vision.setup.ARTServer');
 let assert=require('assert');
 describe('Add new vision APM Prestaging',()=>{
 
-    it('shall Add APM prestaging into the project',done=>{
-        prestaging.configure(visionSupport.sample_Prestaging.ProMV,projectSupport.sample_ProMVCP.Media_Detection,mediaDetection.constant.promv_cp,projectSupport.sample_ProMVCP.Prestaging,deployVHD.Constant.promvCP.prestaging,installMedia.Constant.ProMV_CP,vhdCheckin.Constant.promv_aspenONEV10_0_2,dormSupport.MVF2,'mvt2-pro-01')
+    it('shall Add ProMV prestaging into the project',done=>{
+        prestaging.configure(visionSupport.sample_Prestaging.ProMV,projectSupport.sample_ProMVCP.Media_Detection,mediaDetection.constant.promv_cp,projectSupport.sample_ProMVCP.Prestaging,deployVHD.Constant.promvCP.prestaging,installMedia.Constant.ProMV_CP,vhdCheckin.Constant.promv_aspenONEV10_0_2,dormSupport.HQQAEBLADE02,'mvt2-pro-01')
             .then(()=>{
                 done();
             })

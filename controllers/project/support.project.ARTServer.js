@@ -422,7 +422,7 @@ exports.sample_MSC_Prestaging={
     tasks:[taskSupport.sampleDeployStandardVHDImage.name,taskSupport.sampleUninstallProduct.name,taskSupport.sampleRestart.name,taskSupport.sampleWait.name,taskSupport.sampleInstallMedia.name,taskSupport.sampleRestart.name,taskSupport.sampleWait.name,taskSupport.sampleInstallPatch.name,taskSupport.sampleRestart.name,taskSupport.sampleWait.name,taskSupport.sampleVHDCheckin.name],
     next:[]       
 };
-exports.sample_MSC_SCM_MVT={
+exports.sample_MSC_SCM_DeploymentForMVT={
     name:'SCM MVT',
     note:'Validate SCM MVT whenever it is posted',
     memory_usage_mb:4*1024,
@@ -438,7 +438,14 @@ exports.sample_MSC_Deployment={
     tasks:[taskSupport.sampleDeployStandardVHDImage.name],
     next:[]       
 };
-
+exports.sample_SCM_MVT={
+    name:'SCM MVT',
+    note:'Validate Mtell MVT whenever it is posted',
+    memory_usage_mb:4*1024,
+    disk_usage_mb:10*1024,
+    tasks:[taskSupport.sampleDeployStandardVHDImage.name,taskSupport.sample_MVT.mtell.FileVersionCheck.name,taskSupport.samplePlanGeneration.name,taskSupport.sampleResume.name],
+    next:[]           
+};
 exports.sample_MSC_VHDDetection={
     name:'MSC VHD Detection',
     note:'Detect MSC VHD whenever it is posted',

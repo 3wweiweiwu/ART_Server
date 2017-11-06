@@ -11,7 +11,15 @@ let resumeSetting=function(){
         Email_List:['weiwei.wu@aspentech.com','weiwei.wu@aspentech.com','David.Bechara@aspentech.com','Manasi.Tilwalli@aspentech.com','Sunil.Pillai@aspentech.com','Yucheng.Lai@aspentech.com']
     };
     let ConstantValue={
-        mtellSetting:_mtellSetting
+        mtellSetting:_mtellSetting,
+        SCM:{
+            iSelenium_MultiThreading_Count:1,
+            iRestartAfterScripts:3,
+            iMaxTrial:1,
+            iErrTestCasePerPlan:3,
+            iTimeout:60,
+            Email_List:['weiwei.wu@aspentech.com','weiwei.wu@aspentech.com']
+        }
     };
     let updateSetting=function(blueprintName,settingObj){
 

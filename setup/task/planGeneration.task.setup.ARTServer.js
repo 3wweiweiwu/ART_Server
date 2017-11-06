@@ -18,7 +18,7 @@ let planGenerationSetting=function(){
             Subtestcase_Detection:'yes',
             P4_Project_Support:'["//depot/qe/dev/AUTOMATION/SCM_General/SCM_GUI/"]',
             P4_Username:'wuwei',
-            P4_Password:'P4_Password',
+            P4_Password:'Changethis19',
             P4_WorkSpaceName:'ART',
             P4_Server:'hqperforce2:1666',
             P4_Work_Space_Folder:'c:\\p4',

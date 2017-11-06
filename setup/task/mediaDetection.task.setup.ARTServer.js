@@ -18,28 +18,28 @@ let mediaDetectionSetting=function(){
     };
     let msc={
         family:'msc',
-        media_path:'\\\\hqfiler\\upload$\\aspenONEV11.0\\MSC',
+        media_path:'\\\\hqfiler.corp.aspentech.com\\upload$\\aspenONEV11.0\\MSC',
         Media_Folder_Snapshot:'Run',
         schedule_mode:'EveryNewMedia',
         current_schedule:' '
     };
     let aes={
         family:'aes',
-        media_path:'\\\\hqfiler\\upload$\\aspenONEV11.0\\aes\\Current\\',
+        media_path:'\\\\hqfiler.corp.aspentech.com\\upload$\\aspenONEV11.0\\aes\\Current\\',
         Media_Folder_Snapshot:'Run',
         schedule_mode:'EveryNewMedia',
         current_schedule:' '
     };
     let analytics_cp={
         family:'analytics_cp',
-        media_path:'\\\\hqfiler\\upload$\\aspenONEV10.0.3\\Analytics',
+        media_path:'\\\\hqfiler.corp.aspentech.com\\upload$\\aspenONEV10.0.3\\Analytics',
         Media_Folder_Snapshot:'Run',
         schedule_mode:'EveryNewMedia',
         current_schedule:' '
     };
     let promv_cp={
         family:'promv_cp',
-        media_path:'\\\\hqfiler\\upload$\\aspenONEV10.0.2\\ProMV',
+        media_path:'\\\\hqfiler.corp.aspentech.com\\upload$\\aspenONEV10.0.2\\ProMV',
         Media_Folder_Snapshot:'Run',
         schedule_mode:'EveryNewMedia',
         current_schedule:' '

@@ -10,7 +10,7 @@ let assert=require('assert');
 describe('Add new vision APM Prestaging',()=>{
 
     it('shall Add APM prestaging into the project',done=>{
-        prestaging.configure(visionSupport.sampleMSCPrestaging,projectSupport.sample_MSC_MediaDetection,mediaDetection.constant.msc,projectSupport.sample_MSC_Prestaging,deployVHD.Constant.msc.prestaging,installMedia.Constant.MSC,vhdCheckin.Constant.msc_v11,dormSupport.MVF2,'mvt2-msc-01')
+        prestaging.configure(visionSupport.sampleMSCPrestaging,projectSupport.sample_MSC_MediaDetection,mediaDetection.constant.msc,projectSupport.sample_MSC_Prestaging,deployVHD.Constant.msc.prestaging,installMedia.Constant.MSC,vhdCheckin.Constant.msc_v11,dormSupport.HQQAEBLADE02,'mvt2-msc-01')
             .then(()=>{
                 done();
             })
