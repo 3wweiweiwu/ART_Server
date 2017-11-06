@@ -657,7 +657,7 @@ function Write-SettingForProcess($sARTUri,$key,$value,$processId,$dorm){
 
 function Get-SettingForProcess($sARTUri,$key,$processId,$dorm){
     #in the debug mode, do not check expiration
-    while($DebugPreference -eq "Continue")
+    while($DebugPreference -ne "Continue")
     {
         
         $expireStatus=Load-CompleteSetting -sARTServerUri $sARTUri -project "Dorm_$dorm" -task $processId -key $key
@@ -665,7 +665,7 @@ function Get-SettingForProcess($sARTUri,$key,$processId,$dorm){
         {
             break
         }
-        Write-Progress -Activity "Get-SettingForProcess" -Status "Project feed is expired, waiting..."
+        Write-Progress -Activity "$((Get-Date).ToString()) Get-SettingForProcess" -Status "Project feed is expired, waiting..."
         Start-Sleep -Milliseconds $iTimeout
     }
     
