@@ -1,4 +1,5 @@
-﻿param(
+﻿<#
+param(
     [string]$sRemoteVmPath="",
     [int64]$iVmMemorySize=4*1024*1024*1024,
     [int64]$iCPUCores=4,
@@ -8,7 +9,7 @@
     [string]$sVMClientId="mvt"
 
 )
-
+#>
 #this is media detector, it will detect new media and schedule the media when time permits
 $sARTUri="http://mvf1:3000"
 $sARTServerUri=$sARTUri
@@ -42,10 +43,10 @@ if($DebugPreference -eq "Continue"){
 #load information for current vm
 
 
-
+$sRemoteVmPath=""
 if($sRemoteVmPath -eq "")
 {
-    iex ((New-Object System.Net.WebClient).DownloadString("$sARTUri/api/ps/CommonHeader.ps1"))
+    #iex ((New-Object System.Net.WebClient).DownloadString("$sARTUri/api/ps/CommonHeader.ps1"))
     $sRemoteVmPath=Load-Setting -sARTServerUri $sARTServerUri -vision $vision -task $taskVMDeployment -key base_vhd_path    
     $Email_List=Load-Setting -sARTServerUri $sARTServerUri -project $blueprint -task $taskVMDeployment -key Email_List -LoadOnce
     $iVmMemorySize=Load-Setting -sARTServerUri $sARTServerUri -project $blueprint -task $taskVMDeployment -key memory_size
@@ -65,7 +66,7 @@ else
 
 #chose right space for VHD deployment
 Write-Host -Object "$((Get-Date).tostring())#chose right space for VHD deployment"
-$iVHDSize_Mb=(Get-VHDSize -sARTUri $sARTServerUri -vhdID $sRemoteVmPath)/1024/1024
+$iVHDSize_Mb=(Get-VHDSize -sARTUri $sARTServerUri -vhdID $sRemoteVmPath)/1024/1024*1.5
 
 $diskSelection=Get-VolumeforVHD -sARTUri $sARTUri -machine $env:COMPUTERNAME -disk_size_in_mb $iVHDSize_Mb
 

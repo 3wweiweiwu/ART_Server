@@ -2,6 +2,7 @@
 $taskName="Uninstall_Products"
 iex ((New-Object System.Net.WebClient).DownloadString("$sARTUri/api/ps/ARTLibrary.ps1"))
 iex ((New-Object System.Net.WebClient).DownloadString("$sARTUri/api/ps/CommonHeader.ps1"))
+<#
 $debugPID=$PID
 $computerName=$env:COMPUTERNAME
 $projectFeed=Get-SettingForProcess -sARTUri $sARTUri -key ProjectFeed -processId $debugPID -dorm $computerName
@@ -10,7 +11,7 @@ $vision=$projectFeed.vision
 $blueprint=$projectFeed.blueprint
 $projectId=$projectFeed.projectId
 $sVMClientId=$projectFeed.vmId
-
+#>
 
 
 
