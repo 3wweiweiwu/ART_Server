@@ -212,7 +212,7 @@ $VM|Hyper-V\Start-VM
 
 $vhdInfo=Get-VHDFromServer -sARTUri $sARTUri -vhdID $sRemoteVmPath
 
-$productTable=$vhdInfo.content.installed_products|where{$_.Name -match "aspen"}|Select-Object name,build|ConvertTo-Html -As Table
+$productTable=$vhdInfo.content.installed_products|where{$_.Name -match "aspen" -or $_.Name -match "analytics"}|Select-Object name,build|ConvertTo-Html -As Table
 
 $mediaInfo=$vhdInfo.content.installed_media.name
 Write-Host -Object "Wait for 180s so that we can get ip information"
