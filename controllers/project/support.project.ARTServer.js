@@ -238,7 +238,7 @@ exports.sample_APM_Deployment={
     ProMV:{
         QE:{
             Mvt2_apm_d5:{
-                name:'ProMV VHD Deployment for Mvt2_apm_d5',
+                name:'ProMV Deployment for Houston QE in HQDEVRACK2',
                 note:'Deploy APM VHD whenever it is posted',
                 memory_usage_mb:2*1024,
                 disk_usage_mb:10*1024,
@@ -247,7 +247,7 @@ exports.sample_APM_Deployment={
             },
             Mvt2_pro_d1:{
                 
-                name:'ProMV VHD Deployment for Mvt2_pro_d1',
+                name:'ProMV Deployment for Bedford R&D in HQDEVRACK2',
                 note:'Deploy APM VHD whenever it is posted',
                 memory_usage_mb:2*1024,
                 disk_usage_mb:10*1024,
@@ -257,7 +257,7 @@ exports.sample_APM_Deployment={
             },
             Mvt2_pro_d2:{
                 
-                name:'ProMV VHD Deployment for Mvt2_pro_d2',
+                name:'ProMV Deployment for Bedford R&D in HQDEVRACK2',
                 note:'Deploy APM VHD whenever it is posted',
                 memory_usage_mb:2*1024,
                 disk_usage_mb:10*1024,
@@ -267,7 +267,7 @@ exports.sample_APM_Deployment={
             },
             Mvt2_pro_d3:{
                 
-                name:'ProMV VHD Deployment for Mvt2_pro_d3',
+                name:'ProMV Deployment for Shanghai QE in SHQEANALYTICS3',
                 note:'Deploy APM VHD whenever it is posted',
                 memory_usage_mb:2*1024,
                 disk_usage_mb:10*1024,

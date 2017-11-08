@@ -230,7 +230,7 @@ Hello All,<br>
     1. Clean up environment<br>
     2. Download VHD image with media installed<br>
     3. Deploy VHD based on user spec<br>
-    4. Perform post-installation configuration if any<br>
+    4. Perform post-deployment configuration if any<br>
     5. Send out notification email<br>
     <br>
     <br>
