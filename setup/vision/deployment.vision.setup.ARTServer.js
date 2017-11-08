@@ -21,6 +21,9 @@ let deployment=function(){
                     return vhdDetection.updateSetting(blueprintVHDDetection.name,vhdDetectionSetting);
                 })
                 .then(()=>{
+                    return taskSupport.PostTaskWithCheck(taskSupport.sample_PostDeployment.Analytics.postConfigurationForDicson);
+                })
+                .then(()=>{
                     return taskSupport.PostTaskWithCheck(taskSupport.sampleConfigureIP21);
                 })                            
                 .then(()=>{

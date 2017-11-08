@@ -75,7 +75,7 @@
                 "--timeout",
                 "999999999",
                 "--colors",
-                "${workspaceRoot}\\**\\Analytics_CP.js"
+                "${workspaceRoot}\\**\\Analytics_Deployment.js"
             ],
             "internalConsoleOptions": "openOnSessionStart"
         },          

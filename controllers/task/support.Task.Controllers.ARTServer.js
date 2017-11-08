@@ -136,6 +136,17 @@ exports.sampleConfigureIP21={
     setting_type:'NULL'    
 };
 
+exports.sample_PostDeployment={
+    Analytics:{
+        postConfigurationForDicson:{
+            name:'Analytics Post Configuration from Dicson',
+            note:'Perform post configuration step based on Dicson script',
+            task_script_path:'/api/ps/ProductConfig@SLM_Configuration.ps1',
+            setting_type:'NULL'  
+        }
+    }
+};
+
 exports.sample_MVT={
     common:{
         SLMConfiguration:{
