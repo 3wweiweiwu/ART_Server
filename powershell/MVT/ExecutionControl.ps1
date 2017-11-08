@@ -29,7 +29,7 @@ $localSetting=Join-Path -Path $sParentFolder -ChildPath localsetting.ini
     $P4_Work_Space_Folder=Load-Setting -sARTServerUri $sARTUri -project $blueprint -key P4_Work_Space_Folder
     $CSharp_Sln_List=Load-Setting -sARTServerUri $sARTUri -project $blueprint -key CSharp_Sln_List
     $Email_List=Load-Setting -sARTServerUri $sARTUri -project $blueprint -task $taskName -key 'Email_List'
-    $vhdId=Load-Setting -sARTServerUri $sARTUri -vision $vision -task $Task.taskVMDeployment -key "base_vhd_path"
+    $vhdId=Load-Setting -sARTServerUri $sARTUri -vision $vision -task $Task.taskVMDeployment -key "base_vhd_path" -LoadOnce
     
 
 

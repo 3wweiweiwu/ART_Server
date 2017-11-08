@@ -201,6 +201,7 @@ exports.HQDEVBLADE28={
         ]
     }    
 };
+
 exports.HOUQAEBLADE114={
     name:'HOUQAEBLADE114',
     system_resource:{
