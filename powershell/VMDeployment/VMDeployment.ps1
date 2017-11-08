@@ -216,14 +216,23 @@ $productTable=$vhdInfo.content.installed_products|where{$_.Name -match "aspen" -
 
 $mediaInfo=$vhdInfo.content.installed_media.name
 Write-Host -Object "Wait for 180s so that we can get ip information"
-Start-Sleep -Seconds 180
+Start-Sleep -Seconds 240
 
 $IPAddress=[string]($VM.NetworkAdapters[0].IPAddresses)
 
 $content="
 Hello All,<br>
     <br>
-    Thank you very much for using automatic media deployment service from quality team. The media image is deployed successfully. You can log in right now.<br>
+    Thank you very much for using automatic media deployment service from quality team. The following products has been installed into the machine automatically. You can log in right now.<br>
+    <br>
+    <br>
+    Action Performed:<br>
+    1. Clean up environment<br>
+    2. Download VHD image with media installed<br>
+    3. Deploy VHD based on user spec<br>
+    4. Perform post-installation configuration if any<br>
+    5. Send out notification email<br>
+    <br>
     <br>
     Installed Media: $mediaInfo <br>
     <br>
@@ -244,6 +253,6 @@ $productTable
 
 "
 
-Send-MailMessage -From "weiwei.wu@aspentech.com" -SmtpServer "smtp.aspentech.local" -Subject "VM Deployment is ready for $blueprint" -Body $content -To $Email_List -BodyAsHtml
+Send-MailMessage -From "MVT@aspentech.com" -SmtpServer "smtp.aspentech.local" -Subject "VM Deployment is ready for $blueprint" -Body $content -To $Email_List -BodyAsHtml
 
 

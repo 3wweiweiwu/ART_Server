@@ -3,11 +3,12 @@ $Status=@{
     ExecutionPolicy=$true
     RunAsAdmin=$true
     HyperVEnabled=$true
+    BITSEnabled=$true
 }
 
-
+cls
 $policy=Get-ExecutionPolicy
-if($policy -match "Unrestricted")
+if($policy -match "Unrestricted" -or $policy -match "bypass")
 {
     Write-Host -Object "Powershell Execution is unrestricted"
     
@@ -46,13 +47,31 @@ else
     $Status.HyperVEnabled=$false
 }
 
+#check if bits service is enabled
+$bitService=Get-Service -Name BITS
+if($bitService.Status -match "Running")
+{
+    Write-Host -Object "BITS Service is up and running"
+}
+else
+{
+    Write-Host -ForegroundColor Red -Object "Please enable BITS service before running this script"
+    $Status.BITSEnabled=$false
+}
+
+#send out report
+$body=$Status|ConvertTo-Json|ConvertFrom-Json|ConvertTo-Html
+Send-MailMessage -From "MVT@aspentech.com" -SmtpServer "smtp.aspentech.local" -Subject "MVT2 Agent has started on $env:COMPUTERNAME" -Body “$body” -To "weiwei.wu@aspentech.com" -BodyAsHtml 
+#final check
 if(!$Status.ExecutionPolicy -or !$Status.RunAsAdmin -or !$Status.HyperVEnabled)
 {
     
     $Status
     Read-Host -Prompt "Fix the issue before start again"
+    
 
 }
+
 
 
 
