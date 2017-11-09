@@ -68,9 +68,11 @@ else
 Write-Host -Object "$((Get-Date).tostring())#chose right space for VHD deployment"
 $iVHDSize_Mb=(Get-VHDSize -sARTUri $sARTServerUri -vhdID $sRemoteVmPath)/1024/1024*1.5
 
-$diskSelection=Get-VolumeforVHD -sARTUri $sARTUri -machine $env:COMPUTERNAME -disk_size_in_mb $iVHDSize_Mb
+#$diskSelection=Get-VolumeforVHD -sARTUri $sARTUri -machine $env:COMPUTERNAME -disk_size_in_mb $iVHDSize_Mb
+#$sVHD_Local_Folder=
+$diskSelection=Get-CurrentDiskProfile|Sort-Object SizeRemaining -Descending|Select-Object -First 1
+$sVHD_Local_Folder=Join-Path -Path ($diskSelection.DriveLetter+':') -ChildPath VHD
 
-$sVHD_Local_Folder=Join-Path -Path ($diskSelection.disk.drive_letter+':') -ChildPath VHD
 if((Test-Path -Path $sVHD_Local_Folder) -eq $false)
 {
     New-Item -Path $sVHD_Local_Folder -ItemType Directory
