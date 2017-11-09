@@ -823,8 +823,12 @@ while ($true)
         #if there is no content in the lsTemp, it means that all the scripts within the csv file has been executed and fulfill all the execution requirements. Quit the execution
         if (($lsTemp.Length -eq 0) -and ($lsQueue.Length -eq 0))
         {
-            Write-Host ("No testcases are within execution range and no scripts in the queue, all the execution finish successfully")
-            break
+            $lsTemp=$lsRecord|where{(([int]$_.Iteration) -le $iMaxTrial)-and(($_.Result -eq "")-or($_.Result -eq $null))}
+            if($lsTemp.Length -eq 0)
+            {
+                Write-Host ("No testcases are within execution range and no scripts in the queue, all the execution finish successfully")
+                break    
+            }
         }
 
         #restart the computer
