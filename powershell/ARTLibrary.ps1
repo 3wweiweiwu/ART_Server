@@ -252,23 +252,41 @@ function Get-VHDFromServer($sARTUri,$vhdID)
     }
 
 }
+function Start-CustomizedBitTransfer($activity,$url,$localPath)
+{
+        
+    $start_time = Get-Date
+    Write-Host -Object "Start to download from $url to $localPath"
+    #(New-Object System.Net.WebClient).DownloadFile($url, $localPath)
+    $bit=Start-BitsTransfer -Source $url -Destination $localPath -Description "Copying item from $url to $localPath" -Asynchronous
+    while($true)
+    {
+        Write-Progress -Activity "ART Transfer" -Status "Copying item from $url to $localPath. Currently $($bit.BytesTransferred) / $($bit.BytesTotal)." -PercentComplete $($bit.BytesTransferred/$bit.BytesTotal*100)
+        Start-Sleep -Seconds 1
+        if($bit.JobState -match "TransientError")
+        {
+            $bit=$bit|Resume-BitsTransfer -Asynchronous
+            Write-Host -Object "$((Get-Date).ToString()) # unstable network connection is detected"
+        }
+        elseif($bit.JobState -match "Transferred" )
+        {
+            $bit|Complete-BitsTransfer
+            Write-Host -Object "Bit transfer has finished successfully"
+            break
+        }
+    }
+    Write-Output "Time taken: $((Get-Date).Subtract($start_time).TotalMinutes) min"
+}
 
 function Download-VHD($sARTUri,$imageId,$localPath)
 {
-    function main()
-    {
-        $url = Join-Url -parentPath $sARTUri -childPath "/api/shelf/vhd/download/$imageId"
-        $start_time = Get-Date
-        Write-Host -Object "Start to download from $url to $localPath"
-        #(New-Object System.Net.WebClient).DownloadFile($url, $localPath)
-        Start-BitsTransfer -Source $url -Destination $localPath -Description "Copying item from $url to $localPath" -ErrorAction Stop
-        Write-Output "Time taken: $((Get-Date).Subtract($start_time).TotalMinutes) min"
-    }
+
     while($true)
     {
+        $url = Join-Url -parentPath $sARTUri -childPath "/api/shelf/vhd/download/$imageId"
         try
         {
-            main
+            Start-CustomizedBitTransfer -activity "Download VHD" -url $url -localPath $localPath
             break
         }    
         catch
@@ -279,7 +297,6 @@ function Download-VHD($sARTUri,$imageId,$localPath)
     }
 
 }
-
 function Join-Url($parentPath,$childPath)
 {
     $url=$parentPath -replace("http://","")
