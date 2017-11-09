@@ -433,6 +433,11 @@ exports.sampleMtellMVT={
     note:'Perform MVT on mtell',
     status:'online'    
 };
+exports.sample_QuickTest={
+    name:'sample_QuickTest',
+    note:'Perform sample_QuickTest',
+    status:'online'  
+};
 
 
 exports.sample_Prestaging={

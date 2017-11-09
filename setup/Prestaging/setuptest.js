@@ -19,42 +19,44 @@ var registrySupport = require('../../controllers/registry/support.registry.contr
 let chaiHttp = require('chai-http');
 let visionSupport = require('../../controllers/vision/support.vision.controllers.ARTServer');
 chai.use(chaiHttp);
+let resumeSetting=require('../task/resume.task.setup.ARTServer');
+let planGenerationSetup=require('../task/planGeneration.task.setup.ARTServer');
 //var registrySupport = require('../../controllers/registry/support.registry.controllers.ARTServer')
 describe('Add required iInstallation information for download and invoke media',()=>{
-    // beforeEach((done) => {
-    //     taskModel.remove({}, () => {
-    //         taskImageDeployment.remove({}, () => {
-
-    //             projectBlueprintModel.remove({}, () => {
-    //                 projectModel.remove({}).exec(() => {
-    //                     visionModel.remove({}).exec(() => {
-    //                         dormModel.remove({}).exec(() => {
-    //                             done();
-    //                         });
-
-    //                     });
-
-    //                 });
-    //             });
-
-    //         });
-
-    //     });
-
-    // }); 
-    
-
     
     it('shall create a project under current project with task and host specified',done=>{
-        let visionObj=visionSupport.sampleMtell;
-        let blueprintMediaDetectionObj=projectSupport.sampleBP_MtellMediaDetection;
-        let blueprintMediaPreparationObj=projectSupport.sampleMtellDeployment;        
-        registrySupport.postRegistry(registrySupport.Keys.Template,blueprintMediaPreparationObj.name,taskSupport.sampleDeployStandardVHDImage.name,'base_vhd_path','599c85c9a758ba2afcc18df9')
-        .then(()=>{
-            return registrySupport.postRegistry(registrySupport.Keys.Template,blueprintMediaPreparationObj.name,taskSupport.sampleDeployStandardVHDImage.name,'VM_Username','administrator');
-        })
-        .then(()=>{
-            return registrySupport.postRegistry(registrySupport.Keys.Template,blueprintMediaPreparationObj.name,taskSupport.sampleDeployStandardVHDImage.name,'VM_Pass','Aspen100');
-        })  
+        let visionObj=visionSupport.sample_QuickTest;
+        let blueprint={
+            name:'Test Blueprint',
+            note:'Validate Mtell MVT whenever it is posted',
+            memory_usage_mb:0*1024,
+            disk_usage_mb:10*1024,
+            tasks:[taskSupport.sampleResume.name],
+            next:[]             
+        };        
+        visionSupport.postNewVision(visionObj)
+            .then(()=>{
+                return planGenerationSetup.updateSetting(blueprint,planGenerationSetup.Constant.scm);
+            })
+            .then(()=>{
+                return resumeSetting.updateSetting(blueprint.name,resumeSetting.Constant.SCM);
+            })
+            .then(()=>{
+                return projectSupport.PostNewBlueprint(blueprint)
+            })        
+            .then(()=>{
+                return visionSupport.putBlueprintMachineInstance(visionObj.name, blueprint.name, 'MVT2-SCM-M1', 1);
+            })            
+            .then(()=>{                
+                //initialize media detection project
+                return scheduleSupport.postScheduleFromBlueprint(visionObj.name,blueprint.name);
+            })
+            .then(()=>{
+                //schedule project into machine
+                return scheduleSupport.postScheduleSignal(visionObj.name);
+            })     
+            .then(()=>{
+                done();
+            });
     });
 });
