@@ -851,7 +851,7 @@ if (($lsRecord|where ($_.Result -eq "")).Length -eq 0)
     $html=[string](generateHTMLfromCSV -media ($vhdInfo.content.installed_media.name) -startTime $startTime -endTime (Get-Date) -resultsFile (Join-Path -Path $sResultFolder -ChildPath "ExecutionResult.csv") -clientConfig $((Get-WmiObject -Class Win32_OperatingSystem).Name) -clientName $env:COMPUTERNAME)
     $attachmentPath=(Join-Path -Path $sResultFolder -ChildPath "ExecutionResult.csv")
     
-    Send-MailMessage -Attachments @($attachmentPath) -From "MVT@aspentech.com" -To $Email_List -Subject $blueprint -Body $html -SmtpServer smtp.aspentech.local -BodyAsHtml
+    Send-MailMessage -Attachments @($attachmentPath) -From "MVT@aspentech.com" -To $Email_List -Subject "Automated Testcase Execution Report for $blueprint" -Body $html -SmtpServer smtp.aspentech.local -BodyAsHtml
     
     Set-NextProject -sARTServerUri $sARTUri -vision $vision -project $projectId
     #Write-ValueToSetting -Path $sParentFolder -Key "Status" -Value "Idle"   
