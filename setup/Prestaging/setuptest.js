@@ -23,7 +23,6 @@ let resumeSetting=require('../task/resume.task.setup.ARTServer');
 let planGenerationSetup=require('../task/planGeneration.task.setup.ARTServer');
 //var registrySupport = require('../../controllers/registry/support.registry.controllers.ARTServer')
 describe('Add required iInstallation information for download and invoke media',()=>{
-    
     it('shall create a project under current project with task and host specified',done=>{
         let visionObj=visionSupport.sample_QuickTest;
         let blueprint={
@@ -36,16 +35,16 @@ describe('Add required iInstallation information for download and invoke media',
         };        
         visionSupport.postNewVision(visionObj)
             .then(()=>{
-                return planGenerationSetup.updateSetting(blueprint,planGenerationSetup.Constant.scm);
+                return planGenerationSetup.updateSetting(blueprint,planGenerationSetup.Constant.a1pe);
             })
             .then(()=>{
-                return resumeSetting.updateSetting(blueprint.name,resumeSetting.Constant.SCM);
+                return resumeSetting.updateSetting(blueprint.name,resumeSetting.Constant.A1PE);
             })
             .then(()=>{
-                return projectSupport.PostNewBlueprint(blueprint)
+                return projectSupport.PostNewBlueprint(blueprint);
             })        
             .then(()=>{
-                return visionSupport.putBlueprintMachineInstance(visionObj.name, blueprint.name, 'MVT2-SCM-M1', 1);
+                return visionSupport.putBlueprintMachineInstance(visionObj.name, blueprint.name, 'MVT2-A1P-M1', 1);
             })            
             .then(()=>{                
                 //initialize media detection project
