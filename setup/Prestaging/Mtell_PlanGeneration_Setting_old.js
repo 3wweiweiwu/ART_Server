@@ -47,7 +47,7 @@ describe('Add new vision APM Prestaging.',()=>{
                             return registrySupport.postRegistry(registrySupport.Keys.Template,blueprintMVT.name,registrySupport.Keys.Template,'P4_Username','wuwei');
                         })  
                         .then(()=>{
-                            return registrySupport.postRegistry(registrySupport.Keys.Template,blueprintMVT.name,registrySupport.Keys.Template,'P4_Password','Perforce562');
+                            return registrySupport.postRegistry(registrySupport.Keys.Template,blueprintMVT.name,registrySupport.Keys.Template,'P4_Password','Changethis19');
                         })  
                         .then(()=>{
                             return registrySupport.postRegistry(registrySupport.Keys.Template,blueprintMVT.name,registrySupport.Keys.Template,'P4_WorkSpaceName','ART');

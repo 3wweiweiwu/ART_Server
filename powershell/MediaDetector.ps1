@@ -64,8 +64,10 @@ Write-Setting -project $blueprint -task $Task.mediaDetection -key "Media_Folder_
 
 #keep pulling the server to find out if new media is posted
 while($true){
+    
     Start-Sleep -Milliseconds ($iTimeout*2*10)
     Write-Progress -Activity "Media detection" -Status "$((Get-Date).ToString()) Waiting for new media in $sMediaPath"
+    $lsMedia_Folder_Snapshot=[array](Load-Setting -sARTServerUri $sARTServerUri -project $blueprint -task $taskMediaDetection -key "Media_Folder_Snapshot")
     #start of media detection
         #if new file is found, then test it
         $lsFiles=(Get-ChildItem -Path $sMediaPath -File).Name

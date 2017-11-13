@@ -30,6 +30,11 @@ router.get('/ps/:psname',(req,res)=>{
             return;
         }
         else{
+            //if this is an executable, then just download it directly
+            if(dest.includes('.exe')||dest.includes('.EXE')){
+                res.status(200).download(dest);
+                return;
+            }
             //loop through the file, replace all develop server with target server's address
             let text=data;
             config.powershell.development_list.forEach(item=>{

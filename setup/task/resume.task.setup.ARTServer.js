@@ -19,6 +19,14 @@ let resumeSetting=function(){
             iErrTestCasePerPlan:3,
             iTimeout:60,
             Email_List:['weiwei.wu@aspentech.com','weiwei.wu@aspentech.com']
+        },
+        A1PE:{
+            iSelenium_MultiThreading_Count:1,
+            iRestartAfterScripts:3,
+            iMaxTrial:1,
+            iErrTestCasePerPlan:3,
+            iTimeout:60,
+            Email_List:['weiwei.wu@aspentech.com','weiwei.wu@aspentech.com']
         }
     };
     let updateSetting=function(blueprintName,settingObj){

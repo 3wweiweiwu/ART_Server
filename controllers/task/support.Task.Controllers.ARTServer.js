@@ -163,6 +163,14 @@ exports.sample_MVT={
             task_script_path:'/api/ps/MVT@Products@MTELL@FileVersionCheck.ps1',
             setting_type:'NULL'   
         }
+    },
+    a1pe:{
+        generic_config:{
+            name:'A1PE Generic Configuration',
+            note:'perform slm license ',
+            task_script_path:'/api/ps/ProductConfig@A1PE_Config.ps1',
+            setting_type:'NULL'  
+        }
     }
 };
 

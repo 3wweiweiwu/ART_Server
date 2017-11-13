@@ -428,6 +428,12 @@ exports.sampleSCMMVT={
     status:'online'  
 };
 
+exports.sample_A1PE_MVT={
+    name:'A1PE MVT',
+    note:'Perform MVT on SCM',
+    status:'online'  
+};
+
 exports.sampleMtellMVT={
     name:'MTELL_MVT',
     note:'Perform MVT on mtell',

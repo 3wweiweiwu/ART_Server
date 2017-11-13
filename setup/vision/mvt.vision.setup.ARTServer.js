@@ -11,6 +11,7 @@ let taskSupport = require('../../controllers/task/support.Task.Controllers.ARTSe
 let visionModel=require('../../model/vision/vision.model.ARTServer');
 let MVT=function(){
     let configure=function(visionObj,blueprintVHDDetection,vhdDetectionSetting,blueprintVHDDeployment,vhdDeploymentSetting,blueprintMVT,planGenerationSetting,resumeSetting,dormObj,vidList){
+        //blueprintVHDDeployment,vhdDeploymentSetting are useless...
         return new Promise((resolve,reject)=>{
             
             //configure vhd detection
@@ -22,13 +23,16 @@ let MVT=function(){
                     return vhdDetection.updateSetting(blueprintVHDDetection.name,vhdDetectionSetting);
                 })            
                 .then(()=>{
-                    return vhdDeployment.updateSetting(visionObj.name,blueprintVHDDeployment.name,vhdDeploymentSetting);
+                    return vhdDeployment.updateSetting(visionObj.name,blueprintMVT.name,vhdDeploymentSetting);
                 })
                 .then(()=>{
                     return planGenerationSetup.updateSetting(blueprintMVT,planGenerationSetting);
                 })
                 .then(()=>{
                     return  resumeSetup.updateSetting(blueprintMVT.name,resumeSetting);
+                })
+                .then(()=>{
+                    return taskSupport.PostTaskWithCheck(taskSupport.sample_MVT.a1pe.generic_config);
                 })
                 .then(()=>{
                     return taskSupport.PostTaskWithCheck(taskSupport.sample_MVT.common.SLMConfiguration);
